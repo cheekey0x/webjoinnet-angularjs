@@ -1,0 +1,1469 @@
+﻿<!DOCTYPE html>  
+<head>
+  <title>Web JoinNet</title>  
+  <meta charset="utf-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Web JoinNet is a web-based online messenger, audio chat, video chat, and meeting system without installation.">
+  <link rel="shortcut icon" type="image/png" href="img/jnagent_72x72.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="img/jnagent_512x512.png" />
+  <link rel="apple-touch-startup-image" href="img/jnagent_72x72.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link href="css/bootstrap.css?random=0" rel="stylesheet" />
+  <link href="css/style.css?random=0" rel="stylesheet" />
+  <script src="customization/hmtg.js?random=0"></script>
+  <!--
+  <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+  -->
+  <script>
+    window.addEventListener("load", function() {
+      window.history.pushState({}, '');
+    });
+    window.addEventListener("popstate", function(e) {
+      setTimeout(function() {
+        window.history.pushState({}, '');
+      }, 500);
+    }); 
+    function onLoad() { 
+      document.addEventListener("deviceready", onDeviceReady, false); 
+    }
+    function onDeviceReady() {
+      if(cordova
+      && cordova.plugins
+      && cordova.plugins.notification
+      && cordova.plugins.notification.local
+      ) {
+        hmtg.noti = cordova.plugins.notification.local;
+      }
+      document.addEventListener("backbutton", function(e) { 
+        if(document.exitFullscreen) { 
+          document.exitFullscreen(); 
+        } else if(document.msExitFullscreen) {
+          document.msExitFullscreen();
+        } else if(document.mozCancelFullScreen) { 
+          document.mozCancelFullScreen(); 
+        } else if(document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        e.preventDefault(); 
+      }, false);
+      document.addEventListener("pause", function(e) { 
+        hmtg.is_foreground = false;
+      }, false);
+      document.addEventListener("resume", function(e) { 
+        hmtg.is_foreground = true;
+      }, false);
+    }    
+  </script>
+</head>
+
+<body ng-app="hmtgs" onload="onLoad()">
+  <!-- ==== navigation bar -->
+  <nav class="navbar navbar-default" role="navigation" ng-class="{'im-has-msg' : has_msg() || has_missed_call()}" ng-cloak>
+    <div class="container-fluid" ng-cloak>
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <p class="navbar-brand" ng-controller="DurationCtrl"><span class="badge" ng-show="can_show_badge()">
+          <span ng-show="can_show_mode(0)" class="glyphicon glyphicon-user" tooltip-placement="right" 
+            tooltip="{{'ID_MEETNG_MODE' | translate}}"></span>
+          <span ng-show="can_show_mode(1)" class="glyphicon glyphicon-play" tooltip-placement="right" 
+            tooltip="{{'ID_PLAYBACK_MODE' | translate}}"></span>
+          <span ng-show="can_show_duration()" tooltip-placement="bottom" 
+            tooltip="{{'ID_DURATION' | translate}}">{{duration_str()}}</span>
+          <span ng-show="can_show_tick_str()" tooltip-placement="bottom" 
+            tooltip="{{'ID_TIME_POS' | translate}}">{{playback_tick_str()}}</span>
+        </span> <span ng-hide="is_joinnet_connected()" translate="IDS_APP_NAME"></span></p>
+        <button type="button" class="navbar-toggle" ng-click="isCollapsed = !isCollapsed; turnOnAudio();">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div collapse="!isCollapsed" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li ng-class="{active : nav_item=='msgr'}" ng-click="nav_item='msgr'; turnOnAudio(); tabs[0].active = true;" 
+            ng-show="hmtg_show_msgr"><a><img src="img/jnagent_32x32.png" width="16" height="16" alt=""/> Messenger</a></li>
+          <li ng-class="{active : nav_item=='jnj'}" ng-click="nav_item='jnj'; selectTabJnj(); turnOnAudio();" 
+            ng-show="hmtg_show_open_jnj"><a translate="ID_OPEN_JNJ"></a></li>
+          <li ng-class="{active : nav_item=='joinnet'}" ng-click="nav_item='joinnet'; turnOnAudio(); tabs[2].active = true;">
+            <a><img src="img/vcli.png" width="16" height="16" alt=""/> JoinNet</a></li>
+          <li ng-class="{active : nav_item=='reconnect_name'}" 
+            ng-click="nav_item='reconnect_name'; selectTabReconnectName(); turnOnAudio();" 
+            ng-show="show_reconnect_name()"><a translate="ID_RECONNECT_NAME"></a></li>
+          <li ng-class="{active : nav_item=='missed_call'}" 
+            ng-click="nav_item='missed_call'; selectTabMissedCall(); turnOnAudio();" 
+            ng-show="show_missed_call()"><a translate="IDS_FORMAT_MISSED_CALL"></a></li>
+          <li ng-class="{active : nav_item=='prompt'}" ng-click="nav_item='prompt'; turnOnAudio();" 
+            ng-show="0"><a translate="ID_PROMPT"></a></li>
+          <li ng-class="{active : 0}" ng-click="turnOnAudio(); snapshot();" ng-show="0 && show_snapshot" ng-disable="snapshot_busy">
+            <a>{{snapshot_title}}</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li ng-class="{active : nav_item=='setting'}" ng-click="nav_item='setting'; turnOnAudio();">
+            <a translate="IDD_DIALOG_OPTION_GENERAL"></a></li>
+          <li ng-class="{active : nav_item=='log'}" ng-click="nav_item='log'; selectTabLog(); turnOnAudio();">
+            <a translate="ID_LOG"></a></li>
+          <li ng-show="hmtg_show_user_guide"><a target="user_guide"
+            ng-href="{{'IDS_USER_GUIDE_URL' | translate}}" 
+            translate="ID_USER_GUIDE"></a></li>
+          <li ng-controller="LangCtrl">
+            <a>
+              <select ng-model="lang">
+                <option value="en">English</option>
+                <option value="zh_CN">简体中文</option>
+                <option value="zh_TW">繁體中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국의</option>
+              </select>
+            </a>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <!-- ==== badbrowser -->
+  <div class="container-fluid" id="notSupport" ng-controller="BrowserDetectCtrl" ng-hide="browser_supported">
+    <img src="img/logo.png" class="splash" alt=""/>
+  </div>
+
+  <!-- ==== error report -->
+  <div class="container-fluid" id="error_report" style="display: none;">
+    <button type="button" id="error_button1" class="btn btn-default">Show Error Report</button>
+    <button type="button" id="error_button2" class="btn btn-default" style="display: none;">Hide Error Report</button>
+    <pre id="error_text" style="display: none;"></pre>
+  </div>
+
+  <!-- ==== show log -->
+  <div class="container-fluid" id="log_report" style="display: none;">
+    <button type="button" id="log_button1" class="btn btn-default">Show Log</button>
+    <button type="button" id="log_button2" class="btn btn-default" style="display: none;">Hide Log</button>
+    <pre id="log_text" style="display: none;"></pre>
+  </div>
+
+  <!-- ==== script template -->
+  <script type="text/ng-template" id="appMessageBox.html">
+    <div class="modal-header">
+      <h3 class="modal-title">{{'IDS_APP_NAME' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="form-group">
+          <p style="white-space: pre-wrap;">{{local_msgbox_text}}</p>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()">{{ok_value}}</button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" ng-hide="local_hide_cancel" translate="ID_CANCEL"></button>
+    </div>
+  </script>
+
+
+  <!-- ==== joinnet -->
+  <div class="container-fluid" ng-show="nav_item=='joinnet'" ng-controller="JoinnetCtrl" ng-cloak>
+    <div>
+      <div class="btn-group" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MENU' | translate)}}" 
+        dropdown is-open="w.is_menu_open" on-toggle="ontoggle(open)">
+        <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+          <span class="glyphicon glyphicon-menu-hamburger"></span><span ng-show="as.show_text" translate="ID_MENU"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li ng-repeat="menu in menu">
+            <a class="user-pointer" ng-click="menu.onclick(menu);">{{menu.text}}</a>
+          </li>
+        </ul>
+      </div>
+      <button type="button" class="btn btn-info" ng-show="w.show_check_show_area2" 
+        tooltip="{{as.no_tip || as.show_text ? '' : ((w.show_area2 ? 'ID_SHOW_ONE_AREA' : 'ID_SHOW_TWO_AREA') | translate)}}" 
+        ng-model="w.show_area2" btn-checkbox btn-checkbox-true="0" btn-checkbox-false="1">
+        {{w.show_area2 ? '-' : '+'}}<span ng-show="as.show_text">
+        {{(w.show_area2 ? 'ID_SHOW_ONE_AREA' : 'ID_SHOW_TWO_AREA') | translate}}</span></button>
+      <span ng-hide="w.show_check_show_area2 && w.show_area2">
+        <span ng-show="as.show_text" translate="ID_AREA1_DESCR"></span>
+        <select class="vertical-middle" style="max-width: 160px;" ng-model="w.area1" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SELECT_AREA' | translate)}}" 
+          ng-options="area.id as area.name for area in areas">
+        </select>
+      </span>
+      <span ng-show="w.show_check_show_area2 && w.show_area2">
+        <span ng-show="as.show_text" translate="ID_AREA2_DESCR"></span>
+        <select class="vertical-middle" style="max-width: 160px;" ng-model="w.area2" tooltip="{{as.no_tip || as.show_text? '' : ('ID_SELECT_AREA2' | translate)}}" 
+          ng-options="area.id as area.name for area in areas">
+        </select>
+      </span>
+      <span class="text-warning" ng-show="jn.jnr_decryption">{{jn.jnr_decryption_text}}</span>
+      <span ng-show="can_show_playback_button()">
+        <span ng-include="partialPlayback"></span>
+      </span>
+      <span ng-controller="JoinNetVideoCtrl">
+        <span ng-show="jv.can_show_record_control()">
+          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="joinnet_video" autoplay></video></div>
+          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="screen_capture" autoplay></video></div>
+          <button type="button" class="btn btn-default" ng-click="start()" ng-show="!jv.recording" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_CAPTURE_VIDEO_PROMPT' | translate)}}"><span class="glyphicon glyphicon-facetime-video"></span>
+            <span ng-show="as.show_text" translate="ID_CAMERA_DESCR"></span></button>
+        </span>
+      </span>
+      <span ng-controller="JoinNetAudioCtrl">
+        <span ng-show="ja.can_show_record_control()">
+          <button type="button" class="btn btn-default" ng-click="start()" ng-show="!ja.recording" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_CAPTURE_AUDIO_PROMPT' | translate)}}"><span class="glyphicon glyphicon-ice-lolly"></span>
+            <span ng-show="as.show_text" translate="ID_MICROPHONE_DESCR"></span></button>
+          <div class="inline-block" ng-show="ja.recording">
+            <button type="button" class="btn btn-default" ng-click="mute_record(1)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_RECORD' | translate)}}" 
+              ng-show="!w.record_muted"><span class="glyphicon glyphicon-record"></span>
+              <span ng-show="as.show_text" translate="ID_MUTE_RECORD"></span></button>
+            <button type="button" class="btn btn-default" ng-click="mute_record(0)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_RECORD' | translate)}}" 
+              ng-show="w.record_muted"><span class="glyphicon glyphicon-remove-circle"></span>
+              <span ng-show="as.show_text" translate="ID_UNMUTE_RECORD"></span></button>
+            <span style="position: relative;">
+              <canvas id="signal_strength" width="100" height="10"></canvas>
+              <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                tooltip="{{as.no_tip ? '' : ('ID_MICROPHONE_VOLUME' | translate)}}" ng-model="w.record_gain">
+            </span>
+          </div>
+        </span>
+        <span ng-show="ja.can_show_playback_control()">
+          <div class="inline-block">
+            <button type="button" class="btn btn-default" ng-click="mute_playback(1)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_SPEAKER' | translate)}}" 
+              ng-show="!w.playback_muted"><span class="glyphicon glyphicon-volume-up"></span>
+              <span ng-show="as.show_text" translate="ID_MUTE_SPEAKER"></span></button>
+            <button type="button" class="btn btn-default" ng-click="mute_playback(0)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_SPEAKER' | translate)}}" 
+              ng-show="w.playback_muted"><span class="glyphicon glyphicon-volume-off"></span>
+              <span ng-show="as.show_text" translate="ID_UNMUTE_SPEAKER"></span></button>
+            <span style="position: relative;">
+              <canvas id="playback_signal_strength" width="100" height="10"></canvas>
+              <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                tooltip="{{as.no_tip ? '' : ('ID_SPEAKER_VOLUME' | translate)}}" ng-model="w.playback_gain">
+            </span>
+          </div>
+        </span>
+      </span>
+      <button type="button" class="btn btn-warning" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SIGNOUT' | translate)}}" ng-click="disconnect()" 
+        ng-show="can_disconnect()"><span class="glyphicon glyphicon-log-out"></span>
+        <span ng-show="as.show_text" translate="ID_SIGNOUT"></span></button>
+      <button type="button" class="btn btn-success" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_RECONNECT' | translate)}}" ng-click="reconnect()" 
+        ng-show="can_reconnect()"><span class="glyphicon glyphicon-log-in"></span>
+        <span ng-show="as.show_text" translate="ID_RECONNECT"></span></button>
+      <button type="button" class="btn btn-danger" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_RESET' | translate)}}" ng-click="reset()" 
+        ng-show="can_reconnect()"><span class="glyphicon glyphicon-off"></span>
+        <span ng-show="as.show_text" translate="ID_RESET"></span></button>
+      <button type="button" class="btn btn-danger" ng-show="0 && (jn.is_owner || jn.is_assistant)" ng-click="ul.terminateMeeting()">
+        <span translate="ID_TERMINATE_MEETING"></span></button>
+      <span class="user-owner" ng-show="jn.is_owner" tooltip-placement="bottom" 
+        tooltip="{{'ID_OWNER_TIP' | translate}}">[{{'ID_LEGEND_OWNER' | translate}}]</span>
+      <span class="user-assistant" ng-show="jn.is_assistant" tooltip-placement="bottom" 
+        tooltip="{{'ID_ASSISTANT_TIP' | translate}}">[{{'ID_LEGEND_ASSISTANT' | translate}}]</span>
+      <span class="user-controller" ng-show="jn.is_presenter && hmtg.customization.support_presenter" tooltip-placement="bottom" 
+        tooltip="{{jn.presenter_tooltip}}">[{{'ID_LEGEND_CONTROLLER' | translate}}]</span>
+      <span class="user-holder" ng-show="jn.is_holder" tooltip-placement="bottom" 
+        tooltip="{{jn.holder_tooltip}}">[{{'ID_LEGEND_HOLDER' | translate}}]</span>
+      <span class="user-pending-questioner user-pointer" ng-show="ul.pending_count" tooltip-placement="bottom" 
+        ng-click="show_control_panel()"
+        tooltip="{{as.no_tip ? '' : ('ID_HAS_REQUEST_TIP' | translate)}}">[{{'ID_LEGEND_PENDING_QUESTIONER' | translate}}({{ul.pending_count}})]</span>
+      <button type="button" class="btn btn-default" ng-show="ul.can_ask_question()" ng-click="ul.askQuestion()">
+        <span translate="ID_ASK_QUESTION"></span></button>
+      <button type="button" class="btn btn-default" ng-show="ul.can_end_question()" ng-click="ul.endMyQuestion()">
+        <span translate="ID_END_MY_QUESTION"></span></button>
+      <button type="button" class="btn btn-default" ng-show="ul.can_cancel_question()" ng-click="ul.endMyQuestion()">
+        <span translate="ID_CANCEL_MY_QUESTION"></span></button>
+      <span class="user-questioner" ng-show="jn.is_questioner" tooltip-placement="bottom" 
+        tooltip="{{as.no_tip ? '' : ('ID_QUESTIONER_TIP' | translate)}}">[{{'ID_LEGEND_QUESTIONER' | translate}}]</span>
+      <span class="text-danger" ng-show="jn.recording_status == 0" translate="ID_NO_RECORDING"></span>
+      <span class="text-warning" ng-show="jn.recording_status == 2" translate="ID_RECORDING_PAUSED"></span>
+      <span class="text-warning" ng-show="jn.archive_status" translate="ID_RECORDING_ARCHIVED"></span>
+      <span class="text-success" ng-show="jn.has_jnr_password" translate="ID_HAS_JNR_PASSWORD"></span>
+    </div>
+    <hr style="margin: 3px 0px 3px 0px;"/>
+    <div ng-class="row_fluid()">
+      <div class="auto-overflow" ng-class="col_area('userlist')" ng-show="is_area_visible('userlist')">
+      <div ng-controller="UserListCtrl">
+        <div><ng-include src="partialTranscoding" onload="jt.transcoding_loaded()"></ng-include></div>
+        <div ng-if="jn.bookmark.length">
+          <span class="user-pointer btn-link" ng-show="hide_bm" ng-click="toggle_bookmark()" translate="ID_BOOKMARK"></span>
+          <div class="table-responsive border-autoscroll" ng-if="!hide_bm" ng-style="style_half_height">
+            <table class="table table-condensed">
+              <thead>
+                <tr style="white-space: nowrap;">
+                  <th><span class="user-pointer btn-link" ng-click="toggle_bookmark()" translate="ID_BOOKMARK"></span></th>
+                  <th translate="IDS_COL_IM_TIME"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="bm in jn.bookmark">
+                  <td class="user-pointer" ng-click="jump_bm(bm)">{{bm.name}}</td>
+                  <td class="user-pointer" ng-click="jump_bm(bm)">{{bm.str}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <span><span ng-show="as.show_text" translate="ID_MAIN_VIDEO"></span>
+          <select class="vertical-middle" style="max-width: 160px;" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MAIN_VIDEO' | translate)}}" 
+            ng-model="vr.main_video_ssrc" ng-options="user.ssrc as user.name for user in m.main_video_userlist"></select></span>
+          <span><span ng-show="as.show_text" translate="ID_DISPLAY_SIZE"></span>
+            <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DISPLAY_SIZE' | translate)}}" ng-model="m2.display_size" 
+            ng-options="ds.value as ds.name for ds in m2.size_list"></select>
+          </span>
+          <div id="main_video_container" style="padding-top: 1px;">
+            <canvas id="main_video" ng-show="!rtc.is_main_video_webrtc" class="video_canvas" width="0" height="0" ></canvas>
+            <video id="webrtc_main_video" ng-show="rtc.is_main_video_webrtc" ng-style="style_webrtc_main_video" autoplay muted></video>
+          </div>
+          <span ng-if="0 && vr.show_2nd_video">
+            <span>
+              <span ng-show="as.show_text" translate="ID_2ND_VIDEO"></span>
+              <select class="vertical-middle" style="max-width: 160px;" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_2ND_VIDEO' | translate)}}" 
+                ng-model="vr.main_video_ssrc2" ng-options="user.ssrc as user.name for user in m.main_video_userlist2"></select>
+            </span>
+          </span>
+          <span ng-if="jv.screen_recording">
+            <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[jv.use_screen_as_video]" 
+              ng-click="toggle_screen_as_video()" 
+              tooltip-placement="right" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_SCREEN_AS_VIDEO' | translate)}}">
+              <span class="glyphicon glyphicon-modal-window"></span>
+              <span ng-show="as.show_text" translate="ID_TOGGLE_SCREEN_AS_VIDEO"></span></button></span>
+          <span ng-show="ul.is_meeting_mode">
+            <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[v2.is_send_video]" 
+              ng-click="toggle_video_sending()" 
+              tooltip-placement="right"
+              tooltip="{{as.no_tip || as.show_text ? '' : ((v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate)}}">
+              <span class="glyphicon glyphicon-upload"></span>
+              <span ng-show="as.show_text">{{(v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate}}</span>
+              </button></span>
+          <span ng-show="v.video_codec && v2.is_send_video && as.show_advanced_function">
+            <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="v.fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
+          </span>
+          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
+            ng-click="toggle_video_recving()" 
+            tooltip-placement="right" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ((vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate)}}">
+            <span class="glyphicon glyphicon-download"></span>
+            <span ng-show="as.show_text">{{(vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate}}</span>
+            </button></span>
+          <span ng-show="m.show_snapshot()">
+            <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
+              ng-click="snapshot()"> <span class="glyphicon glyphicon-picture"></span>
+              <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span>{{snapshot_tail}} </button></span>
+          </span>
+          <span ng-show="m.request_fullscreen && !m2.is_fullscreen && !jv.has_video_loop()">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
+              ng-click="m.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+              <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+          </span>
+          <span ng-show="m.request_fullscreen && m2.is_fullscreen">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
+              ng-click="m.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
+              <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+          </span>
+        </div>
+        <h4>
+          <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[!!ul.legend]" 
+            ng-click="ul.toggle_legend()" tooltip-placement="right"
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_LEGEND' | translate)}}">
+            <span class="glyphicon glyphicon-tags"></span>
+            <span ng-show="as.show_text">{{'ID_TOGGLE_LEGEND' | translate}}</span>
+            </button>          {{get_userlist_title()}}
+        </h4>
+        <span ng-bind-html="ul.legend"></span>
+        <div id="userlist" class="table-responsive border-autoscroll" ng-style="style_half_height">
+          <table class="table table-condensed">
+            <thead>
+              <tr style="white-space: nowrap;">
+                <th><span ng-show="ul.selected_count">
+                  <span class="dropdown" dropdown on-toggle="ul.ontoggle(open)">
+                    <span class="dropdown-toggle user-pointer" dropdown-toggle>
+                      <span class="user-selected">{{ul.selection_descr}}</span>
+                    </span>
+                    <ul class="dropdown-menu">
+                      <li ng-repeat="menu in ul.selection_menu">
+                        <a class="user-pointer" ng-click="menu.onclick();">{{menu.text}}</a>
+                      </li>
+                    </ul>
+                  </span>
+                </span>
+                <input type="checkbox" class="user-pointer" ng-model="ul.all_selected" ng-hide="!ul.is_meeting_mode || ul.selected_count || !ul.user_list.length" ng-click="ul.select_all()"> 
+                </th>
+                <th translate="ID_TAB_USER"></th>
+                <th ng-show="jn.is_holder || jn.is_presenter" translate="ID_TAB_SLIDE"></th>
+                <th translate="ID_TAB_AUDIO"></th>
+                <th translate="ID_TAB_VIDEO"></th>
+                <th ng-show="ul.is_meeting_mode && jnk._jn_bConnected() && jnk._jn_is_webrtc_supported()" translate="ID_WEBRTC"></th>
+                <th ng-show="jn.is_holder || jn.is_presenter" translate="ID_POLL"></th>
+                <th ng-show="as.show_advanced_function" translate="ID_SSRC"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-show="ul.display_index > 0 && ul.count < ul.user_list.length"><td class="user-pointer" ng-click="ul.scroll_up()">...</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr ng-repeat="user in ul.user_list | limitTo: ul.display_index + ul.count | limitTo: -ul.count" ng-class="{'user-selected' : user.is_selected}">
+                <td>
+                  <input type="checkbox" class="user-pointer" ng-show="ul.is_meeting_mode" ng-model="user.is_selected" 
+                    ng-click="ul.user_selected(user, $event)"> 
+                </td>
+                <td>
+                <span class="dropdown" dropdown is-open="user.dropdown_is_open" 
+                  on-toggle="user.ontoggle(open)">
+                  <span class="dropdown-toggle user-pointer" dropdown-toggle>
+                    <span class="glyphicon glyphicon-ban-circle" tooltip-placement="right" 
+                      tooltip="{{'ID_AUDIO_DECODING_DISABLED' | translate}}" 
+                      ng-show="as.restrict_audio_decoding && !user.decoding && !user.guest_type"></span>
+                    <span ng-class="{
+                      'user-owner' : user.is_owner(), 
+                      'user-assistant' : user.is_assistant(), 
+                      'user-controller' : user.is_controller(), 
+                      'user-holder' : user.is_holder(), 
+                      'user-questioner' : user.is_questioner(), 
+                      'user-guest' : user.is_guest(),
+                      'user-pending-questioner' : user.is_pending_questioner()
+                    }">{{user.name}}</span>
+                  </span>
+                  <ul class="dropdown-menu">
+                    <li ng-repeat="menu in user.menu">
+                      <a class="user-pointer" ng-click="menu.onclick(user);">{{menu.text}}</a>
+                    </li>
+                  </ul>
+                </span>
+                </td>
+                <td ng-show="jn.is_holder || jn.is_presenter"><span ng-class="{4: 'glyphicon glyphicon-download', 5: 'glyphicon glyphicon-ok', 2: 'glyphicon glyphicon-remove'}
+                  [user.slide]"></td>
+                <td><span ng-hide="user.guest_type" ng-class="{true: 'glyphicon glyphicon-ok', false: 'glyphicon glyphicon-remove'}
+                  [user.audio]"></span></td>
+                <td><span ng-hide="user.guest_type" ng-class="{1: 'glyphicon glyphicon-ok', 2: 'glyphicon glyphicon-pause', 0: 'glyphicon glyphicon-remove'}
+                  [user.video ? (user.video_sending != 2 ? 1 : 2) : 0]"></span></td>
+                <td ng-show="ul.is_meeting_mode && jnk._jn_bConnected() && jnk._jn_is_webrtc_supported()">
+                  <span ng-hide="user.guest_type"
+                    ng-class="{4:'glyphicon glyphicon-ok',3:'glyphicon glyphicon-ban-circle',2:'glyphicon glyphicon-search',1:'glyphicon glyphicon-warning-sign',0:'glyphicon glyphicon-remove'}
+                    [(user.webrtc_status >= 1 && user.webrtc_status <= 4) ? user.webrtc_status : 0]"
+                    tooltip="{{user.webrtc_status == 1 ? ('ID_WEBRTC_STATUS_NOT_CONNECTED' | translate)
+                    : (user.webrtc_status == 2 ? ('ID_WEBRTC_STATUS_SEARCH_ICE' | translate)
+                    : (user.webrtc_status == 3 ? ('ID_WEBRTC_STATUS_BAD_ICE' | translate) : ''))}}">
+                  </span>
+                <td ng-show="jn.is_holder || jn.is_presenter">{{user.poll_result}}</td>
+                </td>
+                <td ng-show="as.show_advanced_function">{{user.ssrc_str}}</td>
+              </tr>
+              <tr ng-show="ul.display_index + ul.count < ul.user_list.length"><td class="user-pointer" ng-click="ul.scroll_down()">...</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr ng-show="ul.has_action_menu"><td style="border-top: none;height: 240px;"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div ng-hide="!as.show_control_panel_textchat || is_area_visible('chat')">
+          <div ng-include="partialChat1"></div>
+        </div>
+        <div ng-show="show_userlist_title()" ng-if="0">
+          <h4>{{get_cipher_info()}}</h4>
+          <h4 ng-show="show_codec_info()">
+          <span translate="ID_AUDIO_CODEC_PROMPT"></span>: <select class="vertical-middle" ng-model="a.audio_codec" 
+            ng-options="codec.value as codec.name for codec in a.audio_codecs" 
+            ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }">
+          </select> <span ng-show="a.audio_codec">
+            <span ng-show="a.is_opus_audio && a.can_change_opus_bitrate">
+              <span><input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="0" max="100" 
+                tooltip="{{as.no_tip ? '' : ('ID_SENDING_RATE' | translate)}}" ng-model="a.opus_bitrate_pos" 
+                ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"></span>
+            </span>{{a.audio_bitrate_str}}</span>
+          </h4>
+          <h4 ng-show="show_codec_info()">
+          <span translate="ID_VIDEO_CODEC_PROMPT"></span>: <select class="vertical-middle" ng-model="v.video_codec" 
+            ng-options="codec.value as codec.name for codec in v.video_codecs" 
+            ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }">
+          </select> 
+          <span ng-show="v.video_codec">
+            <span ng-show="v2.can_change_bitrate">
+              <span><input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="0" max="100" 
+                tooltip="{{as.no_tip ? '' : ('ID_SENDING_RATE' | translate)}}" ng-model="v2.bitrate_pos"></span>
+            </span>{{v2.bitrate_str}}
+            <select class="vertical-middle" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="v.fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
+          </span>
+          </h4>
+        </div>
+      </div>
+      </div>
+      <div class="auto-overflow" ng-class="col_area('statistics')" ng-show="is_area_visible('statistics')">
+        <div ng-include="partialStat"></div>
+      </div>
+      <div class="auto-overflow" ng-class="col_area('jnr')" ng-show="is_area_visible('jnr')">
+        <div ng-include="partialJNR"></div>
+      </div>
+      <div class="auto-overflow" ng-class="col_area('chat')" ng-show="is_area_visible('chat')">
+        <div ng-include="partialChat2"></div>
+      </div>
+      <div id="video_container" class="auto-overflow fullscreen" ng-class="col_area('video')" ng-show="is_area_visible('video')">
+        <div ng-include="partialVideo"></div>
+      </div>
+      <div id="board_container" class="auto-overflow fullscreen" ng-class="col_area('white_board')" 
+        ng-show="is_area_visible('white_board')">
+      <div ng-controller="BoardCtrl">
+        <div ng-if="!w.hide_toolbar">
+        <span ng-if="!w.hide_toolbar">
+          <button type="button" class="btn btn-default" tooltip-placement="right" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_TOOLBAR' | translate)}}" 
+            ng-click="toggle_toolbar()"><span class="glyphicon glyphicon-th"></span>
+            <span ng-show="as.show_text" translate="ID_TOGGLE_TOOLBAR"></span></button>
+        </span>
+        <span ng-show="as.show_private_note">
+          <div class="btn-group" dropdown is-open="w.is_note_menu_open" on-toggle="note_ontoggle(open)">
+            <button type="button" class="btn dropdown-toggle" dropdown-toggle 
+              ng-class="{0: 'btn-default', 1: 'btn-success', 2: 'btn-warning'}[w.is_local_slide ? 2 : (w.is_private ? 1 : 0)]">
+              {{(w.is_local_slide ? 'ID_TOGGLE_LOCAL_SLIDE' : (w.is_private ? 'ID_TOGGLE_PRIVATE_NOTE' : 'ID_WHITE_BOARD')) | translate}}<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li ng-repeat="menu in note_menu">
+                <a class="user-pointer" ng-click="menu.onclick();">{{menu.text}}</a>
+              </li>
+            </ul>
+          </div>
+        </span>
+        <span><span ng-show="as.show_text" translate="ID_SLIDE_LIST"></span>
+        <select class="vertical-middle" style="max-width: 100%;" ng-show="!w.is_local_slide" tooltip-placement="bottom" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SLIDE_LIST' | translate)}}" 
+          ng-model="w.title_id" ng-options="title.id as title.name for title in w.title_list"></select></span>
+        <select class="vertical-middle" style="max-width: 100%;" ng-show="w.is_local_slide" tooltip-placement="bottom" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SLIDE_LIST' | translate)}}" 
+          ng-model="w.title_id" ng-options="title.id as title.name for title in w.local_title_list"></select></span>
+        <span><span ng-show="as.show_text && w.page_list.length && !w.is_local_slide" translate="ID_PAGE_LIST"></span>
+        <select class="vertical-middle" ng-show="w.page_list.length && !w.is_local_slide" tooltip-placement="bottom" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PAGE_LIST' | translate)}}" 
+          ng-model="w.page_id" ng-options="page.id as page.name for page in w.page_list"></select></span>
+        <span><span ng-show="as.show_text && w.local_page_list.length && w.is_local_slide" translate="ID_PAGE_LIST"></span>
+        <select class="vertical-middle" ng-show="w.local_page_list.length && w.is_local_slide" tooltip-placement="bottom" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PAGE_LIST' | translate)}}" 
+          ng-model="w.page_id" ng-options="page.id as page.name for page in w.local_page_list"></select></span>
+        <span class="vertical-middle"><span ng-show="w.slide_type==1" class="glyphicon glyphicon-file" tooltip-placement="bottom" 
+          tooltip="{{'ID_THIS_IS_FILE' | translate}}{{w.size_descr}}"></span> </span>
+        <span class="vertical-middle"><span ng-show="w.slide_type==0" class="glyphicon glyphicon-picture" tooltip-placement="bottom" 
+          tooltip="{{'ID_THIS_IS_SLIDE' | translate}}{{w.size_descr}}"></span></span>
+        <span class="vertical-middle"><span ng-show="w.slide_status>1 || w.slide_status<0" class="glyphicon glyphicon-warning-sign" tooltip-placement="bottom" 
+          tooltip="{{'ID_DOWNLOAD_ERROR' | translate}}"></span></span> 
+        <span class="vertical-middle"><span ng-show="w.slide_status==1" class="glyphicon glyphicon-ok-sign" tooltip-placement="bottom" 
+          tooltip="{{'ID_DOWNLOAD_OK' | translate}}"></span></span>
+        <span ng-show="w.show_prev_slide">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PREV_SLIDE' | translate)}}" 
+            ng-click="w.prev_slide()"><span class="glyphicon glyphicon-arrow-left"></span>
+            <span ng-show="as.show_text" translate="ID_PREV_SLIDE"></span></button>
+        </span>
+        <span ng-show="w.show_next_slide">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_NEXT_SLIDE' | translate)}}" 
+            ng-click="w.next_slide()"><span class="glyphicon glyphicon-arrow-right"></span>
+            <span ng-show="as.show_text" translate="ID_NEXT_SLIDE"></span></button>
+        </span>
+        <span ng-show="w.show_prev_group">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PREV_GROUP' | translate)}}" 
+            ng-click="w.prev_group()"><span class="glyphicon glyphicon-backward"></span>
+            <span ng-show="as.show_text" translate="ID_PREV_GROUP"></span></button>
+        </span>
+        <span ng-show="w.show_next_group">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_NEXT_GROUP' | translate)}}" 
+            ng-click="w.next_group()"><span class="glyphicon glyphicon-forward"></span>
+            <span ng-show="as.show_text" translate="ID_NEXT_GROUP"></span></button>
+        </span>
+        <span ng-show="w.can_upload()">
+          <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_BLANKPAGE' | translate)}}" 
+            ng-click="w.upload1()"> <span class="glyphicon glyphicon-unchecked"></span> 
+            <span ng-show="as.show_text" translate="ID_UPLOAD_BLANKPAGE"></span></button></span>
+          <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_SLIDE' | translate)}}" 
+            ng-click="w.upload2()"> <span class="glyphicon glyphicon-list-alt"></span> 
+            <span ng-show="as.show_text" translate="ID_UPLOAD_SLIDE"></span></button></span>
+          <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_FILE' | translate)}}" 
+            ng-click="w.upload3()"> <span class="glyphicon glyphicon-floppy-open"></span> 
+            <span ng-show="as.show_text" translate="ID_UPLOAD_FILE"></span></button></span>
+        </span>
+        <span ng-show="w.can_delete()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}" 
+            ng-click="w.delete_slide()"><span class="glyphicon glyphicon-remove"></span>
+            <span ng-show="as.show_text" translate="ID_DELETE"></span></button>
+        </span>
+        <span style="display: none;"><input id="fileInput" type="file"/></span>
+        <span style="display: none;"><input id="files" type="file" multiple/></span>
+        <span ng-show="w.can_clear_mark()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CLEAR_MARK' | translate)}}" 
+            ng-click="w.clear_mark()"><span class="glyphicon glyphicon-erase"></span>
+            <span ng-show="as.show_text" translate="ID_CLEAR_MARK"></span></button>
+        </span>
+        <span ng-show="w.can_undo_mark()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNDO_MARK' | translate)}}" 
+            ng-click="w.undo_mark()"><span class="glyphicon glyphicon-menu-left"></span>
+            <span ng-show="as.show_text" translate="ID_UNDO_MARK"></span></button>
+        </span>
+        <span ng-show="w.show_save0">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_SLIDE0' | translate)}}" 
+            ng-click="w.save0()"> <span class="glyphicon glyphicon-floppy-save"></span> 
+            <span ng-show="as.show_text" translate="ID_SAVE_SLIDE0"></span></button>
+        </span>
+        <span ng-show="w.show_save">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_SLIDE' | translate)}}" 
+            ng-click="w.save()"> <span class="glyphicon glyphicon-save"></span> 
+            <span ng-show="as.show_text" translate="ID_SAVE_SLIDE"></span></button>
+        </span>
+        <span ng-show="1 && w.show_refresh">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_REDOWNLOAD' | translate)}}" 
+            ng-click="w.refresh()"> <span class="glyphicon glyphicon-refresh"></span> 
+            <span ng-show="as.show_text" translate="ID_REDOWNLOAD"></span></button>
+        </span>
+        <span ng-if="w.support_sync_mode && !w.is_private">
+          <span ng-show="!w.can_force_sync() && w.is_sync">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DONOT_SYNC' | translate)}}" 
+              ng-click="w.toggle_sync_mode()"><span class="glyphicon glyphicon-eye-close"></span>
+              <span ng-show="as.show_text" translate="ID_DONOT_SYNC"></span></button>
+          </span>
+          <span ng-show="!w.can_force_sync() && !w.is_sync">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_SYNC' | translate)}}" 
+              ng-click="w.toggle_sync_mode()"><span class="glyphicon glyphicon-eye-open"></span>
+              <span ng-show="as.show_text" translate="ID_ALLOW_SYNC"></span></button>
+          </span>
+          <span ng-show="w.can_force_sync()">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FORCE_SYNC' | translate)}}" 
+              ng-click="w.force_sync()"><span class="glyphicon glyphicon-bullhorn"></span>
+              <span ng-show="as.show_text" translate="ID_FORCE_SYNC"></span></button>
+          </span>
+        </span>
+        <span ng-hide="w.is_fit_page">
+          <div class="inline-block">
+            <input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="1" max="100" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip ? '' : ('ID_ZOOM' | translate)}}" ng-model="w.ratio_pos">
+          </div>
+        </span>
+        <span>
+          <div class="btn-group" dropdown is-open="w.is_fit_menu_open" on-toggle="fit_ontoggle(open)">
+            <button type="button" class="btn" ng-class="{true: (w.is_auto_fit ? 'btn-primary' : 'btn-success'), false: 'btn-muted'}[w.is_fit_page]" 
+              ng-click="w.fit_page()" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip ? '' : (('ID_TOGGLE_FIT_WINDOW' | translate) + w.ratio_percent + '%')}}">
+              <span class="glyphicon glyphicon-resize-horizontal"></span>
+              <span ng-show="as.show_text" translate="ID_AUTO_FIT"></span></button>
+            <button type="button" class="btn dropdown-toggle" ng-class="{true: 'btn-primary', false: 'btn-success'}[w.is_auto_fit]" dropdown-toggle>
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li ng-repeat="menu in fit_menu">
+                <a class="user-pointer" ng-click="menu.onclick();">{{menu.text}}</a>
+              </li>
+            </ul>
+          </div>
+        </span>
+        <span ng-show="w.request_fullscreen && !w.is_fullscreen">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
+            ng-click="w.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+            <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+        </span>
+        <span ng-show="w.request_fullscreen && w.is_fullscreen">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
+            ng-click="w.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
+            <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+        </span>
+        <span ng-show="w.show_upload_progress">
+          <div class="inline-block">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_UPLOAD' | translate)}}" 
+              ng-click="w.stop_upload()"> <span class="glyphicon glyphicon-stop"></span> 
+              <span ng-show="as.show_text" translate="ID_STOP_UPLOAD"></span></button>
+            <span class="glyphicon glyphicon-upload" tooltip-placement="bottom" 
+              tooltip="{{'ID_UPLOADING' | translate}}"></span> {{w.upload_pos}}
+          </div>
+        </span>
+        <span ng-show="w.show_converting()">
+          <div class="inline-block">
+            <span class="glyphicon glyphicon-upload" tooltip-placement="bottom" 
+              tooltip="{{'ID_UPLOADING' | translate}}"></span> <span translate="ID_UPLOAD_CONVERTING"></span>
+          </div>
+        </span>
+        <span ng-show="w.show_download_progress">
+          <div class="inline-block">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_DOWNLOAD' | translate)}}" 
+              ng-click="w.stop_download()"> <span class="glyphicon glyphicon-stop"></span> 
+              <span ng-show="as.show_text" translate="ID_STOP_DOWNLOAD"></span></button>
+            <span class="glyphicon glyphicon-download" tooltip-placement="bottom" 
+              tooltip="{{'ID_DOWNLOADING' | translate}}"></span> {{w.download_pos}}
+          </div>
+        </span>
+        <span>
+          <button type="button" class="btn btn-default" tooltip-placement="bottom"
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MANAGE_MARK' | translate)}}" 
+            ng-click="manage_mark(true)"><span class="glyphicon glyphicon-folder-open"></span>
+            <span ng-show="as.show_text" translate="ID_MANAGE_MARK"></span></button>
+        </span>
+        <span ng-if="as.can_show_image_bar && w.shape=='image'" ng-show="can_show_board_bar()" ng-include="partialImageBar"></span>
+        <div class="like-table" ng-if="w.shape=='text' && can_show_board_bar()">
+          <div class="like-row">
+            <div class="fill-cell">
+              <textarea style="min-width: 100px" class="auto-width" cols="100" rows="3" ng-model="w.text_mark"
+                placeholder="{{'ID_TEXT_MARK_TIP' | translate}}"></textarea>
+            </div>
+            <div class="fix-cell">
+              <span><span ng-show="as.show_text" translate="ID_FONT_LIST"></span>
+              <select class="vertical-middle" style="max-width: 100%;" ng-show="as.text_mark_as_image" tooltip-placement="bottom" 
+                tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FONT_LIST' | translate)}}" 
+                ng-model="as.text_font" ng-options="font for font in as.font_list"></select></span>
+              <div class="inline-block" style="white-space: nowrap;">
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_TEXT_SYMBOL' | translate)}}" ng-click="w.showTextSample = !w.showTextSample">
+                <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.showTextSample]" src="img/icon_textmark_symbol.png" alt=""/></a>
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_BOLD' | translate)}}" ng-click="w.bold_text()">
+                <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.is_bold_text]" src="img/icon_textmark_bold.png" alt=""/></a>
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ITALIC' | translate)}}" ng-click="w.italic_text()">
+                <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.is_italic_text]" src="img/icon_textmark_italic.png" alt=""/></a>
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ROTATE_LEFT' | translate)}}" ng-click="w.rotate_text(270)">
+                <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.text_rotate == 270]" src="img/icon_textmark_left.png" alt=""/></a>
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ROTATE_RIGHT' | translate)}}" ng-click="w.rotate_text(90)">
+                <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.text_rotate == 90]" src="img/icon_textmark_right.png" alt=""/></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div ng-if="w.shape=='text' && can_show_board_bar()">
+          <unicode-panel></unicode-panel>
+        </div>
+        <div ng-if="w.shape=='select' && can_show_board_bar()">
+          <button type="button" class="btn btn-default" ng-click="hide_mark()" translate="ID_DELETE_SELECTED_MARK"></button>
+        </div>
+        </div>
+
+        <div class="like-table">
+          <div class="like-row">
+            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && hh.view_port_height>=720" ng-show="can_show_board_bar()">
+              <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='pointer']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_POINTER' | translate)}}" 
+                ng-click="set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='freehand']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_FREEHAND' | translate)}}" 
+                ng-click="set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='text']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_TEXT' | translate)}}" 
+                ng-click="set_shape('text')"> <span class="glyphicon glyphicon-font"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='line']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_LINE' | translate)}}" 
+                ng-click="set_shape('line')"> <span class="glyphicon glyphicon-minus"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE' | translate)}}" 
+                ng-click="set_shape('rect')"> <span class="glyphicon glyphicon-unchecked"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect2']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE_FILLED' | translate)}}" 
+                ng-click="set_shape('rect2')"> <span class="glyphicon glyphicon-stop"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE' | translate)}}" 
+                ng-click="set_shape('ellipse')"> <span class="glyphicon glyphicon-search"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse2']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE_FILLED' | translate)}}" 
+                ng-click="set_shape('ellipse2')"> <span class="glyphicon glyphicon-record"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='highlight']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_HIGHLIGHT' | translate)}}" 
+                ng-click="set_shape('highlight')"> <span class="glyphicon glyphicon-tags"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='select']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SELECT' | translate)}}" 
+                ng-click="set_shape('select')"> <span class="glyphicon glyphicon-retweet"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='image']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_IMAGE' | translate)}}" 
+                ng-click="set_shape('image')"> <span class="glyphicon glyphicon-picture"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='eraser']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ERASER' | translate)}}" 
+                ng-click="set_shape('eraser')"> <span class="glyphicon glyphicon-erase"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='scroll']" 
+                ng-show="hh.isMobile" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SCROLL' | translate)}}" 
+                ng-click="set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
+              <input type='color' tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_COLOR_TOOLTIP' | translate)}}"
+                ng-show="as.has_type_color"
+                style="max-width: 43px;" ng-model="w.color" ng-show='as.has_type_color'/>
+              <select class="vertical-middle" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_PENWIDTH_TOOLTIP' | translate)}}" 
+                ng-model="w.text_width" ng-init="levels=[1,2,5,8,12,20];" 
+                ng-options="level for level in levels">
+              </select>
+            </div>
+            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
+              <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='pointer']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_POINTER' | translate)}}" 
+                ng-click="set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='text']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_TEXT' | translate)}}" 
+                ng-click="set_shape('text')"> <span class="glyphicon glyphicon-font"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE' | translate)}}" 
+                ng-click="set_shape('rect')"> <span class="glyphicon glyphicon-unchecked"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE' | translate)}}" 
+                ng-click="set_shape('ellipse')"> <span class="glyphicon glyphicon-search"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='highlight']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_HIGHLIGHT' | translate)}}" 
+                ng-click="set_shape('highlight')"> <span class="glyphicon glyphicon-tags"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='image']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_IMAGE' | translate)}}" 
+                ng-click="set_shape('image')"> <span class="glyphicon glyphicon-picture"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='scroll']" 
+                ng-show="hh.isMobile" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SCROLL' | translate)}}" 
+                ng-click="set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
+            </div>
+            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
+              <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='freehand']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_FREEHAND' | translate)}}" 
+                ng-click="set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='line']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_LINE' | translate)}}" 
+                ng-click="set_shape('line')"> <span class="glyphicon glyphicon-minus"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect2']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE_FILLED' | translate)}}" 
+                ng-click="set_shape('rect2')"> <span class="glyphicon glyphicon-stop"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse2']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE_FILLED' | translate)}}" 
+                ng-click="set_shape('ellipse2')"> <span class="glyphicon glyphicon-record"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='select']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SELECT' | translate)}}" 
+                ng-click="set_shape('select')"> <span class="glyphicon glyphicon-retweet"></span> </button>
+              <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='eraser']" 
+                tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ERASER' | translate)}}" 
+                ng-click="set_shape('eraser')"> <span class="glyphicon glyphicon-erase"></span> </button>
+              <input type='color' tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_COLOR_TOOLTIP' | translate)}}"
+                ng-show="as.has_type_color"
+                style="max-width: 43px;" ng-model="w.color" ng-show='as.has_type_color'/>
+              <select class="vertical-middle" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_PENWIDTH_TOOLTIP' | translate)}}" 
+                ng-model="w.text_width" ng-init="levels=[1,2,5,8,12,20];" 
+                ng-options="level for level in levels">
+              </select>
+            </div>
+            <div style="position: relative;" id="board0" class="fill-cell">
+              <div id="board_container2" style="overflow: auto;" ng-style="style_max_size()">
+                <button type="button" class="btn btn-default overlay-foreground" ng-if="w.hide_toolbar"
+                  ng-click="toggle_toolbar()">
+                  <span class="glyphicon glyphicon-th"></span></button>
+                <canvas style="border: 1px solid gray;" id="board" width="200" height="200"></canvas>
+              </div>
+            </div>
+            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && !as.has_type_color" 
+              ng-show="can_show_board_bar()">
+              <button type="button" ng-repeat="color in w.colors" class="btn btn-default" ng-style="style_color($index)" 
+                ng-click="choose_color($index)">{{text_color($index)}}</button>
+            </div>
+          </div>
+        </div>
+        <div ng-if="!w.hide_toolbar">
+        <span ng-show="as.can_show_bottom_image_bar && w.shape=='image' && can_show_board_bar()">
+          <button type="button" class="btn btn-default" tooltip-placement="top"
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MANAGE_MARK' | translate)}}" 
+            ng-click="manage_mark(true)"><span class="glyphicon glyphicon-folder-open"></span>
+            <span ng-show="as.show_text" translate="ID_MANAGE_MARK"></span></button>
+        </span>
+        <span id="bottom_bar" ng-if="as.can_show_bottom_image_bar && w.shape=='image'" ng-show="can_show_board_bar()" ng-include="partialImageBar"></span>
+        </div>
+        <div ng-show="w.has_action_menu"><canvas id="board" width="1" height="1000" ></canvas></div>
+
+      </div>
+      </div>
+      <div id="browser_container" class="auto-overflow fullscreen" ng-class="col_area('browser')" 
+        ng-show="is_area_visible('browser')">
+        <div ng-include="partialBrowser"></div>
+      </div>
+      <div id="sdt_container" class="auto-overflow fullscreen" ng-class="col_area('sdt')" 
+        ng-show="is_area_visible('sdt')">
+        <div ng-include="partialSDT"></div>
+      </div>
+      <div id="rdc_container" class="auto-overflow fullscreen" ng-class="col_area('rdc')" 
+        ng-show="is_area_visible('rdc')">
+        <div ng-include="partialRDC"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== msgr -->
+  <div id="msgr" class="container-fluid" ng-show="nav_item=='msgr'" ng-controller="MsgrCtrl" ng-cloak>
+    <div ng-controller="MsgrActionHeaderCtrl">
+      <div class="btn-group" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MENU' | translate)}}" ng-show="0" dropdown is-open="w.is_menu_open" on-toggle="ontoggle(open)">
+        <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+          <span class="glyphicon glyphicon-menu-hamburger"></span><span ng-show="as.show_text" translate="ID_MENU"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li ng-repeat="menu in menu">
+            <a class="user-pointer" ng-click="menu.onclick(menu);">{{menu.text}}</a>
+          </li>
+        </ul>
+      </div>
+      <a class="msgr-pointer" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_APP_NAME' | translate)}}" ng-hide="ic.is_main_visible" ng-click="OnShowMsgr()">
+        <img src="img/jnagent_32x32.png" alt=""/><span ng-show="as.show_text" translate="ID_APP_NAME"></span></a>
+      <a class="msgr-pointer" tooltip="{{as.no_tip || as.show_text ? '' : ('IDD_DIALOG_SIGNIN' | translate)}}" ng-click="OnSignin()">
+        <img src="img/icon_signin.png" alt=""/><span ng-show="as.show_text" translate="IDD_DIALOG_SIGNIN"></span></a>
+      <span class="dropdown" dropdown tooltip="{{as.no_tip || as.show_text ? '' : ('IDC_SET_STATUS' | translate)}}" 
+        is-open="mystatus.open" on-toggle="ontoggle_mystatus(open)">
+        <a class="dropdown-toggle msgr-pointer" dropdown-toggle> 
+          <img src="img/icon_mystatus.png" alt=""/> <span ng-show="as.show_text" translate="IDC_SET_STATUS"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          <li ng-repeat="menu in status">
+            <a class="msgr-pointer" ng-click="click_mystatus(menu);">{{menu.text}}</a>
+          </li>
+        </ul>
+      </span>
+      <span class="dropdown" ng-show="im_array.length" dropdown tooltip="{{as.no_tip || as.show_text ? '' : ('IDS_CONVERSATION' | translate)}}" 
+        is-open="myim.open" on-toggle="">
+        <span class="inline-block" ng-class="{'im-has-msg' : has_msg()}"><a class="dropdown-toggle msgr-pointer" dropdown-toggle> 
+          <img src="img/icon_im_large.png" alt=""/><span ng-show="as.show_text" translate="IDS_CONVERSATION"></span><span class="badge">{{im_array.length}}</span></a></span>
+        <ul class="dropdown-menu" role="menu">
+          <li><a class="msgr-pointer" ng-click="close_all_im();" translate="ID_CLOSE_ALL_IM"></a></li>
+          <hr />
+          <li ng-repeat="im in im_array">
+            <a class="msgr-pointer" ng-click="choose_im(im);">{{(im.msg || im.alert_recv || im.alert_save) ? "* " : ""}}{{im.visible ? "[] " : (im.minimized ? "_ " : "")}}{{im.title}}</a>
+          </li>
+        </ul>
+      </span>
+      <span class="dropdown" ng-show="iml_array.length" dropdown tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CONVERSATION_LOG' | translate)}}" 
+        is-open="myiml.open" on-toggle="">
+        <span class="inline-block"><a class="dropdown-toggle msgr-pointer" dropdown-toggle> 
+          <img src="img/icon_im_log_large.png" alt=""/><span ng-show="as.show_text" translate="ID_CONVERSATION_LOG"></span><span class="badge">{{iml_array.length}}</span></a></span>
+        <ul class="dropdown-menu" role="menu">
+          <li><a class="msgr-pointer" ng-click="close_all_iml();" translate="ID_CLOSE_ALL_IML"></a></li>
+          <hr />
+          <li ng-repeat="im in iml_array">
+            <a class="msgr-pointer" ng-click="choose_iml(im);">{{im.visible ? "[] " : (im.minimized ? "_ " : "")}}{{im.title}}</a>
+          </li>
+        </ul>
+      </span>
+    </div>
+    <div ng-class="row_fluid()">
+      <div class="auto-overflow" ng-class="col_area()" ng-show="ic.is_main_visible">
+        <span ng-show="ic.win_count != 1">
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_MINIMIZE' | translate)}}" 
+              ng-click="minimize()"> <span class="glyphicon glyphicon-minus"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_EXTEND_WINDOW' | translate)}}" 
+              ng-click="extend()"> <span class="glyphicon glyphicon-modal-window"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_TOP' | translate)}}"
+              ng-click="scroll_top()"> <span class="glyphicon glyphicon-chevron-up"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_BOTTOM' | translate)}}"
+              ng-click="scroll_bottom()"> <span class="glyphicon glyphicon-chevron-down"></span> 
+              </button>
+          </span>
+        </span>
+        <ul id="msgrMain" class="msgr0" ng-style="style_msgr_height()">
+          <li ng-repeat="server in get_servers()">
+            <span class="dropdown" dropdown is-open="server.open" on-toggle="server.ontoggle(open)">
+              <a class="dropdown-toggle" dropdown-toggle><img ng-src="{{server.img}}" alt=""/> {{server.text}}</a>
+              <ul class="dropdown-menu">
+                <li class="text-muted dropdown-title">{{server.tooltip}}<br /><br /></li>
+                <li ng-repeat="menu in server.menu">
+                  <a ng-click="click_server(server, menu, $event);">{{menu.text}}</a>
+                </li>
+              </ul>
+            </span>
+            <ul class="msgr">
+              <li ng-repeat="folder in server.folders">
+                <span style="white-space: nowrap;">
+                  <a class="msgr-pointer msgr-inline"><img ng-src="{{folder.img}}" alt="" ng-click="toggle_fold(server, folder)"/> </a>
+                  <span class="dropdown" dropdown on-toggle="folder.ontoggle(open)">
+                    <a class="dropdown-toggle msgr-inline" dropdown-toggle>{{folder.text}}</a>
+                    <ul class="dropdown-menu">
+                      <li class="text-muted dropdown-title">{{folder.tooltip}}<br /><br /></li>
+                      <li ng-repeat="menu in folder.menu">
+                        <a ng-click="click_folder(server, folder, menu);">{{menu.text}}</a>
+                      </li>
+                    </ul>
+                  </span>
+                </span>
+                <ul class="msgr" ng-if="!folder.folded">
+                  <li ng-repeat="item in folder.items">
+                    <span class="dropdown" dropdown on-toggle="item.ontoggle(open)">
+                      <a class="dropdown-toggle" dropdown-toggle><img ng-src="{{item.img}}" alt=""/> {{item.text}} </a>
+                      <ul class="dropdown-menu">
+                        <li class="text-muted dropdown-title">{{item.tooltip}}<br /><br /></li>
+                        <li ng-repeat="menu in item.menu">
+                          <a ng-click="click_item(server, folder, item, menu);">{{menu.text}}</a>
+                        </li>
+                      </ul>
+                    </span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li ng-show="main.has_action_menu"><div style="border-top: none;height: 720px;"/></li>
+        </ul>
+      </div>
+      <div class="auto-overflow" ng-class="col_area()" ng-repeat="cm in cm_array" ng-show="cm.visible" ng-controller="CMCtrl">
+        <span style="white-space: nowrap;">
+          <span ng-show="ic.win_count != 1">
+            <span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_MINIMIZE' | translate)}}" 
+                ng-click="minimize_item(cm)"> <span class="glyphicon glyphicon-minus"></span> 
+                </button>
+            </span>
+            <span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_EXTEND_WINDOW' | translate)}}" 
+                ng-click="extend_item(cm)"> <span class="glyphicon glyphicon-modal-window"></span> 
+                </button>
+            </span>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_TOP' | translate)}}"
+              ng-click="scroll_top_cm(cm)"> <span class="glyphicon glyphicon-chevron-up"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_BOTTOM' | translate)}}"
+              ng-click="scroll_bottom_cm(cm)"> <span class="glyphicon glyphicon-chevron-down"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('IDS_LOG_REFRESH' | translate)}}" 
+              ng-click="refresh_cm(cm)" ng-hide="is_disconnected(cm)"> <span class="glyphicon glyphicon-refresh"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_CLOSE' | translate)}}" 
+              ng-click="close_cm(cm)"> <span class="glyphicon glyphicon-remove"></span> 
+              </button>
+          </span>
+          <span ng-class="{'im-disconnected': is_disconnected(cm)}">{{cm.title}}</span>
+        </span>
+        <div class="like-table" ng-class="{'im-disconnected': !cm.cm_param._connected()}">
+          <div class="like-row">
+            <div class="fill-cell">
+              <span>{{cm.descr1}}</span>
+            </div>
+            <div class="fill-cell text-right">
+              {{cm.descr2}}
+            </div>
+          </div>
+        </div>
+        <div ng-show="cm.cm_param._progress()"><progressbar value="cm.cm_param._progress()"></progressbar></div>
+        <div class="table-responsive border-autoscroll" cm-finder ng-class="{'im-highlight': cm.hl_count}" ng-style="style_cm_height()">
+          <button type="button" class="btn btn-default" ng-hide="cm.list.length || !cm.cm_param._connected()" ng-click="upload(cm)" translate="ID_UPLOAD"></button>
+          <table class="table table-condensed">
+            <thead>
+              <tr class="user-pointer" style="white-space: nowrap;">
+                <th><span ng-show="cm.selected_count">
+                  <span class="dropdown" dropdown on-toggle="ontoggle(open)">
+                    <span class="dropdown-toggle user-pointer" dropdown-toggle>
+                      <span class="user-selected">{{cm.selection_descr}}</span>
+                    </span>
+                    <ul class="dropdown-menu">
+                      <li ng-repeat="menu in selection_menu">
+                        <a class="user-pointer" ng-click="menu.onclick(cm);">{{menu.text}}</a>
+                      </li>
+                    </ul>
+                  </span>
+                </span>
+                <input type="checkbox" class="user-pointer" ng-model="cm.all_selected" ng-hide="cm.selected_count || !cm.list.length" ng-click="select_all(cm)"> 
+                </th>
+                <th ng-click="resort(1)">{{'IDS_COL_IM_TIME' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==1 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==1 && !cm.ascending"></span></th>
+                <th ng-click="resort(2)">{{'IDS_GROUP_ARE' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==2 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==2 && !cm.ascending"></span></th>
+                <th ng-click="resort(3)">{{'ID_JNR_TITLE' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==3 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==3 && !cm.ascending"></span></th>
+                <th ng-click="resort(4)">{{'IDS_COL_DURATION' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==4 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==4 && !cm.ascending"></span></th>
+                <th ng-click="resort(5)">{{'IDS_FILE_SIZE' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==5 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==5 && !cm.ascending"></span></th>
+                <th ng-click="resort(6)">{{'ID_SORT_BASE4' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==6 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==6 && !cm.ascending"></span></th>
+                <th ng-if="!cm.wo" ng-click="resort(7)">{{'ID_SORT_BASE5' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cm.sort_target==7 && cm.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cm.sort_target==7 && !cm.ascending"></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-show="display_index > 0 && count < cm.list.length"><td class="user-pointer" ng-click="scroll_up()">...</td><td></td><td></td><td></td></tr>
+              <tr style="word-break: break-all;" ng-repeat="item in cm.list | limitTo: display_index + count | limitTo: -count" ng-class="{'user-selected' : item.is_selected}">
+                <td>
+                  <input type="checkbox" class="user-pointer" ng-model="item.is_selected" 
+                    ng-click="item_selected(cm, item, $event)"> 
+                </td>
+                <td style="word-break: normal;">
+                <span class="dropdown" dropdown is-open="item.dropdown_is_open" 
+                  on-toggle="item.ontoggle(cm, open)">
+                  <span class="dropdown-toggle user-pointer" dropdown-toggle><img ng-src="{{item.img}}" alt="{{item.alt}}"/>{{item.tick_str}}</span>
+                  <ul class="dropdown-menu">
+                    <li ng-repeat="menu in item.menu">
+                      <a class="user-pointer" ng-click="click_item(cm, item, menu);">{{menu.text}}</a>
+                    </li>
+                  </ul>
+                </span>
+                </td>
+                <td>{{item.group}}</td>
+                <td>{{item.title}}</td>
+                <td>{{item.duration}} min</td>
+                <td>{{item.size_str}}</td>
+                <td>{{item.view_count_str}}</td>
+                <td ng-if="!cm.wo">{{item.web_title}}</td>
+              </tr>
+              <tr ng-show="display_index + count < cm.list.length"><td class="user-pointer" ng-click="scroll_down()">...</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr ng-show="cm.has_action_menu"><td style="border-top: none;height: 240px;"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="auto-overflow" ng-class="col_area()" ng-repeat="cim in cim_array" ng-show="cim.visible" ng-controller="CIMCtrl">
+        <span style="white-space: nowrap;">
+          <span ng-show="ic.win_count != 1">
+            <span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_MINIMIZE' | translate)}}" 
+                ng-click="minimize_item(cim)"> <span class="glyphicon glyphicon-minus"></span> 
+                </button>
+            </span>
+            <span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_EXTEND_WINDOW' | translate)}}" 
+                ng-click="extend_item(cim)"> <span class="glyphicon glyphicon-modal-window"></span> 
+                </button>
+            </span>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_TOP' | translate)}}"
+              ng-click="scroll_top_cim(cim)"> <span class="glyphicon glyphicon-chevron-up"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_BOTTOM' | translate)}}"
+              ng-click="scroll_bottom_cim(cim)"> <span class="glyphicon glyphicon-chevron-down"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('IDS_LOG_REFRESH' | translate)}}" 
+              ng-click="refresh_cim(cim)" ng-hide="is_disconnected(cim)"> <span class="glyphicon glyphicon-refresh"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_CLOSE' | translate)}}" 
+              ng-click="close_cim(cim)"> <span class="glyphicon glyphicon-remove"></span> 
+              </button>
+          </span>
+          <span ng-class="{'im-disconnected': is_disconnected(cim)}">{{cim.title}}</span>
+        </span>
+        <div>{{cim.descr}}</div>
+        <div class="table-responsive border-autoscroll" cim-finder ng-class="{'im-highlight': cim.hl_count}" ng-style="style_cim_height()">
+          <table class="table table-condensed">
+            <thead>
+              <tr class="user-pointer" style="white-space: nowrap;">
+                <th><span ng-show="cim.selected_count">
+                  <span class="dropdown" dropdown on-toggle="ontoggle(open)">
+                    <span class="dropdown-toggle user-pointer" dropdown-toggle>
+                      <span class="user-selected">{{cim.selection_descr}}</span>
+                    </span>
+                    <ul class="dropdown-menu">
+                      <li ng-repeat="menu in selection_menu">
+                        <a class="user-pointer" ng-click="menu.onclick(cim);">{{menu.text}}</a>
+                      </li>
+                    </ul>
+                  </span>
+                </span>
+                <input type="checkbox" class="user-pointer" ng-model="cim.all_selected" ng-hide="cim.selected_count || !cim.list.length" ng-click="select_all(cim)"> 
+                </th>
+                <th ng-click="resort(1)">{{'IDS_COL_IM_TIME' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cim.sort_target==1 && cim.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cim.sort_target==1 && !cim.ascending"></span></th>
+                <th ng-click="resort(2)">{{'IDS_COL_NAME' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cim.sort_target==2 && cim.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cim.sort_target==2 && !cim.ascending"></span></th>
+                <th ng-click="resort(3)">{{'IDS_COL_TEXT' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cim.sort_target==3 && cim.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cim.sort_target==3 && !cim.ascending"></span></th>
+                <th ng-click="resort(4)">{{'IDS_FILE_SIZE' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="cim.sort_target==4 && cim.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="cim.sort_target==4 && !cim.ascending"></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-show="display_index > 0 && count < cim.list.length"><td class="user-pointer" ng-click="scroll_up()">...</td><td></td><td></td><td></td></tr>
+              <tr style="word-break: break-all;" ng-repeat="item in cim.list | limitTo: display_index + count | limitTo: -count" ng-class="{'user-selected' : item.is_selected}">
+                <td>
+                  <input type="checkbox" class="user-pointer" ng-model="item.is_selected" 
+                    ng-click="item_selected(cim, item, $event)"> 
+                </td>
+                <td style="word-break: normal;">
+                <span class="dropdown" dropdown is-open="item.dropdown_is_open" 
+                  on-toggle="item.ontoggle(cim, open)">
+                  <span class="dropdown-toggle user-pointer" dropdown-toggle><img ng-src="{{item.img}}" alt="{{item.alt}}"/>{{item.tick_str}}</span>
+                  <ul class="dropdown-menu">
+                    <li ng-repeat="menu in item.menu">
+                      <a class="user-pointer" ng-click="click_item(cim, item, menu);">{{menu.text}}</a>
+                    </li>
+                  </ul>
+                </span>
+                </td>
+                <td>{{item.display_name}}</td>
+                <td>{{item.text}}</td>
+                <td>{{item.size_str}}</td>
+              </tr>
+              <tr ng-show="display_index + count < cim.list.length"><td class="user-pointer" ng-click="scroll_down()">...</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr ng-show="cim.has_action_menu"><td style="border-top: none;height: 240px;"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="auto-overflow" ng-class="col_area()" ng-repeat="im in im_array" ng-show="im.visible" ng-controller="IMCtrl">
+        <span ng-include="'template/imTitle.htm' + cache_param"></span>
+        <div style="position: relative;text-align: center;" ng-show="im.pc">
+          <video class="webrtc-local" ng-style="im.style_webrtc_video('local')" autoplay muted ng-show="im.has_video_webrtc" ng-click="im.toggle_video_layout()"></video>
+          <video class="webrtc-remote" ng-style="im.style_webrtc_video('remote')" autoplay ng-show="im.has_video_webrtc" ng-click="im.toggle_video_layout()"></video>
+        </div>
+        <div ng-show="im.pc && im.webrtc_connected">
+          <div>
+            <span class="badge">
+              <span ng-show="im.is_webrtc_audio_only" class="glyphicon glyphicon-earphone"></span>
+              <span ng-hide="im.is_webrtc_audio_only" class="glyphicon glyphicon-facetime-video"></span>
+              <span>{{im.webrtc_duration_str}}</span>
+            </span>
+            <span ng-show="im.can_mix">
+              <div class="inline-block">
+                <button type="button" class="btn btn-default" ng-click="im.mute_microphone(1)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_RECORD' | translate)}}" 
+                  ng-show="!im.microphone_muted"><span class="glyphicon glyphicon-record"></span>
+                  <span ng-show="as.show_text" translate="ID_MUTE_RECORD"></span></button>
+                <button type="button" class="btn btn-default" ng-click="im.mute_microphone(0)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_MICROPHONE' | translate)}}" 
+                  ng-show="im.microphone_muted"><span class="glyphicon glyphicon-remove-circle"></span>
+                  <span ng-show="as.show_text" translate="ID_UNMUTE_MICROPHONE"></span></button>
+                <span style="position: relative;">
+                  <canvas class="microphone_signal_strength" width="100" height="10"></canvas>
+                  <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                    tooltip="{{as.no_tip ? '' : ('ID_MICROPHONE_VOLUME' | translate)}}" ng-model="im.microphone_gain">
+                </span>
+              </div>
+            </span>
+            <span>
+              <div class="inline-block">
+                <button type="button" class="btn btn-default" ng-click="im.mute_speaker(1)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_SPEAKER' | translate)}}" 
+                  ng-show="!im.speaker_muted"><span class="glyphicon glyphicon-volume-up"></span>
+                  <span ng-show="as.show_text" translate="ID_MUTE_SPEAKER"></span></button>
+                <button type="button" class="btn btn-default" ng-click="im.mute_speaker(0)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_SPEAKER' | translate)}}" 
+                  ng-show="im.speaker_muted"><span class="glyphicon glyphicon-volume-off"></span>
+                  <span ng-show="as.show_text" translate="ID_UNMUTE_SPEAKER"></span></button>
+                <span style="position: relative;">
+                  <canvas class="speaker_signal_strength" width="100" height="10"></canvas>
+                  <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                    tooltip="{{as.no_tip ? '' : ('ID_SPEAKER_VOLUME' | translate)}}" ng-model="im.speaker_gain">
+                </span>
+              </div>
+            </span>
+            <span ng-if="!im.is_webrtc_audio_only"><button type="button" class="btn btn-default" ng-click="im.start_camera()"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_VIDEO_CAPTURE' | translate)}}"><span class="glyphicon glyphicon-facetime-video"></span>
+              <span ng-show="as.show_text" translate="ID_START_VIDEO_CAPTURE"></span></button></span>
+            <span ng-if="!im.is_webrtc_audio_only"><button type="button" class="btn btn-default" ng-click="im.start_screen()"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_SCREEN_CAPTURE' | translate)}}"><span class="glyphicon glyphicon-modal-window"></span>
+              <span ng-show="as.show_text" translate="ID_START_SCREEN_CAPTURE"></span></button></span>
+            <span ng-if="!im.is_webrtc_audio_only && im.is_firefox"><button type="button" class="btn btn-default" ng-click="im.start_screen(1)"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_SCREEN_CAPTURE2' | translate)}}"><span class="glyphicon glyphicon-modal-window"></span>
+              <span ng-show="as.show_text" translate="ID_START_SCREEN_CAPTURE2"></span></button></span>
+            <span ng-if="0 && has_canvas_stream && im.can_mix && !im.is_webrtc_audio_only"><button type="button" class="btn btn-default" ng-click="im.start_board()"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_BOARD' | translate)}}"><span class="glyphicon glyphicon-list-alt"></span>
+              <span ng-show="as.show_text" translate="ID_IMPORT_BOARD"></span></button></span>
+            <span ng-if="im.can_mix" ><button type="button" class="btn btn-default" ng-click="import_html5(im)"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_HTML5' | translate)}}"><span class="glyphicon glyphicon-import"></span>
+              <span ng-show="as.show_text" translate="ID_IMPORT_HTML5"></span></button></span>
+            <span ng-show="im.request_fullscreen && im.has_video_webrtc">
+              <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
+                ng-click="im.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+                <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+            </span>
+            <span ng-if="!im.is_webrtc_audio_only"><button type="button" class="btn btn-default" ng-click="im.force_webrtc_audio_only()"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_WEBRTC_AUDIO_ONLY' | translate)}}"><span class="glyphicon glyphicon-earphone"></span>
+              <span ng-show="as.show_text" translate="ID_WEBRTC_AUDIO_ONLY"></span></button></span>
+            <span ng-if="im.webrtc_video_senders.length"><button type="button" class="btn btn-default" ng-click="im.stop_webrtc_video_sending()"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_VIDEO_SENDING' | translate)}}"><span class="glyphicon glyphicon-ban-circle"></span>
+              <span ng-show="as.show_text" translate="ID_STOP_VIDEO_SENDING"></span></button></span>
+            <span><button type="button" class="btn btn-danger" ng-click="im.stop_webrtc_session()"
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_WEBRTC_SESSION' | translate)}}"><span class="glyphicon glyphicon-phone-alt"></span>
+              <span ng-show="as.show_text" translate="ID_STOP_WEBRTC_SESSION"></span></button></span>
+          </div>
+        </div>
+        <div ng-show="im.has_import_media">
+          <hr />
+          <video class="webrtc-import-video" style="width: 100%;height: 100%;max-height:160px;" crossorigin controls ng-hide="im.audio_only"></video>
+          <audio class="webrtc-import-audio" crossorigin controls ng-show="im.audio_only"></audio>
+          <div class="text-danger">{{w.video_info}}</div>
+          <div>
+            <span><button type="button" class="btn btn-default" ng-click="import_html5(im)" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_HTML5' | translate)}}"><span class="glyphicon glyphicon-import"></span>
+              <span ng-show="as.show_text" translate="ID_IMPORT_HTML5"></span></button></span>
+            <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[im.loop]" ng-click="im.toggle_loop()" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_LOOP' | translate)}}"><span class="glyphicon glyphicon-repeat"></span>
+              <span ng-show="as.show_text" translate="ID_LOOP"></span></button></span>
+            <span>
+              <div class="inline-block">
+                <button type="button" class="btn btn-default" ng-click="im.mute_import_forward(1)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_TRANSCODING' | translate)}}" 
+                  ng-show="!im.import_forward_muted"><span class="glyphicon glyphicon-record"></span>
+                  <span ng-show="as.show_text" translate="ID_MUTE_TRANSCODING"></span></button>
+                <button type="button" class="btn btn-default" ng-click="im.mute_import_forward(0)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_TRANSCODING' | translate)}}" 
+                  ng-show="im.import_forward_muted"><span class="glyphicon glyphicon-remove-circle"></span>
+                  <span ng-show="as.show_text" translate="ID_UNMUTE_TRANSCODING"></span></button>
+                <span style="position: relative;">
+                  <canvas class="import_forward_signal_strength" width="100" height="10"></canvas>
+                  <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                    tooltip="{{as.no_tip ? '' : ('ID_BROADCAST_VOLUME' | translate)}}" ng-model="im.import_forward_gain">
+                </span>
+              </div>
+            </span>
+            <span>
+              <div class="inline-block">
+                <button type="button" class="btn btn-default" ng-click="im.mute_import_playback(1)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_LOCAL' | translate)}}" 
+                  ng-show="!im.import_playback_muted"><span class="glyphicon glyphicon-volume-up"></span>
+                  <span ng-show="as.show_text" translate="ID_MUTE_LOCAL"></span></button>
+                <button type="button" class="btn btn-default" ng-click="im.mute_import_playback(0)" 
+                  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_LOCAL' | translate)}}" 
+                  ng-show="im.import_playback_muted"><span class="glyphicon glyphicon-volume-off"></span>
+                  <span ng-show="as.show_text" translate="ID_UNMUTE_LOCAL"></span></button>
+                <span style="position: relative;">
+                  <canvas class="import_playback_signal_strength" width="100" height="10"></canvas>
+                  <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                    tooltip="{{as.no_tip ? '' : ('ID_LOCAL_PLAY_VOLUME' | translate)}}" ng-model="im.import_playback_gain">
+                </span>
+              </div>
+            </span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_IMPORTING' | translate)}}" ng-click="reset_import(im)">
+              <span class="glyphicon glyphicon-remove"></span>
+              <span ng-show="as.show_text" translate="ID_STOP_IMPORTING"></span></button>
+          </div>
+        </div>
+        <msgr-im></msgr-im>
+        <div>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_CONVERSATION_LOG' | translate)}}" ng-click="conversation_log(im)"><img class="im-cmd-img" src="img/icon_im_log_large.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_IMSTYLE' | translate)}}" ng-click="style(im)" ng-show="im.canStyle()"><img class="im-cmd-img" src="img/icon_im_font.png" alt=""/></a>
+          <a class="msgr-pointer" ng-click="im.onEmoji()" ng-show="im.canEmoji()"><img class="im-cmd-img" src="img/icon_im_emoticon.png" alt=""/></a>
+          <a class="msgr-pointer" ng-click="im.onEmoticon()" ng-show="im.canEmoticon()"><img class="im-cmd-img" src="img/icon_im_emoticon.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('IDS_TOOLTIP_IM_LAUNCH' | translate)}}" ng-click="im.launch_office()" ng-show="im.canLaunch()"><img class="im-cmd-img" src="img/icon_im_launch.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_VISIT' | translate)}}" ng-click="visit(im)" ng-show="im.canVisit()"><img class="im-cmd-img" src="img/icon_im_visit.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_INVITE' | translate)}}" ng-click="invite(im)" ng-show="im.canInvite()"><img class="im-cmd-img" src="img/icon_im_invite.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_TRANSFER' | translate)}}" ng-click="im.onTransfer()" ng-show="im.canTransfer()"><img class="im-cmd-img" src="img/icon_im_transfer.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ADD' | translate)}}" ng-click="add(im)" ng-show="im.canAdd()"><img class="im-cmd-img" src="img/icon_im_add.png" alt=""/></a>
+          <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_REMOVE' | translate)}}" ng-click="remove(im)" ng-show="im.canRemove()"><img class="im-cmd-img" src="img/icon_im_delete.png" alt=""/></a>
+          {{im.alert}}
+          <button type="button" class="btn btn-link" ng-click="im.show_fts_recv()" ng-if="im.alert_recv">{{im.alert_recv}}</button>
+          <button type="button" class="btn btn-link" ng-click="im.show_fts_save()" ng-if="im.alert_save">{{im.alert_save}}</button>
+          <button type="button" class="btn btn-link" ng-click="im.show_fts_memory()" ng-if="im.alert_memory">{{im.alert_memory}}</button>
+          <button type="button" class="btn btn-link" ng-click="im.show_new_message()" ng-if="im.new_message_div">{{'ID_NEW_MESSAGE_PROMPT' | translate}}</button>
+        </div>
+        <emoji-panel></emoji-panel>
+        <emoticon-panel></emoticon-panel>
+        <div class="like-table">
+          <div class="like-row">
+            <div class="fill-cell">
+              <textarea class="auto-width vertical-resize" ng-keypress="im.onkeypress($event)" ng-focus="im.onfocus()" ng-blur="im.onblur()" ng-class="im.m_param._ngclass()" ng-style="im.m_param._ngstyle()" cols="100" rows="3" ta-finder ng-model="im.input"></textarea>
+            </div>
+            <div class="fix-cell">
+              <button type="button" class="btn btn-default" ng-click="im.send()" ng-style="style_height_send_button" ng-show="im.input" translate="IDC_SEND"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="auto-overflow" ng-class="col_area()" ng-repeat="im in iml_array" ng-show="im.visible" ng-controller="IMCtrl">
+        <span ng-include="'template/imTitle.htm' + cache_param"></span>
+        <msgr-im></msgr-im>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== jnj -->
+  <div class="container-fluid" ng-show="nav_item=='jnj'" ng-cloak>
+    <div ng-include="partialJnj"></div>
+  </div>
+
+  <!-- ==== reconnect_name -->
+  <div class="container-fluid" ng-show="nav_item=='reconnect_name'" ng-cloak>
+    <div ng-include="partialReconnectName"></div>
+  </div>
+
+  <!-- ==== missed_call -->
+  <div class="container-fluid" ng-show="nav_item=='missed_call'" ng-cloak>
+    <div ng-include="partialMissedCall"></div>
+  </div>
+
+  <!-- ==== prompt -->
+  <div class="container-fluid" ng-show="nav_item=='prompt'" ng-cloak>
+    <div ng-include="partialPrompt"></div>
+  </div>
+
+  <!-- ==== log -->
+  <div class="container-fluid" ng-show="nav_item=='log'" ng-cloak>
+    <div ng-include="partialLog"></div>
+  </div>
+
+  <!-- ==== setting -->
+  <div class="container-fluid" ng-show="nav_item=='setting'" ng-controller="OptionCtrl" ng-cloak>
+    <tabset>
+      <tab heading="Messenger" active="tabs[0].active" ng-show="w.show_msgr && hmtg_show_msgr" select="selectMsgr()">
+        <div ng-include="partialMsgr"></div>
+      </tab>
+      <tab heading="{{'ID_WEB_APP' | translate}}" active="tabs[1].active" select="selectWebApp()">
+        <div ng-include="partialWebApp"></div>
+      </tab>
+      <tab heading="JoinNet" active="tabs[2].active" select="selectJoinNet()">
+        <div ng-include="partialJoinNet"></div>
+      </tab>
+      <tab heading="WebRTC" active="tabs[10].active" select="selectWebRTC()">
+        <div ng-include="partialWebRTC"></div>
+      </tab>
+      <tab heading="{{'ID_MYPICTURE' | translate}}" active="tabs[3].active" select="selectMyPicture()">
+        <div ng-include="partialMyPicture"></div>
+      </tab>
+      <tab heading="{{'ID_MY_URL' | translate}}" active="tabs[8].active" select="selectURL()">
+        <div ng-include="partialURL"></div>
+      </tab>
+      <tab heading="{{'ID_RESET_ALL' | translate}}" active="tabs[4].active" ng-controller="ResetAllCtrl">
+        <button type="button" class="btn btn-danger" ng-click="reset_all()" translate="ID_RESET_ALL"></button>
+      </tab>
+      <tab heading="{{'ID_NATIVE_APP' | translate}}" active="tabs[5].active" ng-show="w.show_native_app" select="selectNativeApp()">
+        <div ng-include="partialNativeApp"></div>
+      </tab>
+      <tab heading="Demo" active="tabs[6].active" ng-show="w.show_demo_link" select="selectDemo()">
+        <div ng-include="partialDemo"></div>
+      </tab>
+      <tab heading="Test" active="tabs[7].active" ng-show="0" select="selectTest()">
+        <div ng-include="partialTest"></div>
+      </tab>
+      <tab heading="HTML5 Score" active="tabs[9].active" select="selectScore()">
+        <div ng-include="partialScore"></div>
+      </tab>
+    </tabset>
+  </div>
+
+  <footer>
+    <div class="container-fluid" ng-controller="AboutCtrl" ng-cloak>
+      <hr />
+      <div class="row-fluid">
+        <div class="col-md-4"><span translate="IDS_APP_NAME"></span> 
+          <span translate="ID_VERSION"></span> <span ng-bind="::app_version"></span></div>
+        <div class="col-md-4"></div>
+        <div class="col-md-4">&copy; HomeMeeting Inc. 2019</div>
+      </div>
+      <br />
+    </div>
+  </footer>
+
+  <!-- ==== popup alert -->
+  <div class="navbar-fixed-bottom" ng-controller="AlertCtrl" ng-cloak>
+    <div class="row-fluid">
+      <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_download_array() | limitTo: 10">
+        <alert type="info" close="close_download($index)">
+          <span class="im-small inline-block">
+            <a href="{{item.url}}" target="save">{{item.name}}</a>
+            <img class="thumbnail-img" ng-if="item.is_image" ng-src="{{item.url}}" alt="">
+          </span>
+        </alert></div>
+      <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_link_array() | limitTo: 10">
+        <alert type="{{item.type}}" close="close_link($index)"><a class="msgr-pointer" 
+          ng-click="item.click($index)">{{item.text}}</a></alert></div>
+      <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_chat_alert_array() | limitTo: 10">
+        <alert type="{{item.type}}" close="close_chat_alert($index)"><a class="msgr-pointer" 
+          ng-click="item.click($index)">{{item.text}}</a></alert></div>
+      <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_text_array() | limitTo: 10">
+        <alert type="{{item.type}}" close="close_text($index)">{{item.text}}</alert></div>
+      <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_status_array() | limitTo: 10">
+        <alert type="{{item.type}}" close="close_status($index)">{{item.text}}</alert></div>
+      <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_hidden_array() | limitTo: 10">
+        <alert type="{{item.type}}"></alert></div>
+    </div>
+  </div>
+
+  <script src="dep.min.js?random=0"></script>
+  <script src="hmtgs.min.js?random=0"></script>
+</body>

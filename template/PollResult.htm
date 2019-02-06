@@ -1,0 +1,43 @@
+    <div id="poll_result">
+    <div class="modal-header">
+      <h3 class="modal-title">{{'ID_POLL_RESULT' | translate}}</h3>
+    </div>
+    <div id="poll_result" class="modal-body">
+      <form role="form">
+        {{descr}}
+        <div class="table-responsive border-autoscroll">
+          <table class="table table-condensed">
+            <thead>
+              <tr style="white-space: nowrap;">
+                <th>{{'ID_POLL_ANSWER' | translate}}</th>
+                <th>{{'ID_POLL_COUNT' | translate}}</th>
+                <th>{{'ID_POLL_PERCENT' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="result in result_list">
+                <td>{{result.name}}</td>
+                <td>{{result.count + ((w.show_text && result.text) ? ('(' + result.text + ')') : '')}}</td>
+                <td>{{result.percent}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <span><button type="button" class="btn btn-default" 
+        tooltip="{{as.no_tip || as.show_text ? '' : ('ID_HIDE_NAME_LIST' | translate)}}" ng-click="toggle_text(0)" 
+        ng-show="w.show_text"> <span class="glyphicon glyphicon-minus"></span> 
+        <span ng-show="as.show_text" translate="ID_HIDE_NAME_LIST"></span></button></span>
+      <span><button type="button" class="btn btn-default" 
+        tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SHOW_NAME_LIST' | translate)}}" ng-click="toggle_text(1)" 
+        ng-show="!w.show_text"> <span class="glyphicon glyphicon-plus"></span> 
+        <span ng-show="as.show_text" translate="ID_SHOW_NAME_LIST"></span></button></span>
+      <span><button type="button" class="btn btn-default" 
+        tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" ng-click="snapshot()"> 
+        <span class="glyphicon glyphicon-picture"></span> 
+        <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span></button></span>
+      <span><button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button></span>
+    </div>

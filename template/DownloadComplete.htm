@@ -1,0 +1,15 @@
+    <div class="modal-header">
+      <h3 class="modal-title" translate="ID_DOWNLOAD"></h3>
+      <h6 class="modal-title"><img ng-src="{{w.item.img}}" alt="{{w.item.alt}}"/>{{w.item.tick_str}} {{w.item.title}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="form-group">
+          <p style="white-space: pre-wrap;" translate="ID_DOWNLOAD_COMPLETE"></p>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_SAVE_FILE"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

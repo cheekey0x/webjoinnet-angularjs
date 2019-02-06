@@ -1,0 +1,50 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{w.title}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.auto_play"> {{'ID_AUTO_PLAY' | translate}}
+          </label>
+        </div>
+        <div class="checkbox" ng-hide="force_audio_only">
+          <label>
+            <input type="checkbox" ng-model="w.audio_only"> {{'ID_AUDIO_ONLY' | translate}}
+          </label>
+        </div>
+        <div class="form-group">
+          <button type="button" class="btn btn-default" 
+            ng-click="open()"><span class="glyphicon glyphicon-folder-open"></span>
+            <span translate="ID_IMPORT_FILE"></span></button>
+          <span class="float-right">
+            <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+            <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+          </span>
+        </div>
+        <div class="form-group">
+          <label for="media_src">{{'ID_MEDIA_LINK' | translate}}</label>
+          <select class="vertical-middle" style="max-width: 55%;" ng-show="links.length" ng-model="w.link_src" ng-options="link.src as link.descr for link in links">
+            <option value="">-- {{'ID_CHOOSE_MEDIA' | translate}} --</option>
+          </select>
+          <br />
+          <input type="text" class="form-control" id="media_src" ng-model="w.src">
+          <label for="media_name">{{'ID_MEDIA_NAME' | translate}}</label>
+          <input type="text" class="form-control" id="media_name" ng-model="w.name">
+        </div>
+        <div class="form-group">
+          <label>{{'ID_CROSS_ORIGIN_INFO' | translate}}</label>
+        </div>
+        <div class="form-group">
+          <label>{{'ID_TRANSCODING_INFO' | translate}}</label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" 
+        tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_FILE' | translate)}}" 
+        ng-click="open()"><span class="glyphicon glyphicon-folder-open"></span>
+        <span ng-show="as.show_text" translate="ID_IMPORT_FILE"></span></button>
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

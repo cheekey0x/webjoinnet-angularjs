@@ -1,0 +1,54 @@
+    <div class="modal-header">
+      <h3 class="modal-title" translate="ID_EDIT_PROFILE"></h3>
+      <h6 class="modal-title">{{subtitle}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div style="overflow: auto;" ng-style="style_height3" ng-if="w.is_mmc">
+          <iframe class="auto-width" frameborder="0" scrolling="auto" marginheight="0" marginwidth="0" 
+            ng-src="{{w.url2}}" ng-style="style_height2"></iframe>
+        </div>
+        <div ng-if="!w.is_mmc">
+        <div class="form-group">
+          <label for="edit_profile_url">{{'IDC_STATIC_2_URL' | translate}}</label> 
+          <span><button type="button" class="btn btn-default" ng-click="copy()" translate="IDD_DIALOG_SHARE_RESULT_OK"></button></span>
+          <pre id="edit_profile_url" class="share-url">{{w.visit_url}}</pre>
+        </div>
+        <div class="form-group">
+          <label>{{'IDC_STATIC_3_USERNAME' | translate}}</label>
+          <input class="form-control" ng-model="w.username">
+        </div>
+        <div class="form-group">
+          <label>{{'IDC_STATIC_4_EMAIL' | translate}}</label>
+          <input class="form-control" ng-model="w.email">
+        </div>
+        <div class="form-group">
+          <label>{{'IDC_STATIC_5_OLD' | translate}}</label>
+          <input type="password" class="form-control" ng-model="w.password0">
+        </div>
+        <div class="form-group">
+          <label>{{'IDC_STATIC_6_NEW' | translate}}</label>
+          <input type="password" class="form-control" ng-model="w.password1">
+        </div>
+        <div class="form-group">
+          <label>{{'IDC_STATIC_7_CONFIRM' | translate}}</label>
+          <input type="password" class="form-control" ng-model="w.password2">
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.deny_msg"> {{'IDC_CHECK_DENY_MESSAGE' | translate}}
+          </label>
+        </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+        <span ng-if="w.is_mmc">
+            <button type="button" class="btn btn-default" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_OPEN_NEW_WINDOW' | translate)}}" 
+            ng-click="open_url()"><span class="glyphicon glyphicon-new-window"></span>
+            <span ng-show="as.show_text" translate="ID_OPEN_NEW_WINDOW"></span></button>
+        </span>
+      <button type="button" class="btn btn-primary" ng-hide="w.is_mmc" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CLOSE"></button>
+    </div>

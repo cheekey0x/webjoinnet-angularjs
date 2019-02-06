@@ -1,0 +1,93 @@
+      <div ng-controller="VideoWindowCtrl">
+        <div>
+          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[show_list]" 
+            tooltip-placement="right" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_EDIT_VIDEO_LIST' | translate)}}" 
+            ng-click="toggle_show_list()"><span class="glyphicon glyphicon-th-list"></span>
+            <span ng-show="as.show_text" translate="ID_EDIT_VIDEO_LIST"></span>{{video_list_info}}</button></span>
+          <div class="inline-block">
+            <input type="range" class="vertical-middle" style="width: 71px;display: inline;" min="80" max="640" step="8" 
+              tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_DISPLAY_SIZE' | translate)}}" 
+              ng-model="vr.display_size">{{vr.display_size}}
+          </div>
+          <span ng-show="w.request_fullscreen && !w.is_fullscreen">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
+              ng-click="w.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+              <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+          </span>
+          <span ng-show="w.request_fullscreen && w.is_fullscreen">
+            <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
+              ng-click="w.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
+              <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+          </span>
+        </div>
+        <div ng-show="show_list">
+          <div class="table-responsive border-autoscroll">
+            <table class="table table-condensed">
+              <thead>
+                <tr style="white-space: nowrap;">
+                  <th translate="ID_ACTION"></th>
+                  <th translate="IDS_COL_NAME"></th>
+                  <th ng-show="as.show_advanced_function" translate="ID_SSRC"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="user-selected" ng-repeat="ssrc in vr.ssrc_array">
+                  <td>
+                    <button type="button" class="btn btn-default" ng-click="remove(ssrc)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}">
+                      <span class="glyphicon glyphicon-remove"></span>
+                      <span ng-show="as.show_text" translate="ID_DELETE"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="move_up(ssrc)" ng-show="vr.ssrc_array.indexOf(ssrc) != 0"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_UP' | translate)}}">
+                      <span class="glyphicon glyphicon-arrow-up"></span> 
+                      <span ng-show="as.show_text" translate="ID_MOVE_UP"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="move_down(ssrc)" 
+                      ng-show="vr.ssrc_array.indexOf(ssrc) != vr.ssrc_array.length - 1"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_DOWN' | translate)}}">
+                      <span class="glyphicon glyphicon-arrow-down"></span> 
+                      <span ng-show="as.show_text" translate="ID_MOVE_DOWN"></span></button>
+                  </td>
+                  <td>{{name_hash[ssrc]}}</td>
+                  <td ng-show="as.show_advanced_function">{{ssrc}}</td>
+                </tr>
+                <tr ng-repeat="ssrc in talker_array">
+                  <td>
+                    <button type="button" class="btn btn-default" ng-click="add(ssrc)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ADD_VIDEO' | translate)}}">
+                      <span class="glyphicon glyphicon-plus"></span>
+                      <span ng-show="as.show_text" translate="ID_ADD_VIDEO"></span></button>
+                  </td>
+                  <td>{{name_hash[ssrc]}}</td>
+                  <td ng-show="as.show_advanced_function">{{ssrc}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="vertical-top" style="overflow: auto;border: 1px solid gray;min-height: 200px;">
+          <div class="inline-block video-window" ng-repeat="ssrc in vr.ssrc_array">
+            <span>
+              <span ng-show="show_snapshot(ssrc)">
+                <span><button type="button" class="btn btn-default"
+                tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
+                  ng-click="snapshot(ssrc)"> <span class="glyphicon glyphicon-picture"></span>
+                  <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span></button></span>
+              </span>
+              <span ng-show="request_fullscreen && !is_fullscreen(ssrc) && !has_video_loop(ssrc)">
+                <button type="button" class="btn btn-default"tooltip="{{'ID_FULLSCREEN1' | translate}}" 
+                  ng-click="fullscreen1(ssrc)"> <span class="glyphicon glyphicon-resize-full"></span> 
+                  <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+              </span>
+              <span ng-show="request_fullscreen && is_fullscreen(ssrc)">
+                <button type="button" class="btn btn-default"tooltip="{{'ID_FULLSCREEN0' | translate}}" 
+                  ng-click="fullscreen0(ssrc)"> <span class="glyphicon glyphicon-resize-small"></span> 
+                  <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+              </span>
+              <span class="vertical-middle">{{name_hash[ssrc]}}</span>
+            </span>
+            <div id="{{container_id(ssrc)}}">
+              <canvas id="{{canvas_id(ssrc)}}" ng-show="!rtc.to_show_webrtc_video(ssrc)" class="video_canvas" width="0" height="0"></canvas>
+              <video id="{{video_id(ssrc)}}" ng-show="!!rtc.to_show_webrtc_video(ssrc)" ng-style="style_webrtc_video" autoplay muted"></video>
+            </div>
+          </div>
+        </div>
+        <br />
+      </div>

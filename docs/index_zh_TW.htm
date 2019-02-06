@@ -1,0 +1,472 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JoinNet 網頁版使用者指南</title>
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="../img/jnagent_72x72.png">
+  </head>
+  <body style="                                  margin: 10px;"> <a name="top"></a>
+    <h3><strong>JoinNet 網頁版使用者指南</strong></h3>
+    <ol>
+      <li><a href="#preface">前言</a></li>
+      <li><a href="#start">開始使用 JoinNet 網頁版</a></li>
+      <li><a href="#special">特殊功能</a></li>
+      <ul>
+        <li><a href="#p2p">點對點視訊通話</a></li>
+        <li><a href="#pdf">列印 PDF 到白板</a></li>
+        <li><a href="#text">文字圖形</a></li>
+        <li><a href="#png">貼上 PNG 圖片</a></li>
+        <li><a href="#share">匯入 HTML5 音樂/影片作為來源</a></li>
+        <li><a href="#screen">螢幕擷取做為視訊輸入</a></li>
+        <li><a href="#local">本機白板</a></li>
+        <li><a href="#error">錯誤報告</a></li>
+      </ul>
+      <li><a href="#troubleshooting">語音和視訊的疑難排解</a></li>
+      <li><a href="#faq">常見問題</a></li>
+    </ol>
+    <br>
+    <h3> <a name="preface"><strong>1. 前言</strong></a> &nbsp; <a href="#top"><span
+          style="font-size: 8pt;">(回到頁首)</span></a> </h3>
+    <p> JoinNet 網頁版是將 JoinNet 與 JoinNet Messenger 軟體採用 HTML、CSS、JavaScript 與
+      WebRTC 技術移植到網頁上的一套軟體，使其能夠在所有平臺，包括 Windows、Mac、Linux、Android 與 iOS
+      行動載具等的所有主流瀏覽器上執行。JoinNet 網頁版目前建置在 <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a>
+      供 所有人使用。&nbsp; </p>
+    <p>請注意，僅有 MCU 伺服器 3.26 或以上版本才支援 JoinNet 網頁版與 WebRTC，且 MCU 必須使用支援 "Web
+      JoinNet" 與 "WebRTC" 的授權。</p>
+    <p>雖然 JoinNet 網頁版可以不經過安裝就在當前主流瀏覽器上使用，但並非所有瀏覽器都支援擷取媒體資料所必要的進階 HTML5
+      功能，例如語音、視訊、螢幕、匯入 HTML5 媒體等。對於進階使用者，我們建議使用 Chrome 或 Firefox ，跟多項配置更改</p>
+    <ul>
+      <li><i>在 Chrome 上推薦的配置更改：(1) 從&nbsp; <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">
+            這裡</a> 安裝擴充功能，接著 (2) 點選 "加到 CHROME"。</i></li>
+      <li><i>在 Firefox 上推薦的配置更改：(1) 在網址列輸入 "about:config"，前往 Firefox 的偏好設定頁面；(2)
+          找到 "media.getusermedia.screensharing.enabled" 項目並將其值更改為 true；(3) 在
+          "media.getusermedia.screensharing.allowed_domains" 加入 JoinNet 網頁版的網域名稱
+          (*.homemeeting.com)；(4) Firefox 的偏好設定更改後會立即生效，無須重新啟動。</i></li>
+    </ul>
+    <p>JoinNet 網頁版是採用 HTML5 技術打造，不用安裝任何外掛就能在瀏覽器中使用。它的所有功能都非常依賴瀏覽器對 HTML5
+      的支援。簡單來說，JoinNet 網頁版就是一個 HTML5 網頁。以下是一些已知的限制：</p>
+    <ol>
+      <li>身為一個網頁，JoinNet 網頁版無法讀取本地檔案系統。其稽核與設定保存在本地儲存裝置中，這是一個 HTML5 的功能。</li>
+      <li>由於無法讀取本地檔案系統，JoinNet 網頁版不會在本地保存 JoinNet Messenger 的文字交談記錄。但是，Messenger
+        的文字交談記錄仍然會保存在 MCU 伺服器上，且可以經由 JoinNet Messenger 程式來檢索。</li>
+      <li>礙於資源有限，JoinNet 網頁版僅能在白板中處理 4096x4096 以內的內容。在 iOS 方面，此大小進一步限制為
+        2048x2048。</li>
+      <li>基於對所有瀏覽器與網頁的安全考量，JoinNet 網頁版無法被遠距離操控；也就是說，JoinNet的遠距離操控功能無法在 JoinNet
+        網頁版上執行。</li>
+      <li>受瀏覽器的執行程序限制，JoinNet 網頁版可以處理的數據塊大小有其上限；例如，它無法讀/寫太大的檔案，無法彩現太大的圖片。如果
+        JoinNet 網頁版嘗試讀取大數據塊，某些瀏覽器可能會停止運作。JoinNet 網頁版可以從 "選項/瀏覽器"
+        分頁中探測瀏覽器的限制。有經驗的使用者可以權宜地設定門檻來避免瀏覽器停止運作。</li>
+    </ol>
+    <p></p>
+    <img src="1-1.png" class="center-block" style="max-width: 100%;"> <br>
+    <br>
+    <br>
+    <h3><a name="start"><strong>2. 開始使用 JoinNet 網頁版</strong>&nbsp; </a><a href="#top"><span
+          style="font-size: 8pt;">(回到頁首)</span></a> </h3>
+    <p>在使用 JoinNet 網頁版之前，您可能會想要建立一個捷徑來使用。</p>
+    <p>在桌上型電腦，使用瀏覽器，例如 Chrome，在桌面上建立一個 JoinNet
+      網頁版的捷徑，以便您可以像啟動單機版一樣地啟動它。例如，在瀏覽器分頁，開啟 <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a>，
+      接著點選選單/更多工具/建立捷徑...，</p>
+    <p> <img src="2-0a.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> <img src="2-0b.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>這將會在桌面上建立一個捷徑。您可以經由點選這個捷徑來啟動 JoinNet 網頁版。</p>
+    <br>
+    <p> 在 Android 手機，使用瀏覽器，例如 Chrome，然後拜訪 <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a>，
+      接著點選選單/加到主畫面：</p>
+    <p> <img src="2-0c.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>這將會在手機的首頁上建立 JoinNet 網頁版的捷徑，就好像是一個應用程式一樣。</p>
+    <br>
+    <p>JoinNet 網頁版由兩個部份組成：JoinNet Messenger 與 JoinNet。下列是 JoinNet 網頁版在 JoinNet
+      Messenger 模式下的快照： </p>
+    <p> <img src="2-1.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>一般來說，您可以有三種方式使用 JoinNet 網頁版：</p>
+    <p> <b>選項 1</b>：瀏覽 JoinNet 網頁版網站，例如 <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a>
+      來設置 JoinNet Messenger 帳號，然後開始使用 JoinNet 網頁版。</p>
+    <br>
+    <p> <b>選項 2</b>：您有一個共享的錄影檔網址。現在您可以將這個共享的錄影檔網址分享給任何人，即使對方並未安裝 JoinNet
+      也是如此。您亦可將這個網址發布到某個網站，以便任何人都可以讀取它。在任何電腦或行動載具上無須任何安裝就可以使用 JoinNet
+      網頁版播放這個錄影檔。只需要在網址後方加上一個 "<font color="blue">web=1</font>" 參數即可。</p>
+    <ul>
+      <li> 在 WO 系統，您在 JoinNet Messenger 取得錄影檔連結，例如 <font color="336699">https://your_mcu.com/playback.jnj?auth=BIg=</font>，
+        將其變更為 <font color="336699">https://your_mcu.com/playback.jnj?auth=BIg=&amp;web=1</font>
+      </li>
+      <li> 在 MMC 系統，您在 JoinNet Messenger 取得錄影檔連結，例如 <font color="336699">https://your_mmc.com/share.php?id=1&amp;u=U2Fsd</font>，
+        將其變更為<br>
+        &nbsp;<font color="336699">https://your_mmc.com/share.php?id=1&amp;u=U2Fsd&amp;web=1</font>
+      </li>
+      <li> 在 MMC 系統，您在共享錄影檔取得一個錄影檔連結，例如 <font color="336699">https://your_mmc.com/pub_recording_view.php?id=144&amp;c=playback</font>，
+        將其變更為 <font color="336699">https://your_mmc.com/pub_recording_view.php?id=144&amp;c=playback&amp;web=1</font>
+      </li>
+    </ul>
+    <br>
+    <p> <b>選項 3</b>：您希望跟某位以前從未使用過 JoinNet
+      的人進行線上會議。現在您只需透過任何管道傳給對方一個連結，例如電子郵件、即時通訊、線上聊天室等。對方可以點選這個連結來啟動 JoinNet
+      網頁版拜訪您的辦公室。完全不用安裝。只需在您的拜訪網址後方加上一個 "<font color="blue">web=1</font>" 參數即可。</p>
+    <ul>
+      <li> 在 WO 系統，這個拜訪連結網址是 <font color="336699">https://your_mcu.com/weboffice_userid.jnj</font>，
+        將其變更為 <font color="336699">https://your_mcu.com/weboffice_userid.jnj?web=1</font>
+      </li>
+      <li> 在 MMC 系統，這個拜訪連結網址是 <font color="336699">https://your_mmc.com/gotomeeting.php?u=2&amp;c=visit</font>，
+        將其變更為 <font color="336699">https://your_mmc.com/gotomeeting.php?u=2&amp;c=visit&amp;web=1</font>
+      </li>
+    </ul>
+    <br>
+    <p> 下列是 JoinNet 網頁版在即時會議模式下的快照：<br>
+      <br>
+      <img src="2-2.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>由於這份使用者指南的目標客群是已使用過 JoinNet
+      電腦版的使用者，因此除了一些特殊注意事項和獨特功能之外，我們將不會逐一地介紹所有功能。接下來我們從特殊注意事項開始說明：</p>
+    <br>
+    <p> <font color="008080"><strong>允許語音 &amp; 視訊擷取</strong></font> </p>
+    <p> 在新的瀏覽器頁面上首次啟動 JoinNet 網頁版加入會議時，您可能會看到一個快顯視窗指出 JoinNet
+      網頁版想要使用您的麥克風或使用您的攝影機。您可以隨時從 JoinNet 網頁版的下拉選單中啟用/停用語音/視訊擷取狀態：(您可以經由播放
+      JoinNet 網頁版的聲音檔來測試音效輸出；如果您聽不到任何聲音，瀏覽器使用的語音裝置可能無法運作或被關閉。) <br>
+      <br>
+      <img src="2-3.png" class="center-block" style="max-width: 100%;"> </p>
+    <ul>
+      <li><i>&nbsp;&nbsp; &nbsp;如果您不小心停止 JoinNet 網頁版擷取語音/視訊，您可能需要變更瀏覽器版的設定來重新允許
+          JoinNet 網頁版網站存取您的麥克風 (或攝影機)。以 Chrome 來說，請參考 <a href="https://support.google.com/chrome/answer/2693767?hl=en">https://support.google.com/chrome/answer/2693767?hl=en</a>。
+          以 Android Chrome 來說，選項 &gt; 設定 &gt; 進階 &gt; 網站設定 &gt; 麥克風 (或攝影機)。</i></li>
+    </ul>
+    <br>
+    <p> <font color="008080"><strong>注意！沒有共同瀏覽網頁</strong></font> </p>
+    <p>JoinNet 網頁版嘗試使用 'iframe' 來實現共同瀏覽網頁。基本上這是在一個瀏覽器中內嵌另外一個瀏覽器。不同的瀏覽器對於
+      'iframe' 有不同的規則設置。某些瀏覽器始終允許使用者在嵌入式瀏覽器中遵循連結，而大多數瀏覽器不允許。事實上，主要的內容供應商，例如
+      YouTube 與 Google，不允許其網頁在嵌入式瀏覽器中顯示。因此，我們決定從 JoinNet
+      網頁版中移除共同瀏覽網頁，解決方式是採用：文字交談與啟用螢幕擷取。</p>
+    <p> <span>由於在 JoinNet
+        網頁版中沒有共同瀏覽網頁，當收到一個網址時，該網址會自動顯示在文字交談面板上—您可以點擊它來開啟新分頁以顯示內容。</span> <br>
+      <br>
+      <img src="2-4.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>當有人想使用 JoinNet 網頁版帶領其他人瀏覽網頁時，請鼓勵他/她改用影像視窗來顯示網頁—是的，這個特殊功能僅限 JoinNet
+      網頁版使用。我們將在螢幕擷取章節來說明這項功能。</p>
+    <br>
+    <p> <font color="008080"><strong>抱歉，也沒有 JoinNet 印表機</strong></font> </p>
+    <p>JoinNet 網頁版並不會安裝 JoinNet 印表機。要上載文件至白板中，MCU 伺服器會使用轉換伺服器將一般檔案轉換成一個或多個圖片頁面。</p>
+    <p>雖然 JoinNet 網頁版不支援 JoinNet 印表機，但它確實支持 PDF 文件！我們將在稍後的 JoinNet
+      網頁版特殊功能章節來說明這項功能。</p>
+    <h3> <br>
+      <br>
+      <a name="special"><strong>3. 特殊功能</strong></a> &nbsp; <a href="#top"><span
+          style="font-size: 8pt;">(回到頁首)</span></a> </h3>
+    <p>大部份 JoinNet 網頁版的功能都是遵循 JoinNet 單機版的功能來設計，因此 JoinNet 網頁版的使用者可以與 JoinNet
+      單機版，包括 JoinNet 電腦版、JoinNet Android 版、JoinNet MAC 版的使用者參加同一場線上會議。 </p>
+    <p>然而，JoinNet 網頁版有些特殊功能僅適用於 JoinNet 網頁版—也就是說，這些特殊功能 JoinNet 單機版不支援。</p>
+    <br>
+    <p> <a name="p2p"><font color="008080"><strong>點對點視訊通話</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p>在 WebRTC 的協助下，可以實現從 Messenger 對 Messenger 的視訊通話。由於這是點對點連線，可能會因為防火牆、NAT
+      和類似的網路限制而造成無法進行視訊通話。下列是啟動點對點視訊通話的步驟：</p>
+    <p> 步驟 1：從 JoinNet Messenger 中選擇一個使用者，然後點選對話。(有關建立群組以及文字交談功能請參考 JoinNet
+      Messenger 使用者指南。) <br>
+      <br>
+      <img src="2-5.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> 步驟 2：點選選項按鈕，接著選擇視訊通話。 <br>
+      <br>
+      <img src="2-6.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>步驟 3：等待對方接受您的通話。一旦對方接受，您將在對話視窗上方看到您與對方的視訊。<br>
+      <br>
+      <img src="2-7.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>請注意：您可以單擊視訊區域以重新排列視訊顯示。<br>
+      <br>
+      <br>
+      <img src="2-8.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>您可以將整個螢幕 (或應用程式視窗) 作為視訊輸入進行共享 (並讓其他使用者選擇 "全螢幕" 來觀看即時的桌面共享。) WebRTC
+      視訊的表現將帶給您深刻的印象，您甚至可以通過共享自己的螢幕同時觀看 YouTube 影片！)<br>
+      <br>
+      <img src="2-9.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>您可以選擇電腦中的影片 (MP4) 或音樂 (MP3) 作為視訊輸入來分享該媒體檔給其他使用者。<br>
+      <br>
+      <img src="2-10.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+      <img src="2-11.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> 您可以經由視訊顯示區域下方的視訊播放視窗來控制視訊播放的速度。為了獲得最佳效果，您可以請觀看者點選全螢幕顯示。 <br>
+      <br>
+      <img src="2-12.png" class="center-block" style="max-width: 100%;"> </p>
+    <br>
+    <p> <a name="pdf"><font color="008080"><strong>列印 PDF 至白板</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p> <span>在大多數的情況下，除了使用 JoinNet 印表機的 JoinNet
+        單機版之外，將文件列印至白板的過程是壓縮、上傳、轉換及下載。轉換過程在轉換伺服器上進行，產生 PNG 格式或 PDF 格式。由於 PDF
+        格式無須轉換，因此列印的速度會比其它文件類型來得快。(幾乎所有文件都可以轉換成 PDF 格式。)</span> </p>
+    <p> <img src="2-13.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+      <img src="2-14.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+      <img src="2-15.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+      <img src="2-16.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+      <img src="2-17.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>將 PDF 文件列印到白板的好處是顯而易見的—您可以放大頁面尺寸而內容不會失真。</p>
+    <p> <img src="2-18.png" class="center-block" style="max-width: 100%;"> </p>
+    <br>
+    <p> <a name="text"><font color="008080"><strong>文字圖形</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p>JoinNet 網頁版允許使用者在白板上貼上文字成為圖片，稱作文字圖形。採用文字圖形的目的是避免不同語系字體之間的文字呈現問題。</p>
+    <p> <img src="2-19.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+      <img src="2-20.png" class="center-block" style="max-width: 100%;"> </p>
+    <br>
+    <p> <a name="png"><font color="008080"><strong>貼上 PNG 圖片</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p>雖然 JoinNet 單機版確實提供複製-與-貼上或貼上圖片讓使用者將圖片上傳到白板上，但是 JoinNet 網頁版允許使用者使用貼上圖片將
+      PNG 圖片上傳到白板上。請注意，如果您使用的是舊版的 JoinNet 單機版，可能無法在白板上顯示 PNG 圖片。</p>
+    <p> <img src="2-21.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>您可以使用管理標記來新增更多標記至貼上圖片：</p>
+    <p> <img src="2-22.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>除了從檔案新增標記之外，使用者可以將白板中的圖片標記匯入成標記。當 JoinNet
+      網頁版正在查看白板圖片時，無論是在會議中或是播放錄影檔時，只須單擊一下就能將白板中所有的的圖片標記匯入。匯入的圖片標記將會自動加入到圖片列，可以儲存在電腦中或貼
+      到其它圖片上。這是儲存其他人所張貼的有趣圖片標記的便捷做法。</p>
+    <br>
+    <p> <a name="share"><font color="008080"><strong>匯入 HTML5 音樂/影片作為來源</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p>JoinNet 網頁版允許您經由視訊窗口分享音樂/影片。音樂/影片媒體可以是任何格式，例如 mp4、webm、mp3、ogg、m4v、wav
+      等，只要瀏覽器可以對其進行解碼即可。</p>
+    <p> <img src="2-23.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+    </p>
+    <p> <img src="2-24.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+    </p>
+    <p> <img src="2-25.png" class="center-block" style="max-width: 100%;"> <br>
+      <br>
+    </p>
+    <p> <img src="2-26.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> 您可能會注意到，有一個連結位置可以從網站匯入媒體。但是大多數的內容供應商不允許廣播或重播他們的媒體資料。這表示媒體資料可能無法播放
+      (在音樂方面) 或僅能在本地播放 (在影片方面)。要解決這個問題，使用者必須將內容伺服器設置支援 CORS (跨網域資源共享) 來允許
+      JoinNet 網頁版存取。有關如何在內容伺服器端啟用支援 CORS 的資訊，請參考：<a href="http://enable-cors.org/server.html">http://enable-cors.org/server.html</a>
+    </p>
+    <p>JoinNet 網頁版的使用者可以隨時選擇傳送本地擷取的視訊或是轉碼的 HTML5 影片至 MCU。</p>
+    <p> <img src="2-27.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>這個 "匯入 HTML5 媒體做為來源" 的功能有一些有趣的應用：</p>
+    <p> </p>
+    <ul>
+      <li>簡報者可以匯入音樂連結並在整個會議期間做為背景音樂使用。</li>
+      <li>講師可以播放一個影片給所有學生，並隨時暫停/恢復播放。在影片播放期間，講師也可以進行交談。</li>
+      <li>講師可以使用一些 HTML5 連結做為即時測驗。這些連結可以位於講師的個人電腦上，因此在測驗開始之前學生無法存取這些連結。</li>
+      <li>發言者可以將音樂連結設定為語音丟失提醒。如果因為更重要的任務必須突然停止語音擷取，例如打電話，JoinNet
+        網頁版可以自動地切換到此音樂連結。</li>
+      <li>HTML5 連結可以指向直播活動。在這種情況下，JoinNet 網頁版可以將即時事件錄製到錄影檔中。一般來說，直播活動網站不會支援
+        CORS，因此只能錄製語音部份。</li>
+    </ul>
+    <p></p>
+    <br>
+    <p> <a name="screen"><font color="008080"><strong>螢幕擷取做為視訊輸入</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p>您現在可以擷取全螢幕或應用程式視窗做為視訊輸入。而且，由於 WebRTC 高品質的視訊表現，建議您使用此功能來取代 JoinNet
+      的舊式桌面共享—儘管 JoinNet 網頁版仍然支援它。此功能還可用於取代 JoinNet 單機版中的共同瀏覽網頁功能。</p>
+    <p> <img src="2-28.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> <img src="2-29.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>一旦您開始使用螢幕擷取做為視訊來源，您可以要求所有與會者將他們的視訊視窗進行全螢幕顯示以觀看您的即時桌面共享，這是在 JoinNet
+      網頁版使用者之間進行桌面共享的最佳方式。</p>
+    <p>您不僅可以通過使用 "啟用螢幕擷取" 做為視訊視窗中的目標來共享擷取的畫面，還可以使用擷取畫面來擷取所選的畫面上傳至白板中，這類似於
+      JoinNet 電腦版支援的視窗擷取。</p>
+    <p> <img src="2-30.png" class="center-block" style="max-width: 100%;"> </p>
+    <br>
+    <p> <a name="local"><font color="008080"><strong>本機白板</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p>關於 JoinNet
+      網頁版的私人筆記有一項新政策。簡單來說，上傳到白板的每張圖片會自動顯示在私人筆記中，不含任何註釋或標記。因此，在白板以及私人筆記中的圖片編號與順序是相同的。唯一
+      的區別就是註釋或標記。所有使用者均可在白板上進行標記，但只有使用者自己能在他/她的私人筆記上進行標記。</p>
+    <p>這項新政策刪除了白板的 “複製圖片到私人筆記” 功能，如果您想要將白板上帶有標記或註釋的圖片複製到電腦上，您可以選擇
+      “複製圖片到本機白板”，反之亦然。</p>
+    <p> <img src="2-31.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> <img src="2-32.png" class="center-block" style="max-width: 100%;"> </p>
+    <p>同樣地，您可以從私人筆記複製帶有標記或註釋的圖片至本機白板—但無法從本機白板複製到私人筆記，因為這是不必要的。</p>
+    <p> <span>請注意，不像所有白板和私人筆記的圖片是以會議為主，本機白板的圖片是以瀏覽器為主—也就是說，如果會議結束，所有在白板和私人筆記的圖片
+        將會消失。如果您不將 JoinNet 網頁版的瀏覽器分頁關閉，圖片將保留在本機白板中，以便您可以通過本機白板將圖片從一個會議 (或錄影檔)
+        複製到另外一個會議。舉例來說，如果您的錄影檔中包含要在之後會議中使用的圖片，您可以先播放錄影檔並將標記的圖片複製到本機白板，然後進入
+        (或重新進入) 一個會議，接著從本機白板複製標記的圖片到白板中。</span> </p>
+    <br>
+    <p> <a name="error"><font color="008080"><strong>錯誤報告</strong></font></a>
+      &nbsp; <a href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </p>
+    <p> <img src="2-33.png"> </p>
+    <p>此按鈕表示在 JoinNet 網頁版中發生一個或多個 Javascript 錯誤。點選 "顯示錯誤報告Show Error Report"
+      按鈕將會顯示錯誤報告。請將錯誤報告內容以電子郵件傳送給您的管理者來進行調查和改善。</p>
+    <p>如果沒有錯誤報告，但 JoinNet 網頁版確實遇到問題或是 JoinNet
+      網頁版並未按預期運作，如何回報錯誤呢？只需將下列資訊傳送給您的管理者，包括: </p>
+    <ul>
+      <li>JoinNet 網頁版版本號 (總是顯示在左下角)；</li>
+      <li>作業系統與瀏覽器版本資訊；</li>
+      <li>關於如何觸發事件的簡要說明，以及；</li>
+      <li>JoinNet 網頁版的最新稽核內容，可以從 "稽核" 中進行複製：</li>
+    </ul>
+    <p> <img src="2-34.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> 在罕見的情況下如果無法存取稽核內容，請在網址加上 "show_log=1" 參數，例如 "<font color="008080">https://web.homemeeting.com/?show_log=1</font>"，
+      然後重新整理網頁。將會顯示 "顯示稽核記錄" 按鈕，可以點擊該按鈕來顯示稽核內容。</p>
+    <br>
+    <p> <font color="008080"><strong>全部重置</strong></font> </p>
+    <p>如果您在公用電腦/載具上使用 JoinNet 網頁版，例如在圖書館或機場等，您要如何刪除使用記錄呢？在選項中使用 "全部重置"
+      按鈕，這將會清除所有內容。在個人電腦上請小心使用這個按鈕。</p>
+    <p> <img src="2-35.png" class="center-block" style="max-width: 100%;"> </p>
+    <br>
+    <p> <font color="008080"><strong>重新連線</strong></font> </p>
+    <p>當您斷線後，只需單擊一下即可重新連線回會議：</p>
+    <p> <img src="2-36.png" class="center-block" style="max-width: 100%;"> </p>
+    <br>
+    <h3> <a name="troubleshooting"><strong>4. 語音和視訊的疑難排解</strong></a> &nbsp; <a
+        href="#top"><span style="font-size: 8pt;">(回到頁首)</span></a> </h3>
+    <p>看不見視訊和聽不到語音是造成線上會議失敗的兩個典型問題。即便使用今日先進的電腦設備，有些人仍然會遇到看不見視訊和聽不見語音的問題，尤其是聽不到語
+      音。</p>
+    <p>驅動程式無效不在此處的討論範圍。假設語音裝置和視訊裝置兩者的驅動程式軟體都運作正常，看不見視訊和聽不到語音的常見原因是硬體設定錯誤，例如選擇到錯誤
+      的錄音裝置或播放裝置。有關語音/視訊設定，請參閱作業系統或裝置製造商的語音/視訊疑難排解指南。</p>
+    <p>在某些情況下，它是由於不正確地使用 JoinNet
+      網頁版所引起。下列是一些情境討論，以便您在將來某天在某處因為不明原因遇到沒有視訊、沒有語音的問題時，可以幫助您找到解決方案。</p>
+    <p> <strong><u>情境 1</u></strong>：在會議中我聽不到對方說話，我要怎麼找到問題點？</p>
+    <ol>
+      <li>播放由 JoinNet 網頁版所提供的音樂檔。如果您聽不到任何聲音，瀏覽器可能正在使用無法正常運作或是已經關閉的語音裝置。</li>
+      <p><img src="3-1.png" class="center-block" style="max-width: 100%;"></p>
+      <li>檢查播放音量控制器上是否有訊號指示。音量可能偏低或是被調成靜音。</li>
+      <p><img src="3-2.png" class="center-block" style="max-width: 100%;"></p>
+      <li>在控制臺中檢查使用者的語音解碼是否被封鎖。</li>
+      <p><img src="3-3.png" class="center-block" style="max-width: 100%;"></p>
+      <li>請對方在品質統計視窗中檢查是否有任何語音接收速率。並檢查對方是否正在使用 G711 或 Opus 語音編碼。</li>
+      <p><img src="3-4.png" class="center-block" style="max-width: 100%;"></p>
+      <li>如果沒有任何對方的接收速率且已使用 WebRTC，請嘗試斷線再重新連線以重置 WebRTC 連線。有時候，對方需要執行這個技巧。</li>
+      <p><img src="3-5.png" class="center-block" style="max-width: 100%;"></p>
+      <li>如果一切看起來都很好但仍無法聽見語音，請嘗試 "重置語音播放"。</li>
+      <p><img src="3-6.png" class="center-block" style="max-width: 100%;"></p>
+    </ol>
+    <p> <strong><u>情境 2</u></strong>：在會議中對方聽不到我，我要怎麼找到問題點？</p>
+    <ol>
+      <li>檢查是否已啟用語音擷取。</li>
+      <p><img src="3-7.png" class="center-block" style="max-width: 100%;"></p>
+      <li>檢查麥克風音量控制器上是否有訊號指示。音量可能偏低或是被調成靜音。</li>
+      <p><img src="3-2.png" class="center-block" style="max-width: 100%;"></p>
+      <li>檢查您是否擁有發言權，例如身份為主持權持有者或發言者。</li>
+      <p></p>
+      <li>在品質統計視窗中檢查您是否有任何語音傳送速率。</li>
+      <p><img src="3-8.png" class="center-block" style="max-width: 100%;"></p>
+      <li>如果沒有任何傳送速率且已使用 WebRTC，請嘗試斷線再重新連線以重置 WebRTC 連線。有時候，對方需要執行這個技巧。</li>
+      <p><img src="3-5.png" class="center-block" style="max-width: 100%;"></p>
+    </ol>
+    <p> <strong><u>情境 3</u></strong>：在會議中我無法看見對方的視訊，我要怎麼找到問題點？</p>
+    <ol>
+      <li>檢查您是否已停止接收視訊。</li>
+      <p><img src="3-9.png" class="center-block" style="max-width: 100%;"></p>
+      <li>請對方在品質統計視窗中檢查是否有任何視訊接收速率；檢查對方是否使用 H264 或 Mjpg 視訊編碼，並檢查在視訊接收速率是否存在丟失率。</li>
+      <p><img src="3-10.png" class="center-block" style="max-width: 100%;"></p>
+      <li>如果沒有任何傳送速率且已使用 WebRTC，請嘗試斷線再重新連線以重置 WebRTC 連線。有時候，對方需要執行這個技巧。</li>
+      <p><img src="3-5.png" class="center-block" style="max-width: 100%;"></p>
+    </ol>
+    <p> <strong><u>情境 4</u></strong>：在會議中對方看不見我的視訊，我要怎麼找到問題點？</p>
+    <ol>
+      <li>檢查是否已啟用視訊擷取。.</li>
+      <p><img src="3-7.png" class="center-block" style="max-width: 100%;"></p>
+      <li>檢查您是否擁有發言權，例如身份為主持權持有者或發言者。</li>
+      <p></p>
+      <li>檢查您是否停止傳送視訊。</li>
+      <p><img src="3-11.png" class="center-block" style="max-width: 100%;"></p>
+      <li>在品質統計視窗中檢查您是否有任何視訊傳送速率。</li>
+      <p><img src="3-12.png" class="center-block" style="max-width: 100%;"></p>
+      <li>如果沒有任何傳送速率且已使用 WebRTC，請嘗試斷線再重新連線以重置 WebRTC 連線。有時候，對方需要執行這個技巧。</li>
+      <p><img src="3-5.png" class="center-block" style="max-width: 100%;"></p>
+    </ol>
+    <h3> <a name="faq"><strong>5. 常見問題</strong></a> &nbsp; <a href="#top"><span
+          style="font-size: 8pt;">(回到頁首)</span></a> </h3>
+    <p> <strong>[問題 1]<em> JoinNet 網頁版安全嗎？</em></strong> </p>
+    <p>絕對安全。JoinNet 網頁版與 JoinNet 電腦版一樣安全。JoinNet 網頁版使用 HomeMeeting 的安全協定，在安全的
+      websocket 之上來連線至 MCU 伺服器，這跟 JoinNet 電腦版的做法相同。</p>
+    <p> <strong>[問題 2]<em> 我使用 Safari 瀏覽器，如果我關閉 JoinNet
+          網頁版然後重新啟動一個新會議，它無法記住我的設定變更，這是怎麼回事？</em></strong> </p>
+    <p> 請檢查您是否已啟用 "私密瀏覽"。您必須關閉 "私密瀏覽"，這樣在您關閉 JoinNet 網頁版之後，Safari
+      瀏覽器還能記住您的設定變更。更多資訊請參閱 <a href="https://support.apple.com/en-us/HT203036">https://support.apple.com/en-us/HT203036</a>。</p>
+    <p> <strong>[問題 3]<em> 我的瀏覽器配置使用代理伺服器來訪問外部網頁。我可以在代理伺服器環境下使用 JoinNet 網頁版嗎？</em></strong>
+    </p>
+    <p> 也許。這個代理伺服器必須支援轉送 WebSocket 流量；即，代理伺服器必須支援且允許 HTTP Tunnel (HTTP
+      CONNECT)。否則，JoinNet 網頁版無法在代理伺服器環境下使用。更多資訊請參閱 <a href="http://en.wikipedia.org/wiki/WebSocket%20-%20Proxy_traversal">http://en.wikipedia.org/wiki/WebSocket
+        - Proxy_traversal</a>。</p>
+    <p> <strong>[問題 4]<em> 在會議期間資料會被快取在本機嗎？會議結束後，是否會刪除這些快取？</em></strong> </p>
+    <p>並不會。作為一個網頁，JoinNet 網頁版無法存取本地檔案系統。所有資料都在記憶體中。會議結束後，與會議相關的所有資料將被釋放。</p>
+    <p> <strong>[問題 5]<em> 在 JoinNet 網頁版線上圖示 <img src="3-14.png"> 中 的 "5"
+          是什麼意思？</em></strong> </p>
+    <p>它的意思是 "HTML5"：JoinNet 網頁版是採用 HTML5 開發的。</p>
+    <p> <strong>[問題 6]<em> 除了 Web Socket 之外，JoinNet 網頁版還需要 HTML5 的哪些特點？</em></strong>
+    </p>
+    <p>JoinNet 網頁版還使用了 HTML5 的其它特點，例如檔案、本地存儲、多執行緒、網路音訊、媒體擷取流和畫布等。但是，這些不是執行
+      JoinNet 網頁版所必要的。如果您的瀏覽器不支援上述的某些 HTML5 特點，某些功能可能無法正常運作。但您仍然可以使用功能有限的
+      JoinNet 網頁版。請檢查下列表格中基於不支援 HTML5 特點所缺少的功能：</p>
+    <table style="height: 16px; max-width: 100%; margin-left:auto; margin-right:auto;"
+      border="1">
+      <tbody>
+        <tr>
+          <td><strong><em>HTML5 特點</em></strong></td>
+          <td><strong><em>JoinNet 網頁版功能</em></strong></td>
+        </tr>
+        <tr>
+          <td>檔案</td>
+          <td>圖片/檔案上傳</td>
+        </tr>
+        <tr>
+          <td>本地存儲</td>
+          <td>稽核、選項</td>
+        </tr>
+        <tr>
+          <td>多執行緒</td>
+          <td>語音、視訊、桌面共享、遠距離操控、bmp 圖片、在白板中的檔案</td>
+        </tr>
+        <tr>
+          <td>網路音訊</td>
+          <td>語音</td>
+        </tr>
+        <tr>
+          <td>媒體擷取流</td>
+          <td>語音/視訊擷取、桌面共享</td>
+        </tr>
+        <tr>
+          <td>畫布</td>
+          <td>白板</td>
+        </tr>
+        <tr>
+          <td>WebRTC</td>
+          <td>語音、視訊</td>
+        </tr>
+      </tbody>
+    </table>
+    <p> <strong>[問題 7]<em> JoinNet Messenger 網頁版的文字交談訊息是否會像 JoinNet Messenger
+          電腦版一樣儲存在個人電腦上？</em></strong> </p>
+    <p>不會。JoinNet 網頁版並不會在個人電腦上儲存 Messenger 的文字交談訊息，因為它無法存取本地檔案系統。但是，文字交談訊息始終儲存在
+      MCU 伺服器上，並且可以在所有的 JoinNet Messenger 使用者端檢索。</p>
+    <p> <strong>[問題 8]<em> 我的 JoinNet 網頁版無法連接到 WebRTC，我該怎麼辦？</em></strong> </p>
+    <p>從您的 JoinNet 網頁版連接到 WebRTC 伺服器之間可能有防火牆阻擋。如果可以變更防火牆配置，請開放連接到 WebRTC 伺服器的
+      UDP 和/或 TCP 通訊埠。如果無法變更防火牆配置，請將可以穿越防火牆的穿透伺服器，新增至 WebRTC 設定。</p>
+    <p> <strong>[問題 9]<em> JoinNet網頁版支援哪些語音編碼？</em></strong> </p>
+    <p>JoinNet 網頁版支援 Opus 與 G.711。JoinNet 網頁版也支援 WebRTC。</p>
+    <p> <strong>[問題 10]<em> JoinNet 網頁版支援哪些視訊編碼？</em></strong> </p>
+    <p>JoinNet 網頁版支援 Mjpg，而觀看者僅支援 HM264、F264。JoinNet 網頁版也支援 WebRTC。</p>
+    <p> <strong>[問題 11]<em> 我的 JoinNet 網頁版顯示它正在使用 WebRTC，為什麼沒有語音或視訊？</em></strong>
+    </p>
+    <p>並非所有的瀏覽器都支援 JoinNet 網頁版使用的所有功能。某些瀏覽器與 JoinNet 網頁版有關的 WebRTC
+      不相容。在這種情況下，請關閉使用 WebRTC 再重新連線至會議。</p>
+    <p><img src="3-13.png" class="center-block" style="max-width: 100%;"></p>
+    <p> <strong>[問題 12]<em> 我的 JoinNet 網頁版顯示它正在使用
+          WebRTC，且一切都正常，但語音和視訊卻突然消失了，發生了什麼事？</em></strong> </p>
+    <p>WebRTC 伺服器可能關閉或是重新啟動，JoinNet 網頁版將失去與 WebRTC
+      伺服器的連線。在這種情況下，請中斷連線再重新連線至會議以重新整理與 WebRTC 伺服器之間的連線。</p>
+    <p> <strong>[問題 13]<em> 當我將白板設置為全螢幕並嘗試新增標記時，標記出現的位置跟我點選的位置不一樣？發生 了什麼事？</em></strong>
+    </p>
+    <p>對於某些瀏覽器，JoinNet
+      網頁版在全螢幕模式下無法正確地判斷滑鼠的位置。問題可能是由瀏覽器中的程式錯誤所引起。如果您遇到這個問題，請退出全螢幕來新增標記。</p>
+    <p> <strong>[問題 14]<em>當我開始錄音時，我的瀏覽器音量自動降低許多。這是怎麼一回事？</em></strong> </p>
+    <p>這是 Windows 的功能。自 Windows 7 版起，當 Windows 偵測到通訊活動時，可能會自動地降低音量。<br>
+      您可以輕鬆地禁用這個惱人的功能。請前往控制臺，然後選擇 "硬體和音效"，接著點選 "聲音"
+      來啟動聲音設定視窗。或者，您的控制臺是以圖示排列而非以類別排列，您只需從列表中選擇 "聲音" 即可。</p>
+    <p> <img src="3-15.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> 在 "聲音" 設定視窗，點選 "通訊" 分頁。將選項變更為 "不進行動作" 以有效地終止此功能。點選 "確定" 來儲存變更。 </p>
+    <p> <img src="3-16.png" class="center-block" style="max-width: 100%;"> </p>
+    <p> <strong>[問題 15]<em> 當我在 iPhone 上使用 Safari 拜訪 JoinNet
+          網頁版時，我在初始頁面遇到錯誤。在我點選 "顯示錯誤報告" 後，它顯示 "DOM Exception 18, an attempt was
+          made to break through the security policy"。這是怎麼一回事？</em></strong> </p>
+    <p>JoinNet 網頁版需要存取本地存儲。請按照下列步驟操作：</p>
+    <ol>
+      <li>在您的 iPhone 或 iPad 上，選擇設定。</li>
+      <li>選擇 Safari。</li>
+      <li>在隱私權與安全性底下，選擇阻擋所有 Cookies。</li>
+      <li>您將被重新導向至列表選項。選擇始終允許 (或允許我所訪問的網站)。</li>
+      <li>您可能需要重新啟動 Safari 才能使新設定生效。</li>
+    </ol>
+    <p></p>
+  </body>
+</html>

@@ -1,0 +1,117 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{'ID_IMAGE_MARK' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+      <span ng-show="!w.importing">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_MARK' | translate)}}" 
+          ng-click="import_mark()"><span class="glyphicon glyphicon-import"></span>
+          <span ng-show="as.show_text" translate="ID_IMPORT_MARK"></span></button>
+      </span>
+      <span ng-show="!w.adding">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FILE_MARK' | translate)}}" 
+          ng-click="open()"><span class="glyphicon glyphicon-paste"></span>
+          <span ng-show="as.show_text" translate="ID_FILE_MARK"></span></button>
+      </span>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="as.can_show_image_bar"> <span translate="ID_SHOW_IMAGE_BAR"></span>
+        </label>
+      </div>
+      <div>
+        <span>{{'ID_IMAGE_BAR_ITEM_SIZE' | translate}}</span>
+          <select tooltip="{{as.no_tip ? '' : ('IDS_PENWIDTH_TOOLTIP' | translate)}}" 
+            ng-model="as.image_bar_item_size" ng-init="isizes=[12,16,24,32];" 
+            ng-options="isize for isize in isizes">
+          </select>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="as.can_show_bottom_image_bar"> <span translate="ID_SHOW_BOTTOM_IMAGE_BAR"></span>
+        </label>
+      </div>
+      <div ng-show="0" class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="as.use_png_mark"> <span translate="ID_USE_PNG_MARK"></span>
+        </label>
+      </div>
+      <div>
+        <span>
+          <div class="inline-block">
+            <input type="range" class="vertical-middle" style="width: 153px;display: inline;" min="32" max="640" step="4" 
+              tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_IMAGE_DISPLAY_SIZE' | translate)}}" 
+              ng-model="display_size">{{display_size}}
+          </div>
+        </span>
+      </div>
+      <form role="form">
+        <div class="form-group" ng-if="bd.selected_mark.size_descr">
+          <label for="selected1">{{'ID_SELECTED_MARK' | translate}} [{{bd.selected_mark.datasize}}B]</label>
+          <div id="selected1" class="vertical-top">
+            <div>
+            <span><button type="button" class="btn btn-default" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_FILE' | translate)}}" ng-click="save()">
+              <span class="glyphicon glyphicon-floppy-save"></span> 
+              <span ng-show="as.show_text" translate="ID_SAVE_FILE"></span></button></span>
+            <span>{{bd.selected_mark.size_descr}}</span>
+            </div>
+            <div class="inline-block video-window">
+              <div translate="ID_WHITE_BACKGROUND"></div>
+              <img ng-style="style_selected_img" style="background-color: #ffffff;" alt="" ng-src="{{bd.selected_mark.url}}"/>
+            </div>
+            <div class="inline-block video-window">
+              <div translate="ID_GRAY_BACKGROUND"></div>
+              <img ng-style="style_selected_img" style="background-color: #808080;" alt="" ng-src="{{bd.selected_mark.url}}"/>
+            </div>
+          </div>
+        </div>
+        <div ng-show="w.is_mark_loading">{{'ID_LOADING_MARK' | translate}}</div>
+        <div class="form-group" ng-show="w.mark_array1.length">
+          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.show_mark1]" 
+            ng-click="w.toggle_show_mark1()" >
+            <span translate="ID_ADDED_MARK"></span></button></span>
+          <label for="added">({{w.mark_array1.length}}) [{{w.mark_size_str1}}B]</label>
+          <div id="added" ng-show="w.show_mark1" class="vertical-top">
+            <div class="inline-block video-window" ng-repeat="mark in w.mark_array1">
+              <span>
+                <span><button type="button" class="btn btn-default"
+                tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}" 
+                  ng-click="delete_mark(mark)"> <span class="glyphicon glyphicon-remove"></span>
+                  <span ng-show="as.show_text" translate="ID_DELETE"></span></button></span>
+              </span>
+              <div>
+                <img class="user-pointer" ng-style="style_img" alt="" ng-src="{{mark.url}}" ng-click="select_mark(mark)"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" ng-show="w.mark_array0.length">
+          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.show_mark0]" 
+            ng-click="w.toggle_show_mark0()" >
+            <span translate="ID_BUILTIN_MARK"></span></button></span>
+          <label for="mark">({{w.mark_array0.length}}) [{{w.mark_size_str0}}B]</label>
+          <div id="mark" ng-show="w.show_mark0" class="vertical-top">
+            <div class="inline-block video-window" ng-repeat="mark in w.mark_array0">
+              <img class="user-pointer" ng-style="style_img" alt="" ng-src="{{mark.url}}" ng-click="select_mark(mark)"/>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <span ng-show="can_paste_mark" translate="ID_PASTE_MARK"></span>
+      <span ng-show="!w.importing">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_MARK' | translate)}}" 
+          ng-click="import_mark()"><span class="glyphicon glyphicon-import"></span>
+          <span ng-show="as.show_text" translate="ID_IMPORT_MARK"></span></button>
+      </span>
+      <span ng-show="!w.adding">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FILE_MARK' | translate)}}" 
+          ng-click="open()"><span class="glyphicon glyphicon-paste"></span>
+          <span ng-show="as.show_text" translate="ID_FILE_MARK"></span></button>
+      </span>
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+    </div>

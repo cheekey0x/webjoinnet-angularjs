@@ -1,0 +1,682 @@
+<html>
+<head>
+  <meta charset="utf-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Web JoinNet User Guide</title>
+  <link href="../css/bootstrap.css" rel="stylesheet" />
+  <link rel="shortcut icon" type="image/png" href="../img/jnagent_72x72.png" />
+</head>
+<body style="margin: 10px;">
+<a name="top"></a>
+<h3><strong>Web JoinNet User Guide</strong></h3>
+<ol>
+ 	<li><a href="#preface">Preface</a></li>
+ 	<li><a href="#start">Start Using Web JoinNet</a></li>
+ 	<li><a href="#special">Special Features</a></li>
+	<ul>
+		<li><a href="#p2p">P2P Video Call</a></li>
+		<li><a href="#pdf">Support PDF on JoinNet White Board</a></li>
+		<li><a href="#text">Text Mark on JoinNet White Board</a></li>
+		<li><a href="#png">Paste PNG Image on JoinNet White Board</a></li>
+		<li><a href="#share">Share Audio/Video from PC or Mobile Device During Online Meeting</a></li>
+		<li><a href="#screen">Screen Capture as Video Input</a></li>
+		<li><a href="#local">Off-Meeting Local Board to Preserve Slides from Previous Meeting</a></li>
+		<li><a href="#error">Error Report</a></li>
+	</ul>
+ 	<li><a href="#troubleshooting">Audio &amp; Video Troubleshooting</a></li>
+ 	<li><a href="#faq">FAQ</a></li>
+</ol>
+<br>
+<h3>
+<a name="preface"><strong>1. Preface</strong></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</h3>
+
+<p>
+Web JoinNet is a suite of JoinNet and JoinNet Messenger ported to the web using HTML, CSS, JavaScript and WebRTC, which enable it to run on all modern browsers on all platforms including Windows, Mac, Linux, Android and iOS mobile devices. Web JoinNet is currently available at <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a> for general-purpose usage.
+</p>
+<p>
+Please note that only the MCU server version 3.26 or higher support Web JoinNet and WebRTC, and the MCU must use a license supporting "Web JoinNet" and "WebRTC".
+</p>
+<p>
+Though Web JoinNet can be used on all modern browsers without any installation, not all browsers support advanced HTML5 features that are necessary to capture media data, such as audio, video, screen, imported HTML5 media, etc. For advanced users, we recommend using Chrome or FireFox, with several configuration changes. 
+</p>
+<ul>
+ 	<li><i>Recommended configuration changes on Chrome: (1) Install a Chrome extension from <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">here</a> and (2) Click "ADD TO CHROME".</i></li>
+ 	<li><i>Recommended configuration changes on Firefox: (1) Browse URL "about:config", the Firefox's configuration page; (2) Enable "media.getusermedia.screensharing.enabled"; (3) Add the Web JoinNet's domain (*.homemeeting.com) to "media.getusermedia.screensharing.allowed_domains"; (4) Firefox's configuration change takes effect immediately, without any restart.</i></li>
+</ul>
+<p>
+Web JoinNet is implemented using HTML5 without any plug-in and it runs inside the browser. All its functions are heavily depending on the HTML5 support of the browser. Simply put, Web JoinNet is an HTML 5 web page. Here are some known limitations:
+<ol>
+ 	<li>As a web page, Web JoinNet cannot access the local File system. Its logging and setting are saved in local storage, which is an HTML5 feature.</li>
+ 	<li>Without access to local File system, Web JoinNet doesn't save JoinNet Messenger chat locally. However, the Messenger chat information is still saved at the MCU server and can be retrieved by the JoinNet Messenger clients.</li>
+ 	<li>Due to resource limitation, the Web JoinNet can only handle content within 4096x4096 in the white board. This size is further limited to 2048x2048 for iOS.</li>
+ 	<li>For security reason imposed to all browsers and web pages, Web JoinNet cannot be remotely controlled; that is, JoinNet Remote Control feature cannot work on Web JoinNet.</li>
+ 	<li>Restricted by the browser's implementation, there is a limitation on the size of data chunk that Web JoinNet can handle; for example, it cannot read/write too large files, cannot render too large images. Some browsers will crash if Web JoinNet try to read large data block. Web JoinNet can probe the browser's limitation from the "Options/Web App" tab. Experienced users can set the threshold accordingly to avoid a browser crash.</li>
+</ol>
+</p>
+<img src="1-1.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<br>
+<h3><a name="start"><strong>2. Start Using Web JoinNet</strong></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</h3>
+<p>
+Before using Web JoinNet, you may want to create a shortcut of using it. 
+</p>
+<p>
+For desktop computer, use the browser, such as Chrome, to create a shortcut to the Web JoinNet at the Desktop so that it can be launched just like a native application. For example, at a browser tab, open <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a>, and click Menu/More tools/Create shortcut...,
+</P>
+<p>
+<img src="2-0a.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+<img src="2-0b.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+This will create a shortcut at the Desktop. You can launch Web JoinNet by clicking this shortcut.
+</p>
+<br/>
+<p>
+For Android phone, use the browser, such as Chrome, to visit <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a>, for exapmle, and click Menu/Add to home screen: 
+</p>
+<p>
+<img src="2-0c.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+This will create the Web JoinNet App at the phone's Home screen, just like a native App.
+</p>
+<br/>
+<p>
+Web JoinNet consists of two parts: JoinNet Messenger and JoinNet. Here is a snapshot of Web JoinNet at JoinNet Messenger Mode:
+</p>
+<p>
+<img src="2-1.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Generally speaking, there are three ways that you can utilize Web JoinNet: 
+</p>
+<p>
+<b>Case 1</b>: Browse the Web JoinNet site, such as <a href="https://web.homemeeting.com/">https://web.homemeeting.com/</a> to set up the JoinNet Messenger account and start using Web JoinNet.
+</p>
+<br/>
+<p>
+<b>Case 2</b>: You have a shared JNR URL. You can now share this JNR to anyone even if this user has not installed JoinNet. You can even post this URL to a website so that anyone can access it. The JNR can be played using Web JoinNet at any computer or mobile device without any installation. Just append a parameter "<font color="blue">web=1</font>" to the URL.
+</p>
+<ul>
+<li>
+For WO, you get the JNR link at JoinNet Messenger, such as <font color="336699">https://your_mcu.com/playback.jnj?auth=BIg=</font>, 
+<br>
+change it to <font color="336699">https://your_mcu.com/playback.jnj?auth=BIg=&web=1</font>
+</li>
+<li>
+For MMC, you get the JNR link at JoinNet Messenger, such as
+<font color="336699">https://your_mmc.com/share.php?id=1&u=U2Fsd</font>, 
+<br>
+change it to
+<font color="336699">https://your_mmc.com/share.php?id=1&u=U2Fsd&web=1</font>
+</li>
+<li>
+For MMC, you can also get a JNR link via JNR publishing such as
+<font color="336699">https://your_mmc.com/pub_recording_view.php?id=144&c=playback</font>, 
+<br>
+change it to
+<font color="336699">https://your_mmc.com/pub_recording_view.php?id=144&c=playback&web=1</font>
+</li>
+</ul>
+<br/>
+<p>
+<b>Case 3</b>: You would like to have an online meeting with some one, who may never use JoinNet before. Now you can simply send to this person a link via any channel such as email, messenger, online chat, etc. This person can click this link and launch a Web JoinNet to visit your office. No installation is required. The link is just your visit URL appending a parameter "<font color="blue">web=1</font>".
+</p>
+<ul>
+<li>
+For WO, the visit URL link is 
+<font color="336699">https://your_mcu.com/weboffice_userid.jnj</font>, 
+<br>
+change it to
+<font color="336699">https://your_mcu.com/weboffice_userid.jnj?web=1</font>
+</li>
+<li>
+For MMC, the visit URL link is 
+<font color="336699">https://your_mmc.com/gotomeeting.php?u=2&c=visit</font>, 
+<br>
+change it to
+<font color="336699">https://your_mmc.com/gotomeeting.php?u=2&c=visit&web=1</font>
+</li>
+</ul>
+<br/>
+<p>
+Here is  a snapshot of Web JoinNet in a real-time meeting:
+<br>
+<br>
+<img src="2-2.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Since the target readers of this user guide are experienced JoinNet users, we will not go over all the features in details, except some special attentions and unique features. Let us start with special attentions:
+</p>
+<br>
+<p>
+<font color="008080"><strong>Allow Audio &amp; Video Capture</strong></font>
+</p>
+<p>
+When starting Web JoinNet to join a meeting for the first time on a new browser page, you may see the popup message saying Web JoinNet wants to use your microphone or to use your camera. You can always start/stop the audio/video capture status from the pull-down menu of Web JoinNet: (You can test your audio output by playing a sound file of Web JoinNet; if you cannot hear anything, the browser may be using a device that is not working or turned off.)
+<br>
+<br>
+<img src="2-3.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<ul>
+ 	<li><i>If accidentally you made a mistake to block Web JoinNet to capture audio &amp; video, you may need to change the browser's setting to re-allow the Web JoinNet site to access your microphone (or camera). For Chrome, please visit <a href="https://support.google.com/chrome/answer/2693767?hl=en">https://support.google.com/chrome/answer/2693767?hl=en</a>. For Android Chrome, Menu > Settings > Content settings > Website settings > the web app site.</i></li>
+</ul>
+<br>
+<p>
+<font color="008080"><strong>Attention! No Joint Web Browser</strong></font>
+</p>
+<p>
+Web JoinNet tried to use 'iframe' to implement the Joint Web Browsing. It is basically a browser embedded in a browser. There are different rules set on 'iframe' by different browsers. Some browsers always allow users to follow links in an embedded browser while most don't. In fact, major content providers, such as YouTube and Google, don't allow their pages to be displayed in an embedded browser. So, it is decided that Joint Web Browser should be removed from Web JoinNet, with a remedy: Text Chat and Start Screen Capture.
+</p>
+<p>
+<span>Since there is no Joint Web Browser in Web JoinNet, when a Joint Borwsing URL is received, the URL will be displayed at the Text Chat panel automatically; one can click it to bring up a new browsing tab to display the content.</span>
+<br>
+<br>
+<img src="2-4.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+When a Web JoinNet user wants to bring others to surf the Internet, he/she is encouraged to display the browser by using video window. Yes, this special feature is limited to Web JoinNet only. We will talk about this when going over the section of screen capture. 
+</p>
+<br>
+<p>
+<font color="008080"><strong>Sorry, No JoinNet Printer Driver either</strong></font>
+</p>
+<p>
+Web JoinNet doesn't have JoinNet printer installed. To upload document in slide pages, the MCU server uses a conversion server to convert a general file into one or multiple slide pages.
+</p>
+<p>
+Though Web JoinNet doesn't support JoinNet printer driver, it does support PDF slide! We will go over this topic later when talking about Web JoinNet's special features.
+</p>
+<h3>
+<br>
+<br>
+<a name="special"><strong>3. Special Features</strong></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</h3>
+<p>
+Most of the features of Web JoinNet follow the design of native JoinNet so that users of Web JoinNet can attend the same online meeting as the users of native JoinNet, including PC JoinNet, Android JoinNet and Mac JoinNet.
+</p>
+<p>
+However, Web JoinNet has some special features that work for Web JoinNet and Web JoinNet only; that is, these special features won't work for the native JoinNet. 
+</p>
+<br>
+<p>
+<a name="p2p"><font color="008080"><strong>P2P Video Call</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+A video call from Messenger to Messenger is made possible with the help of WebRTC. Since this is a point-to-point connection, one may not be able to make a video call because of firewall, NAT, and similar network limitation. Here are the steps to start a P2P video call:
+</p>
+<p>
+Step 1: Select a user from JoinNet Messenger and click on Conversation. (Please refer to JoinNet Messenger User Guide for creating contact group and text conversation.)
+<br>
+<br>
+<img src="2-5.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Step 2: Click on Menu icon and select Video Call
+<br>
+<br>
+<img src="2-6.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Step 3: Wait for the other user to accept your call. Once accepted, you will see your video and other user's video displayed above the conversation window.
+<br>
+<br>
+<img src="2-7.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Please note that you can click on the video area to rearrange video display.
+<br>
+<br>
+<img src="2-8.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+And you can share your entire screen (or application window) as video input (and have the other user to select "full screen" to watch a real-time desktop sharing, for example). The performance of WebRTC video is very impressed that you both can even watch a YouTube video at the same time by sharing your own screen!)
+<br>
+<br>
+<img src="2-9.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+And you can select a local video (MP4) or audio (MP3) as video input to share the media file to the other user.
+<br>
+<br>
+<img src="2-10.png" class="center-block" style="max-width: 100%;"></img>
+<br><br>
+<img src="2-11.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+You can control the pace of video playback by using the video playback window below the video display area. For the best result, you can ask the viewer to select full screen.
+<br>
+<br>
+<img src="2-12.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<br>
+<p>
+<a name="pdf"><font color="008080"><strong>Support PDF on JoinNet White Board</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+<span>In most cases, except PC JoinNet who utilizes JoinNet Printer Driver, the process of printing a document to the JoinNet White Board is compression, uploading, conversion, and downloading. The conversion process is taking place at the Conversion Server, resulted in PNG format or PDF format. Since there is no conversion needed for a PDF file, it will be printed faster than other document types. (Almost all documents can be converted to PDF format.)</span>
+</p>
+<p>
+<img src="2-13.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+</br>
+<img src="2-14.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<img src="2-15.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<img src="2-16.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<img src="2-17.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+The benefit of printing a PDF file to the JoinNet White Board is obvious--you can enlarge the page size without losing its details.
+</p>
+<p>
+<img src="2-18.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<br>
+<p>
+<a name="text"><font color="008080"><strong>Text Mark on JoinNet White Board</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+Web JoinNet allows users to paste Text Mark on white board as image, which is called Text as Image. The purpose of using Text as Image is to avoid text rendering problem between different language fonts.
+</p>
+<p>
+<img src="2-19.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<img src="2-20.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<br>
+<p>
+<a name="png"><font color="008080"><strong>Paste PNG Image on JoinNet White Board</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+While native JoinNet does provide copy-and-paste or Insert Image to allow users to put an image to the white board, Web JoinNet allows users to put PNG image to the white board by using Paste Image. Please note that native JoinNet may not be able to display PNG image on the white board if you are using an old version.
+</p>
+<p>
+<img src="2-21.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+You can use Manage Marks to add more marks to Paste Image:
+</p>
+<p>
+<img src="2-22.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Besides adding new marks from file, users can also import image marks from a slide. When the Web JoinNet is viewing a slide, either in a meeting or a playback, all the image marks in the side can be imported with one click. The imported image marks will be added to the Image Mark array automatically and can be either saved to local drive or pasted to other sides. This is a convenient way to save interesting image marks posted by others.
+</p>
+<br>
+<p>
+<a name="share"><font color="008080"><strong>Share Audio/Video from PC or Mobile Device during Online Meeting</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+Web JoinNet allows you to share audio/video through the video window. The audio/video media can be any format such as mp4, webm, mp3, ogg, m4v, wav, etc., as long as the browser can decode it. 
+</p>
+<p>
+<img src="2-23.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<p>
+<img src="2-24.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<p>
+<img src="2-25.png" class="center-block" style="max-width: 100%;"></img>
+<br>
+<br>
+<p>
+<img src="2-26.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+As you may notice that there is an option of Link Address to import media from a website. But most content providers don't allow their media data to be broadcasted or re-broadcasted. This means that the media data may not be able to play (for audio) or only be played locally (for video). To get around this, the user must configure the content server to support CORS (Cross Origin Resource Sharing) to allow Web JoinNet's access. For information on how to turn on CORS support on the content server side, please check: <a href="http://enable-cors.org/server.html">http://enable-cors.org/server.html</a>
+</p>
+<p>
+Web JoinNet user can at any time choose to send either the local captured video or the transcoded HTML5 video to the MCU.
+</p>
+<p>
+<img src="2-27.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+There are some interesting applications for this "importing HTML5 media as source" feature:
+</p>
+<p>
+<ul>
+	<li>The presenter can import an audio link and use it as background music throughout the meeting.</li>
+	<li>A tutor can broadcast a video to all the students and pause/resume it at any time. During the video's broadcasting, the tutor can also talk.</li>
+	<li>A tutor can use some HTML5 links as live examination. These links can be located at the tutor's private computer so they are not accessible to the students before the test.</li>
+	<li>A talker can configure an audio link as an audio-losing reminder. In case that the audio capture is suddenly disabled due to more important task such as taking a phone call, Web JoinNet can automatically switch to this audio link.</li>
+	<li>The HTML5 link can point to a live event. In this case, Web JoinNet can record the live event to a JNR file. Typically the live event site doesn't support CORS, so that only the audio part can be recorded.</li>
+	</ul>
+</p>
+<br>
+<p>
+<a name="screen"><font color="008080"><strong>Screen Capture as Video Input</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+You can now capture the entire screen or application window as video input. And, because of the high-quality video performance of WebRTC, it is recommended that you use this feature to replace the old-fashion Desktop Sharing of JoinNet--although it is still supported by Web JoinNet. This feature can also be used to replace the Joint Browsing feature in the native JoinNet.
+</p>
+<p>
+<img src="2-28.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+<img src="2-29.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Once you start using captured screen as video source, you can ask all the meeting participants to full-screen their video window to see your live screen sharing, which is a better way to do desktop sharing among users of Web JoinNet.
+</p>
+<p>
+Not only you can share the captured screen by choosing "Screen Capture" as the target in the video window, you can also use Snapshot to capture the selected screen to Whiteboard, which is similar to the window capture supported by PC JoinNet.
+</p>
+<p>
+<img src="2-30.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<br>
+<p>
+<a name="local"><font color="008080"><strong>Off-Meeting Local Board to Preserve Slides from Previous Meeting</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+There is a new policy regarding Private Note for Web JoinNet. In short, every slide uploaded to the Whiteboard will appear in Private Note automatically, without any annotation or mark. Therefore the slide number and sequence will be identical in both Whiteboard and Private Note. The only difference is annotation or mark. All users can mark on Whiteboard but only individual user can mark on his/her Private Note. 
+</p>
+<p>
+This new policy removes the Whiteboard's feature of "Copy Slide to Private Note," if you want to copy a Whiteboard's slide with mark or annotation onto your local device, you can "Copy Slide to Local Board" and vice versa. 
+</p>
+<p>
+<img src="2-31.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+<img src="2-32.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+Likewise, you can copy any marked or annotated slide from Private Note to Local Board--but not from Local Board to Private Note, since this is not necessary. 
+</p>
+<p>
+<span>Please note that, unlike all slides of Whiteboard and Private Note are meeting-based; that is, all slides will be gone if meeting ended, the slides of Local Board are browser-based. If you don't close the browser page of Web JoinNet, slides remain in Local Board so that you can move slides from one meeting (or recording) to another meeting through Local Board. For example, if you have a recording file that contains marked slides to be used later in a meeting, you can play back the recording file and copy the marked slides to Local Board and then enter (or reenter) a meeting, and copy the marked slides from Local Board to White Board.</span> 
+</p>
+<br>
+<p>
+<a name="error"><font color="008080"><strong>Error Report</strong></font></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</p>
+<p>
+<img src="2-33.png"></img>
+</p>
+<p>
+This button indicates that there could be one or more Javascript errors occurred in Web JoinNet. Click the "Show Error Report" button and the error report will be shown. Please email the error report content to your administrator for investigation and improvement.  
+</p>
+<p>
+If no error report, whatsoever, but you did encounter a problem with Web JoinNet or Web JoinNet is not working as expected, how to report the bug? Just send email to your administrator including:
+</p>
+<ul>
+	<li>The version of Web JoinNet (always shown at the bottom-left corner);</li>
+	<li>OS and Browser information;</li>
+	<li>A brief description on how to trigger the incident;</li>
+	<li>The latest part of the Web JoinNet log, which can be copied from the "Log" section:</li>
+</ul>
+<p>
+<img src="2-34.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+If the Log section cannot be accessed in rare cases, append a parameter "show_log=1" to the URL, such as "<font color="008080">https://web.homemeeting.com/?show_log=1</font>", and refresh the page. A "Show Log" button will show up and can be clicked to show the log content.
+</p>
+<br>
+<p>
+<font color="008080"><strong>Reset All</strong></font>
+</p>
+<p>
+If you use Web JoinNet at a public computer/device, such as in a library or airport, etc. how can you remove the usage history? Use the "Reset All" button in the Options section, which will erase EVERYTHING. Be careful to use this button at a private computer. 
+</p>
+<p>
+<img src="2-35.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<br>
+<p>
+<font color="008080"><strong>Reconnect</strong></font>
+</p>
+<p>
+When you are disconnected, you can reconnect back to the meeting with one click:
+</p>
+<p>
+<img src="2-36.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<br>
+<h3>
+<a name="troubleshooting"><strong>4. Audio and Video Troubleshooting</strong></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</h3>
+<p>
+Seeing no video and hearing no audio are two typical problems that fail online meeting. Even with today's advanced computing devices, some people still have problems with seeing no video and hearing no audio, especially hearing no audio.
+</p>
+<p>
+Driver failure is out of the scope of discussion here. Assuming working driver software for both audio device and video device, the common cause of seeing no video or hearing no audio is wrong hardware settings, such as select wrong recording device or wrong playback device. Please consult audio/video troubleshooting guides from the operation system or device manufacturer regarding the audio/video settings.
+</p>
+<p>
+In some cases, it is caused by improper using of Web JoinNet. Here are some scenario discussions that may help you finding solutions to fix the no-video-or-no-audio problem that you may encounter someday, somehow, somewhere.
+</p>
+<p>
+<strong><u>Scenario 1</u></strong>: I cannot hear the other person talking in a meeting, how can I find what's wrong?
+</p>
+<ol>
+	<li>Play a sound file provided by Web JoinNet. If you cannot hear anything, the browser may be using an audio device that is not working or turned off. </li>
+	<p><img src="3-1.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether there is signal indicator at the playback volume control. The volume may be too low or muted.</li>
+	<p><img src="3-2.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether the user's audio decoding is blocked in the control panel.</li>
+	<p><img src="3-3.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether the other person has any audio receiving rate in the statistics window. And check whether the other person is using G711 or Opus audio codec.</li>
+	<p><img src="3-4.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>If there is no receiving rate from the other person and WebRTC is used, try to disconnect and then reconnect to reset WebRTC connection. Sometimes, it is the other person need to do this trick.</li>
+	<p><img src="3-5.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>If everything seems fine but audio still cannot be heard, try to "Reset Audio Playback".</li>
+	<p><img src="3-6.png" class="center-block" style="max-width: 100%;"></img></p>
+</ol>
+<p>
+<strong><u>Scenario 2</u></strong>: The other person cannot hear me in a meeting, how can I find what's wrong?
+</p>
+<ol>
+	<li>Check whether the audio capture is on.</li>
+	<p><img src="3-7.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether there is signal indicator on the microphone volume control. The volume may be too low or muted.</li>
+	<p><img src="3-2.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether you are a talker, such as token holder or questioner.</li>
+	<p></p>
+	<li>Check whether you have any audio sending rate in the Statistics window.</li>
+	<p><img src="3-8.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>If there is no sending rate and WebRTC is used, try to disconnect and then reconnect to reset WebRTC connection. Sometimes, it is the other person need to do this trick.</li>
+	<p><img src="3-5.png" class="center-block" style="max-width: 100%;"></img></p>
+</ol>
+<p>
+<strong><u>Scenario 3</u></strong>: I cannot see the other person's video in a meeting, how can I find what's wrong?
+</p>
+<ol>
+	<li>Check whether you have stopped receiving video.</li>
+	<p><img src="3-9.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether the other person has any video receiving rate in the statistics window; check whether the other person is using H264 or Mjpg video codec and check whether there is significant loss rate in the video receiving.</li>
+	<p><img src="3-10.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>If there is no receiving rate from the other person and WebRTC is used, try to disconnect and then reconnect to reset WebRTC connection. Sometimes, it is the other person need to do this trick.</li>
+	<p><img src="3-5.png" class="center-block" style="max-width: 100%;"></img></p>
+</ol>
+<p>
+<strong><u>Scenario 4</u></strong>: The other person cannot see my video in a meeting, how can I find what's wrong?
+</p>
+<ol>
+	<li>Check whether the audio capture is on.</li>
+	<p><img src="3-7.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether you are a talker, such as token holder or questioner.</li>
+	<p></p>
+	<li>Check whether you have stopped sending video.</li>
+	<p><img src="3-11.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>Check whether you have any video sending rate in the Statistics window.</li>
+	<p><img src="3-12.png" class="center-block" style="max-width: 100%;"></img></p>
+	<li>If there is no sending rate and WebRTC is used, try to disconnect and then reconnect to reset WebRTC connection. Sometimes, it is the other person need to do this trick.</li>
+	<p><img src="3-5.png" class="center-block" style="max-width: 100%;"></img></p>
+</ol>
+<h3>
+<a name="faq"><strong>5. FAQ</strong></a> &nbsp
+<a href="#top"><span style="font-size: 8pt;">(back to top)</span></span></a>
+</h3>
+<p>
+<strong>[Question 1]<em>Is Web JoinNet secure? </em></strong>
+</p>
+<p>
+Yes. Web JoinNet is as secure as the PC JoinNet. Web JoinNet connects to the MCU servers using HomeMeeting's secure protocol, on top of secure websocket, just as the PC JoinNet does. 
+</p>
+<p>
+<strong>[Question 2]<em>I am using Safari, Web JoinNet cannot remember my changes of settings if I close it and start a new session. What is going on? </em></strong>
+</p>
+<p>
+Please check whether you have turned on "Private Browsing". You must turn off "Private Browsing" for Web JoinNet to remember your changes of settings after you close it. See <a href="https://support.apple.com/en-us/HT203036">https://support.apple.com/en-us/HT203036</a> for more information.
+</p>
+<p>
+<strong>[Question 3]<em>My browser is configured to use proxy to visit outside web pages. Can I use Web JoinNet behind the proxy? </em></strong>
+</p>
+<p>
+Maybe. The proxy must support forwarding WebSocket traffic; i.e., the proxy must support and allow HTTP Tunnel (HTTP CONNECT). Otherwise, Web JoinNet cannot be used behind the proxy. More information can be found at <a href="http://en.wikipedia.org/wiki/WebSocket - Proxy_traversal">http://en.wikipedia.org/wiki/WebSocket - Proxy_traversal</a>
+</p>
+<p>
+<strong>[Question 4]<em>Will the data be cached locally during a meeting? After the meeting is ended, will this cache be cleaned up?</em></strong>
+</p>
+<p>
+No. As a web page, Web JoinNet cannot access the local File system. All the data are in memory. After the meeting is ended, all data related to the meeting will be released.
+</p>
+<p>
+<strong>[Question 5]<em>What does the "5" mean in Web JoinNet Online Icon <img src="3-14.png"></img> ?</em></strong>
+</p>
+<p>
+It means "HTML5": Web JoinNet is developed using HTML5.
+</p>
+<p>
+<strong>[Question 6]<em>What HTML5 features does Web JoinNet require besides Web Socket?</em></strong>
+</p>
+<p>
+Web JoinNet also uses other HTML5 features, such as File, Local Storage, Web Worker, Web Audio, Media Capture Stream, Canvas, etc. However, these are not required to run Web JoinNet. If your browser doesn't support some of these HTML5 features, certain functions may not work. But you can still use Web JoinNet with limited functions. Please check the following table for the missing functions due to unsupported HTML5 features:
+</p>
+<table style="height: 16px; max-width: 100%; margin-left:auto; margin-right:auto;" border="1">
+<tbody>
+<tr>
+<td><strong><em>HTML5 Feature</em></strong></td>
+<td><strong><em>Web JoinNet Function</em></strong></td>
+</tr>
+<tr>
+<td>File</td>
+<td>Slide/File Upload</td>
+</tr>
+<tr>
+<td>Local Storage</td>
+<td>log, options</td>
+</tr>
+<tr>
+<td>Web Worker</td>
+<td>audio, video, desktop sharing, remote control, bmp slides, files in white board</td>
+</tr>
+<tr>
+<td>Web Audio</td>
+<td>audio</td>
+</tr>
+<tr>
+<td>Media Capture Stream</td>
+<td>audio/video capture, desktop sharing</td>
+</tr>
+<tr>
+<td>Canvas</td>
+<td>white board</td>
+</tr>
+<tr>
+<td>WebRTC</td>
+<td>audio, video</td>
+</tr>
+</tbody>
+</table>
+<p>
+<strong>[Question 7]<em>Will Web JoinNet Messenger chat information be saved locally as in the PC JoinNet Messenger?</em></strong>
+</p>
+<p>
+No. Web JoinNet does NOT save Messenger’s chat information locally as it cannot access the local File system. However, the chat history is always saved at the MCU server and can be retrieved by all other JoinNet Messenger clients.
+</p>
+<p>
+<strong>[Question 8]<em>My Web JoinNet cannot connect to WebRTC, what can I do?</em></strong>
+</p>
+<p>
+There could be firewall that prevent your Web JoinNet from connecting to the WebRTC server. If the firewall configuration can be modified, please open UDP and/or TCP ports to the WebRTC server. If the firewall configuration cannot be modified, please add a TURN server, which can traverse your firewall, to the WebRTC settings.
+</p>
+<p>
+<strong>[Question 9]<em>What audio codec does Web JoinNet support?</em></strong>
+</p>
+<p>
+Web JoinNet supports Opus and G.711. Web JoinNet also support WebRTC.
+</p>
+<p>
+<strong>[Question 10]<em>What video codec does the Web JoinNet support?</em></strong>
+</p>
+<p>
+Web JoinNet supports Mjpg and the viewer only for HM264, F264. Web JoinNet also support WebRTC.
+</p>
+<p>
+<strong>[Question 11]<em>My Web JoinNet shows that it is using WebRTC, Why there is no audio or video?</em></strong>
+</p>
+<p>
+Not all browsers support all the features used in the Web JoinNet. Some browsers are not compatible with the Web JoinNet regarding the WebRTC. In this case, please turn off the usage of WebRTC and reconnect to the meeting.
+</p>
+<p><img src="3-13.png" class="center-block" style="max-width: 100%;"></img></p>
+<p>
+<strong>[Question 12]<em>My Web JoinNet shows that it is using WebRTC and everything is fine, but audio and video are gone suddenly, what happened?</em></strong>
+</p>
+<p>
+The WebRTC server may be down or be restarted and the Web JoinNet loses its connection with the WebRTC server. In this case, please disconnect and reconnect to the meeting to refresh the connection with the WebRTC server.
+</p>
+<p>
+<strong>[Question 13]<em>When I set the white board to full screen and try to add marks, the mark appears at a different location from where I click? What happened?</em></strong>
+</p>
+<p>
+Web JoinNet has trouble to correctly determine the mouse's position in full screen mode for certain browsers. The problem could be caused by bugs in the browser. If you encounter this problem, please leave full screen mode to add marks.
+</p>
+<p>
+<strong>[Question 14]<em>My browser's volume is automatically decreased a lot when I start audio recording. What is going on?</em></strong>
+</p>
+<p>
+This is a Windows feature. From Windows 7, Windows may attempt to automatically lower the volume when a digital phone call is in progress.
+This annoying feature can be easily disabled. Head to Control Panel and select "Hardware and Sound", and then click on "Sound" to launch the sound configuration window. Alternatively, if you have Control Panel organized by icon instead of category, you can just choose "Sound" from the list.
+</p>
+<p>
+<img src="3-15.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+In the "Sound" configuration window, click on the "Communications" tab. Change the option to "Do nothing" to effectively kill this feature. Click "OK" to save your changes.
+</p>
+<p>
+<img src="3-16.png" class="center-block" style="max-width: 100%;"></img>
+</p>
+<p>
+<strong>[Question 15]<em>When I visit the Web JoinNet using Safari on my iPhone, I encounter an error at the initial page. After I click the "Show Error Report", it shows "DOM Exception 18, an attempt was made to break through the security policy". What is going on?</em></strong>
+</p>
+<p>
+The Web JoinNet need to access the localStorage. Follow the following steps:
+<ol>
+	<li>On your iPhone or iPad, go to Settings.</li>
+	<li>Select Safari.</li>
+	<li>Under Privacy & Security, select Block Cookies.</li>
+	<li>You will be redirected to a list of options. Select Always Allow (or Allow for Websites I visit)</li>
+	<li>You may need to restart Safari for the new settings to take effect.</li>
+</ol>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{w.title}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div ng-show="(w.upload_type == 2 || w.upload_type == 3) && !rotate_degree && !w.cropping" class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.as_file"> {{'ID_UPLOAD_AS_FILE' | translate}}
+          </label>
+        </div>
+        <div ng-show="w.upload_type == 3 || (!w.use_group && (w.upload_type == 1 || w.upload_type == 2))" class="form-group">
+          <label for="slide_title">{{'ID_SLIDE_TITLE' | translate}}</label>
+          <input type="text" class="form-control" id="slide_title" ng-model="w.slide_title">
+        </div>
+        <div ng-show="w.upload_type != 3 && w.upload_type != 4 && w.upload_type != 5 && !w.need_conversion && !w.no_conversion" class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.use_group"> {{'ID_UPLOAD_TO_GROUP' | translate}}
+          </label>
+        </div>
+        <div ng-show="w.upload_type != 3 && w.upload_type != 4 && w.upload_type != 5 && w.use_group" class="form-group">
+          <label for="slide_group">{{'ID_SLIDE_GROUP' | translate}}</label>
+          <select class="vertical-middle" style="max-width: 55%;" ng-show="w.group_titles.length" ng-model="w.group_title" ng-options="group_title for group_title in w.group_titles">
+            <option value="">-- {{'ID_CHOOSE_GROUP' | translate}} --</option>
+          </select>
+          <br />
+          <input type="text" class="form-control" id="slide_group" ng-model="w.group">
+        </div>
+        <div ng-show="w.upload_type != 1" class="form-group">
+          <label for="file_name">{{'ID_FILE_NAME' | translate}}</label>
+          <input type="text" class="form-control" id="file_name" ng-disabled="w.upload_type != 5" ng-model="w.filename">
+          {{w.filesize_descr}}<span class="pull-right">{{w.img_descr}}</span>
+        </div>
+        <div>
+          <button type="button" class="btn btn-default" ng-show="(w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion && !w.empty_image" ng-click="rotate270()" translate="ID_ROTATE270"></button>
+          <button type="button" class="btn btn-default" ng-show="(w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion && !w.empty_image" ng-click="rotate90()" translate="ID_ROTATE90"></button>
+          <span class="checkbox inline-block" ng-show="w.can_crop && (w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion">
+            <label>
+              <input type="checkbox" ng-model="w.cropping"> {{'ID_CROPPING' | translate}}
+            </label>
+          </span>
+          <span class="float-right" ng-show="(w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion && !w.empty_image">
+            <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+            <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+          </span>
+        </div>
+        <div>
+          <span ng-show="w.cropping && !rotate_degree">
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-left">
+          <span ng-show="as.show_text" translate="ID_CROP_LEFT"></span></span>
+          <input id="crop_left" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_LEFT' | translate)}}" ng-model="w.left">{{w.left}}</div>
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-up">
+          <span ng-show="as.show_text" translate="ID_CROP_TOP"></span></span>
+          <input id="crop_top" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_TOP' | translate)}}" ng-model="w.top">{{w.top}}</div>
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-down">
+          <span ng-show="as.show_text" translate="ID_CROP_BOTTOM"></span></span>
+          <input id="crop_bottom" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_BOTTOM' | translate)}}" ng-model="w.bottom">{{w.bottom}}</div>
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-right">
+          <span ng-show="as.show_text" translate="ID_CROP_RIGHT"></span></span>
+          <input id="crop_right" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_RIGHT' | translate)}}" ng-model="w.right">{{w.right}}</div>
+          </span>
+        </div>
+        <div ng-show="(w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && w.img_descr">
+          <canvas id="upload_thumbnail" width="0"></canvas>
+        </div>
+        <div class="form-group" ng-show="w.upload_type == 2 && w.need_conversion">
+          <label>{{'ID_CONVERSION_OPTIONS' | translate}}</label>
+          <div style="border: 1px solid;padding: 2px;">
+            <div class="form-group">
+              <label>{{'ID_CONVERSION_TYPE' | translate}}</label>
+              <span class="btn-group">
+                <label class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.type == 0]" ng-model="w.type" btn-radio="0">PNG</label>
+                <label class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.type == 1]" ng-model="w.type" btn-radio="1">PDF</label>
+              </span>
+              <span class="float-right">
+                <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+                <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+              </span>
+            </div>
+            <div ng-show="w.type == 0">
+              <select ng-model="w.dpi" ng-options="dpi for dpi in w.dpis"></select>DPI
+            </div>
+            <div class="form-group">
+              <p>{{'ID_SLIDE_PAGE' | translate}}</p>
+              <input type="text" class="form-control" id="slide_page" ng-model="w.page">
+            </div>
+            <div class="checkbox" ng-if="0">
+              <label>
+                <input type="checkbox" ng-model="w.need_trusted_server"> {{'ID_NEED_TRUSTED_SERVER' | translate}}
+              </label>
+            </div>
+            <div class="checkbox" ng-if="0">
+              <label>
+                <input type="checkbox" ng-model="w.convert_to_file_on_failure"> {{'ID_CONVERT_TO_FILE_ON_FAILURE' | translate}}
+              </label>
+            </div>
+            <div class="checkbox" ng-if="0">
+              <label>
+                <input type="checkbox" ng-model="w.convert_all_or_none"> {{'ID_CONVERT_ALL_OR_NONE' | translate}}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" ng-show="w.upload_type == 2 && w.no_conversion && !bd.is_local_slide">
+          <label>{{'ID_NO_CONVERSION' | translate}}</label>
+        </div>
+        <div class="form-group" ng-show="w.upload_type == 2 && w.no_conversion && bd.is_local_slide">
+          <label>{{'ID_NO_CONVERSION2' | translate}}</label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <span ng-show="can_paste_mark" translate="ID_PASTE_MARK"></span>
+      <button type="button" class="btn btn-default" ng-show="(w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion && !w.empty_image" ng-click="rotate270()" translate="ID_ROTATE270"></button>
+      <button type="button" class="btn btn-default" ng-show="(w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion && !w.empty_image" ng-click="rotate90()" translate="ID_ROTATE90"></button>
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

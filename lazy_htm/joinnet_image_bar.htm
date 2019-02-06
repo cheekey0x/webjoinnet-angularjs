@@ -1,0 +1,43 @@
+      <span ng-controller="ImageBarCtrl">
+        <span ng-if="bd.selected_mark && bd.selected_mark.size_descr">
+          <span class="vertical-top inline-block-with-border">
+            <span>
+              <img ng-style="style_selected_img" style="background-color: #ffffff;" alt="" 
+              tooltip="{{'ID_SELECTED_MARK' | translate}}: {{bd.selected_mark.size_descr}} {{'ID_WHITE_BACKGROUND' | translate}}" tooltip-placement="{{position}}"
+              ng-src="{{bd.selected_mark.url}}"/>
+            </span>
+            <span>
+              <img ng-style="style_selected_img" style="background-color: #808080;" alt="" 
+              tooltip="{{'ID_SELECTED_MARK' | translate}}: {{bd.selected_mark.size_descr}} {{'ID_GRAY_BACKGROUND' | translate}}" tooltip-placement="{{position}}"
+              ng-src="{{bd.selected_mark.url}}"/>
+            </span>
+          </span>
+        </span>
+        <span ng-show="!w.importing">
+          <button type="button" class="btn btn-default"
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_MARK' | translate)}}" tooltip-placement="{{position}}"
+            ng-click="import_mark()"><span class="glyphicon glyphicon-import"></span>
+            <span ng-show="as.show_text" translate="ID_IMPORT_MARK"></span></button>
+        </span>
+        <span ng-show="!w.adding">
+          <button type="button" class="btn btn-default"
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FILE_MARK' | translate)}}" tooltip-placement="{{position}}"
+            ng-click="open()"><span class="glyphicon glyphicon-paste"></span>
+            <span ng-show="as.show_text" translate="ID_FILE_MARK"></span></button>
+        </span>
+        <span ng-show="w.is_mark_loading">{{'ID_LOADING_MARK' | translate}}</span>
+        <span ng-show="w.mark_array1.length && w.show_mark1">
+          <span class="vertical-top">
+            <span class="inline-block video-window" ng-repeat="mark in w.mark_array1">
+              <img class="user-pointer" ng-style="style_img" alt="" ng-src="{{mark.url}}" ng-click="select_mark(mark)"/>
+            </span>
+          </span>
+        </span>
+        <span ng-show="w.mark_array0.length && w.show_mark0">
+          <span class="vertical-top">
+            <span class="inline-block video-window" ng-repeat="mark in w.mark_array0">
+              <img class="user-pointer" ng-style="style_img" alt="" ng-src="{{mark.url}}" ng-click="select_mark(mark)"/>
+            </span>
+          </span>
+        </span>
+      </span>

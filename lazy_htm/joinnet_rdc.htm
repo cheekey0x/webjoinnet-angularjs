@@ -1,0 +1,98 @@
+      <div ng-controller="RDCCtrl">
+        <span ng-show="dt.control_assigned && dt.is_sender">
+          <span>
+            <button type="button" class="btn btn-default" tooltip-placement="right" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SWITCH_SCREEN_SOURCE' | translate)}}" 
+              ng-click="dt.switchSource()"> <span class="glyphicon glyphicon-screenshot"></span>
+              <span ng-show="as.show_text" translate="ID_SWITCH_SCREEN_SOURCE"></span></button>
+          </span>
+          <select ng-show="0" class="vertical-middle" style="max-width: 100%;" ng-model="dt.source_id" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DATA_SOURCE' | translate)}}" 
+            ng-options="source.id as source.name for source in dt.source_list"></select></span>
+        </span>
+          <span ng-show="show_color()"><span ng-show="as.show_text" translate="ID_COLOR_DEPTH"></span>
+          <select class="vertical-middle" style="max-width: 160px;" ng-model="dt.color_id" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_COLOR_DEPTH' | translate)}}" 
+            ng-options="color.id as color.name for color in dt.color_list"></select></span>
+        <span ng-show="dt.control_assigned && dt.is_sender">
+          <span ng-show="as.show_advanced_function" tooltip-placement="bottom" tooltip="{{'ID_SENDING_RATE' | translate}}">
+            <span ng-show="dt.can_change_bitrate">
+              <input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="0" max="100" ng-model="dt.bitrate_pos">
+            </span>{{dt.bitrate_str}}
+          </span>
+          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[dt.is_send]" 
+            tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_SEND' | translate)}}" 
+            ng-click="dt.toggle_send()" ><span class="glyphicon glyphicon-upload"></span>
+            <span ng-show="as.show_text" translate="ID_TOGGLE_SEND"></span></button></span>
+          <span><button type="button" class="btn" ng-class="{true: 'btn-danger', false: 'btn-muted'}[dt.is_control_allowed]" 
+            tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_REMOTE_CONTROL' | translate)}}" 
+            ng-click="dt.toggle_allowed_control()" ><span class="glyphicon glyphicon-wrench"></span>
+            <span ng-show="as.show_text" translate="ID_ALLOW_REMOTE_CONTROL"></span></button></span>
+        </span>
+        <span ng-show="dt.is_sync_tab_controller">
+          <span><span ng-show="as.show_text" translate="ID_CONTROLLER"></span>
+          <select class="vertical-middle" style="max-width: 160px;" ng-model="dt.controller_ssrc" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CONTROLLER' | translate)}}" 
+            ng-options="user.ssrc as user.name for user in dt.userlist"></select></span>
+          <span ng-show="!as.remote_monitor_mode"><button type="button" class="btn" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_REMOTE_CONTROL' | translate)}}" 
+            ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.is_control]" 
+            ng-click="dt.toggle_control()"><span class="glyphicon glyphicon-transfer"></span>
+            <span ng-show="as.show_text" translate="ID_REMOTE_CONTROL"></span></button></span>
+          <span ng-show="as.remote_monitor_mode"><button type="button" class="btn" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_REMOTE_MONITOR' | translate)}}" 
+            ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.is_control]" 
+            ng-click="dt.toggle_control(true)"><span class="glyphicon glyphicon-eye-open"></span>
+            <span ng-show="as.show_text" translate="ID_REMOTE_MONITOR"></span></button></span>
+          <span><span ng-show="as.show_text" translate="ID_CONTROLLED"></span>
+            <select class="vertical-middle" style="max-width: 160px;" ng-model="dt.controllee_ssrc" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CONTROLLED' | translate)}}" 
+            ng-options="user.ssrc as user.name for user in dt.userlist"></select></span>
+        </span>
+        <span ng-show="!dt.is_sync_tab_controller && dt.control_assigned">
+          <span><span class="text-info" tooltip-placement="bottom" 
+            tooltip="{{'ID_CONTROLLER' | translate}}">{{dt.controller_name}}</span></span>
+          <span ng-show="!dt.monitor_only"><span class="glyphicon glyphicon-transfer" tooltip-placement="bottom" 
+            tooltip="{{'ID_REMOTE_CONTROL' | translate}}"></span></span>
+          <span ng-show="dt.monitor_only"><span class="glyphicon glyphicon-eye-open" tooltip-placement="bottom" 
+            tooltip="{{'ID_REMOTE_MONITOR' | translate}}"></span></span>
+          <span><span class="text-info" tooltip-placement="bottom" 
+            tooltip="{{'ID_CONTROLLED' | translate}}">{{dt.controllee_name}}</span></span>
+        </span>
+        <span><span class="text-info" ng-show="dt.bmp && !dt.is_sync_tab_controller && !dt.control_assigned" 
+          tooltip-placement="bottom" tooltip="{{'ID_SHARER_NAME' | translate}}">{{dt.descr}}</span></span>
+        <span>
+          <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[dt.is_receive]" 
+            tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_RECEIVE' | translate)}}" 
+            ng-click="dt.toggle_receive()" ><span class="glyphicon glyphicon-download"></span>
+            <span ng-show="as.show_text" translate="ID_TOGGLE_RECEIVE"></span></button>
+        </span>
+        <span ng-show="show_snapshot()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
+            ng-click="snapshot()"> <span class="glyphicon glyphicon-picture"></span>
+            <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span>{{snapshot_tail}} </button>
+        </span>
+        <span ng-hide="dt.is_fit_page">
+          <div class="inline-block">
+            <input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="1" max="100" 
+              tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_ZOOM' | translate)}}" ng-model="dt.ratio_pos">
+          </div>
+        </span>
+        <span>
+          <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[dt.is_fit_page]" 
+            ng-click="dt.fit_page()" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip ? '' : (('ID_TOGGLE_FIT_WINDOW' | translate) + dt.ratio_percent + '%')}}">
+            <span class="glyphicon glyphicon-resize-horizontal"></span>
+            <span ng-show="as.show_text" translate="ID_AUTO_FIT"></span></button>
+        </span>
+        <span ng-show="dt.request_fullscreen && !dt.is_fullscreen">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
+            ng-click="dt.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+            <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+        </span>
+        <span ng-show="dt.request_fullscreen && dt.is_fullscreen">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
+            ng-click="dt.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
+            <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+        </span>
+        <div id="rdc0" style="overflow: auto;" ng-style="dt.style_max_size()">
+          <canvas style="border: 1px solid gray;" id="rdc" width="200" height="200" ></canvas>
+        </div>
+      </div>

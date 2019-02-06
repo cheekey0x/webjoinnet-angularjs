@@ -1,0 +1,58 @@
+      <div ng-controller="BrowserCtrl">
+        <span ng-show="is_meeting_mode()">
+          <button type="button" class="btn btn-default" 
+            ng-click="home()"><span class="glyphicon glyphicon-home"></span>
+            </button>
+        </span>
+        <span ng-show="can_prev()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PREV_PAGE' | translate)}}" 
+            ng-click="prev()"><span class="glyphicon glyphicon-arrow-left"></span>
+            <span ng-show="as.show_text" translate="ID_PREV_PAGE"></span></button>
+        </span>
+        <span ng-show="can_next()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_NEXT_PAGE' | translate)}}" 
+            ng-click="next()"><span class="glyphicon glyphicon-arrow-right"></span>
+            <span ng-show="as.show_text" translate="ID_NEXT_PAGE"></span></button>
+        </span>
+        <span ng-show="can_refresh()">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_RELOAD_PAGE' | translate)}}" 
+            ng-click="refresh()"><span class="glyphicon glyphicon-repeat"></span>
+            <span ng-show="as.show_text" translate="ID_RELOAD_PAGE"></span></button>
+        </span>
+        <span>
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_OPEN_NEW_WINDOW' | translate)}}" 
+            ng-click="open_url()"><span class="glyphicon glyphicon-new-window"></span>
+            <span ng-show="as.show_text" translate="ID_OPEN_NEW_WINDOW"></span></button>
+        </span>
+        <span ng-show="w.request_fullscreen && !w.is_fullscreen">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
+            ng-click="fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+            <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+        </span>
+        <span ng-show="w.request_fullscreen && w.is_fullscreen">
+          <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
+            ng-click="fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
+            <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
+        </span>
+        <span class="text-warning" ng-show="is_secure && w.bad_https && can_browse()">{{'ID_BAD_HTTPS_URL' | translate}}</span>
+        <span>
+          <input type="text" class="auto-width" list="history" ng-disabled="!can_browse()" ng-model="w.url" 
+            ng-keypress="onkeypress($event)">
+          <datalist id="history">
+            <option ng-repeat="h in history" value="{{h}}">{{h}}</option>
+          </datalist>
+        </span>
+        <!-- 
+        <div id="IframeWrapper" style="position: relative;">
+          <div id="iframeBlocker" style="position: absolute; top: 0; left: 0; width: 200px; height: 200px"></div>
+        </div>
+        -->
+        <div id="browser_container2" style="overflow: auto;border: 1px solid gray;">
+          <iframe class="auto-width" id="iframe" frameborder="0" scrolling="auto" marginheight="0" marginwidth="0" 
+            ng-src="{{w.url2}}" ng-style="style_browser_height()"></iframe>
+        </div>
+      </div>

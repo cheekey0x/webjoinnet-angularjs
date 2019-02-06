@@ -1,0 +1,57 @@
+        <span ng-controller="MsgrSettingCtrl">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_text"> <span translate="ID_DESCR_SHOW_TEXT"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.is_enter_for_newline"> <span translate="ID_DESCR_ENTER_FOR_NEWLINE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.no_tip"> <span translate="ID_DESCR_HIDE_TOOLTIP"></span>
+            </label>
+          </div>
+          <div><span translate="ID_MAX_WINDOW"></span>
+          <select ng-model="w.max_win" ng-init="nums=[1,2,3,4,6,12]" ng-options="num for num in nums"></select>
+          </div>
+          <br />
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.alert_online"> <span translate="IDC_CHECK_ALERT_ONLINE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.alert_newmessage"> <span translate="IDC_CHECK_ALERT_NEWMESSAGE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.play_sound"> <span translate="IDC_CHECK_PLAYSOUND"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.vibrate"> <span translate="IDC_CHECK_VIBRATE"></span>
+            </label>
+          </div>
+          <br />
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_other_user"> <span translate="IDC_CHECK_OTHER_USER"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_offline_user"> <span translate="IDC_CHECK_OFFLINE_USER"></span>
+            </label>
+          </div>
+          <div class="checkbox" ng-if="is_secure">
+            <label>
+              <input type="checkbox" ng-model="w.auto_https"> <span translate="ID_AUTO_HTTPS"></span>
+            </label>
+          </div>
+        </span>

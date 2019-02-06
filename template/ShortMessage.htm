@@ -1,0 +1,15 @@
+    <div class="modal-header">
+      <h3 class="modal-title" translate="ID_SEND_MESSAGE"></h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="form-group">
+          <label for="message_text">{{'IDS_SHORT_MESSAGE_PROMPT' | translate}}</label>
+          <textarea class="form-control auto-width equal-width vertical-resize" id="message_text" cols="100" rows="10" ng-model="w.text"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="IDC_SEND"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

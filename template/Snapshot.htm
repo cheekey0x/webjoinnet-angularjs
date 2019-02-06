@@ -1,0 +1,53 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{'ID_SNAPSHOT_TITLE' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <span><button type="button" class="btn btn-default" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_FILE' | translate)}}" ng-click="save()" 
+          ng-show="w.can_save"> <span class="glyphicon glyphicon-floppy-save"></span> 
+          <span ng-show="as.show_text" translate="ID_SAVE_FILE"></span></button></span>
+        <span><button type="button" class="btn btn-default" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_WHITEBOARD' | translate)}}" ng-click="upload()" 
+          ng-show="w.can_save && can_upload()"> <span class="glyphicon glyphicon-list-alt"></span> 
+          <span ng-show="as.show_text" translate="ID_UPLOAD_WHITEBOARD"></span></button></span>
+        <span><button type="button" class="btn btn-default" ng-click="set_mypicture()" 
+          ng-show="w.can_save" translate="ID_SET_MYPICTURE"></span></button></span>
+        <div>
+          <label for="filename">{{'ID_FILE_NAME' | translate}}</label>
+          <input type="text" class="form-control" id="filename" ng-model="w.filename">
+        </div>
+        {{w.descr}}
+        <div class="checkbox" ng-show="w.can_crop">
+          <label>
+            <input type="checkbox" ng-model="w.cropping"> {{'ID_CROPPING' | translate}}
+          </label>
+        </div>
+        <div>
+          <span ng-show="w.cropping">
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-left">
+          <span ng-show="as.show_text" translate="ID_CROP_LEFT"></span></span>
+          <input id="ss_crop_left" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_LEFT' | translate)}}" ng-model="w.left">{{w.left}}</div>
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-up">
+          <span ng-show="as.show_text" translate="ID_CROP_TOP"></span></span>
+          <input id="ss_crop_top" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_TOP' | translate)}}" ng-model="w.top">{{w.top}}</div>
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-down">
+          <span ng-show="as.show_text" translate="ID_CROP_BOTTOM"></span></span>
+          <input id="ss_crop_bottom" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_BOTTOM' | translate)}}" ng-model="w.bottom">{{w.bottom}}</div>
+          <div class="inline-block"><span class="glyphicon glyphicon-arrow-right">
+          <span ng-show="as.show_text" translate="ID_CROP_RIGHT"></span></span>
+          <input id="ss_crop_right" type="range" style="width: 100px;display: inline;" min="0" max="100" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CROP_RIGHT' | translate)}}" ng-model="w.right">{{w.right}}</div>
+          </span>
+        </div>
+        <div>
+          <canvas id="snapshot" width="0"></canvas>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

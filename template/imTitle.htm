@@ -1,0 +1,41 @@
+        <span style="white-space: nowrap;">
+          <span class="dropdown" tooltip="{{as.no_tip ? '' : ('ID_MENU' | translate)}}" 
+            dropdown is-open="im.dropdown_is_open" on-toggle="im.ontoggle(open)">
+            <span class="dropdown-toggle user-pointer" dropdown-toggle>
+              <img ng-src="{{im.img}}" alt=""/>
+            </span>
+            <ul class="dropdown-menu">
+              <li ng-repeat="menu in im.menu">
+                <a class="user-pointer" ng-click="click_imtitle(im, menu);">{{menu.text}}</a>
+              </li>
+            </ul>
+          </span>
+          <span ng-show="ic.win_count != 1">
+            <span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_MINIMIZE' | translate)}}" 
+                ng-click="minimize_item(im)"> <span class="glyphicon glyphicon-minus"></span> 
+                </button>
+            </span>
+            <span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_EXTEND_WINDOW' | translate)}}" 
+                ng-click="extend_item(im)"> <span class="glyphicon glyphicon-modal-window"></span> 
+                </button>
+            </span>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_TOP' | translate)}}"
+              ng-click="scroll_top_im(im)"> <span class="glyphicon glyphicon-chevron-up"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_BOTTOM' | translate)}}"
+              ng-click="scroll_bottom_im(im)"> <span class="glyphicon glyphicon-chevron-down"></span> 
+              </button>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_CLOSE' | translate)}}" 
+              ng-click="close_im(im)"> <span class="glyphicon glyphicon-remove"></span> 
+              </button>
+          </span>
+          <span ng-class="{'im-disconnected': is_disconnected(im)}">{{im.title}}</span>
+        </span>

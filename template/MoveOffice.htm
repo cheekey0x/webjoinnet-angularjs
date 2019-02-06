@@ -1,0 +1,38 @@
+    <div>
+    <div class="modal-header">
+      <h3 class="modal-title">{{'ID_MOVE_OFFICE' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="table-responsive border-autoscroll" ng-style="style_height">
+          <table class="table table-condensed">
+            <thead>
+            <tr style="white-space: nowrap;">
+                <th translate="ID_ACTION"></th>
+                <th translate="IDS_WEBOFFICE"></th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in w.data">
+                <td>
+                <button type="button" class="btn btn-default" ng-click="move_up(item)" ng-show="w.find_item(w.data,item.pointer) != 0"
+                    tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_UP' | translate)}}">
+                    <span class="glyphicon glyphicon-arrow-up"></span> 
+                    <span ng-show="as.show_text" translate="ID_MOVE_UP"></span></button>
+                <button type="button" class="btn btn-default" ng-click="move_down(item)" 
+                    ng-show="w.find_item(w.data,item.pointer) != w.data.length - 1"
+                    tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_DOWN' | translate)}}">
+                    <span class="glyphicon glyphicon-arrow-down"></span> 
+                    <span ng-show="as.show_text" translate="ID_MOVE_DOWN"></span></button>
+                </td>
+                <td>{{item.text}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <span><button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CLOSE"></button></span>
+    </div>

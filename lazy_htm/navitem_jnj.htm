@@ -1,0 +1,11 @@
+    <span ng-controller="JnjSourceCtrl">
+      <button type="button" class="btn btn-default" ng-click="load_last_jnj()" ng-show="can_load()" translate="ID_LOAD_LAST_JNJ"></button>
+      <button type="button" class="btn btn-default" ng-click="clear_last_jnj()" ng-show="can_load()" translate="ID_DELETE_LAST_JNJ"></button>
+      <button type="button" class="btn btn-default" ng-click="reset()" ng-disabled="!jnj_source" translate="ID_RESET"></button>
+      <button type="button" class="btn btn-default" ng-click="connect()" ng-disabled="!jnj_can_connect" translate="ID_CONNECT"></button>
+      <p><a ng-href="{{calc_url(jnj_source)}}" ng-show="is_valid_jnj" translate="ID_APP_URL"></a></p>
+      <span translate="ID_INPUT_JNJ"></span>
+      <div>
+        <textarea id="jnj_source" class="auto-width equal-width vertical-resize" cols="100" rows="15" ng-style="style_height1" ng-model="jnj_source"></textarea>
+      </div>
+    </span>

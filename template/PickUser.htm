@@ -1,0 +1,79 @@
+    <div>
+    <div class="modal-header">
+      <h3 class="modal-title">{{w.title}}</h3>
+      <h6 class="modal-title">{{w.subtitle}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="like-table">
+          <div class="like-row">
+            <div class="fill-cell">
+              <input type="text" class="form-control search-box" placeholder="{{'IDC_SEARCH' | translate}}" ng-model="w.hint">
+            </div>
+            <div class="fix-cell">
+              <button type="button" class="btn btn-default" ng-click="w.hint=''" ng-show="w.hint"><span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+          </div>
+        </div>
+        <div id="pickuserlist" class="table-responsive border-autoscroll min_height_100px" ng-style="style_height">
+          <table class="table table-condensed">
+            <thead>
+              <tr style="white-space: nowrap;">
+                <th><span ng-show="w.matched_selection">
+                  <span class="dropdown" dropdown on-toggle="ontoggle(open)">
+                    <span class="dropdown-toggle user-pointer" dropdown-toggle>
+                      <span class="user-selected">{{w.selection_descr}}</span>
+                    </span>
+                    <ul class="dropdown-menu">
+                      <li ng-repeat="menu in w.selection_menu">
+                        <a class="user-pointer" ng-click="menu.onclick();">{{menu.text}}</a>
+                      </li>
+                    </ul>
+                  </span>
+                </span>
+                <input type="checkbox" class="user-pointer" ng-model="w.all_selected" ng-hide="w.matched_selection || !w.user_list.length" ng-click="select_all()"> 
+                </th>
+                <th>{{'ID_TAB_USER' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="user in w.user_list" ng-show="user.matched">
+                <td>
+                  <input type="checkbox" class="user-pointer" ng-model="user.is_selected" 
+                    ng-click="user_selected(user)"> 
+                </td>
+                <td>{{user.name}}</td>
+              </tr>
+              <tr ng-show="w.has_action_menu"><td style="border-top: none;height: 240px;"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="checkbox" ng-if="w.can_add_new">
+          <label>
+            <input type="checkbox" ng-model="w.add_new"> {{'ID_INPUT_NEW_USER' | translate}}
+          </label>
+        </div>
+        <div class="table-responsive border-autoscroll" ng-show="w.add_new">
+          <span ng-show="w.userid"><button type="button" class="btn btn-default" ng-click="add_user()" translate="ID_ADD_TO_LIST"></button></span>
+          <table class="table table-condensed">
+            <thead>
+              <tr style="white-space: nowrap;">
+                <th>{{'IDS_COL_USERID' | translate}}</th>
+                <th>{{'IDC_STATIC_3_USERNAME' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" class="form-control" placeholder="{{'IDS_COL_USERID' | translate}}" ng-model="w.userid"></td>
+                <td><input type="text" class="form-control" placeholder="{{'IDC_STATIC_3_USERNAME' | translate}}" ng-model="w.username"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <span><button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_PICK_USERID"></button></span>
+      <span><button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button></span>
+    </div>

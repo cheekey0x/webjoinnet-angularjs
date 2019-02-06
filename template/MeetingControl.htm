@@ -1,0 +1,31 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{'ID_MEETING_CONTROL_TITLE' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.question"> {{'ID_CONTROLLER_QUESTION' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.poll"> {{'ID_CONTROLLER_POLL' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.sync"> {{'ID_CONTROLLER_SYNC' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.sync_tab"> {{'ID_CONTROLLER_SYNC_TAB' | translate}}
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

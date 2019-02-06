@@ -1,0 +1,72 @@
+        <span ng-controller="MyURLCtrl">
+        <div>
+          <span>
+            <button type="button" class="btn btn-default" ng-click="add_url()" ng-hide="w.editing" translate="ID_ADD_URL"></button>
+            <button type="button" class="btn btn-default" ng-click="add_jnj()" ng-hide="w.editing" translate="ID_ADD_JNJ"></button>
+          </span>
+        </div>
+        <div class="table-responsive autoscroll">
+            <table class="table table-condensed">
+            <tbody>
+                <tr ng-repeat="item in w.url_array">
+                <td>
+                <span ng-if="!w.editing && !item.edit">
+                    <button type="button" class="btn btn-default" ng-click="remove(item)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}">
+                      <span class="glyphicon glyphicon-remove"></span>
+                      <span ng-show="as.show_text" translate="ID_DELETE"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="edit(item)"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_EDIT_URL' | translate)}}">
+                      <span class="glyphicon glyphicon-pencil"></span> 
+                      <span ng-show="as.show_text" translate="ID_EDIT_URL"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="click_url(item)"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CONNECT_URL' | translate)}}">
+                      <span class="glyphicon glyphicon-log-in"></span> 
+                      <span ng-show="as.show_text" translate="ID_CONNECT"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="move_up(item)" ng-show="w.url_array.indexOf(item) != 0"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_UP' | translate)}}">
+                      <span class="glyphicon glyphicon-arrow-up"></span> 
+                      <span ng-show="as.show_text" translate="ID_MOVE_UP"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="move_down(item)" 
+                      ng-show="w.url_array.indexOf(item) != w.url_array.length - 1"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_DOWN' | translate)}}">
+                      <span class="glyphicon glyphicon-arrow-down"></span> 
+                      <span ng-show="as.show_text" translate="ID_MOVE_DOWN"></span></button>
+                </span>
+                <span ng-if="item.edit">
+                    <button type="button" class="btn btn-default" ng-click="ok(item)" ng-disable="!item.link">
+                      <span translate="ID_OK"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="cancel(item)">
+                      <span translate="ID_CANCEL"></span></button>
+                </span>
+                </td>
+                <td>
+                <span ng-if="!item.edit">
+                  <a target="url" href="{{item.link}}" ng-if="item.type != 'jnj'">{{item.name ? item.name : item.link}}</a>
+                  <span ng-if="item.type == 'jnj'">{{item.name}}</span>
+                </span>
+                <span ng-if="item.edit">
+                  <div class="form-group">
+                    <label for="option_url_name">{{'IDS_TITLE' | translate}}:</label>
+                    <input type="text" class="form-control" id="option_url_name" ng-model="w.edit_name">
+                  </div>
+                  <div class="form-group" ng-if="item.type != 'jnj'">
+                    <label for="option_url_link">{{'ID_URL_LINK' | translate}}:</label>
+                    <input type="text" class="form-control" id="option_url_link" ng-model="w.edit_link">
+                  </div>
+                  <div class="form-group" ng-if="item.type == 'jnj' && w.is_valid_jnj">
+                    <label for="option_url_jnjlink">{{'ID_APP_URL' | translate}}:</label>
+                    <span><button type="button" class="btn btn-default" ng-click="copy()" translate="IDD_DIALOG_SHARE_RESULT_OK"></button></span>
+                    <pre id="option_url_jnjlink" class="share-url">{{w.edit_jnjlink}}</pre>
+                  </div>
+                  <div class="form-group" ng-if="item.type == 'jnj'">
+                    <label for="option_url_jnj">Jnj:</label>
+					<br />
+                    <textarea id="option_url_jnj" class="auto-width equal-width vertical-resize" cols="100" rows="15" ng-model="w.edit_jnj"></textarea>
+                  </div>
+                </span>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        </span>

@@ -1,0 +1,54 @@
+    <div class="modal-header">
+      <h3 class="modal-title" translate="IDD_DIALOG_JEDITOR"></h3>
+      <h6 class="modal-title"><img ng-src="{{w.item.img}}" alt="{{w.item.alt}}"/>{{w.item.tick_str}} {{w.item.title}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.cut_all"> {{'IDC_CHECK_CUTALL' | translate}}
+          </label>
+        </div>
+        <div class="form-group" ng-show="w.cut_all">
+          <label for="start">{{'IDC_STATIC_CUT_START' | translate}}</label>
+          <input class="form-control" id="start" ng-model="w.start">
+        </div>
+        <div class="form-group" ng-show="w.cut_all">
+          <label for="end">{{'IDC_STATIC_CUT_END' | translate}}</label>
+          <input class="form-control" id="end" ng-model="w.start">
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.cut_video"> {{'IDC_CHECK_CUT_VIDEO' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.keep_v"> {{'IDC_CHECK_TCV' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.keep_av"> {{'IDC_CHECK_CAV' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.cut_text"> {{'IDC_CHECK_CAT' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.cut_url"> {{'IDC_CHECK_BAU' | translate}}
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="edit_text">{{'IDC_STATIC_ADVANCED_COMMAND' | translate}}</label>
+          <textarea class="form-control auto-width equal-width vertical-resize" id="edit_text" cols="100" rows="10" ng-model="w.text"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

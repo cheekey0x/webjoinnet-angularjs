@@ -1,0 +1,26 @@
+<span ng-controller="MissedCallCtrl">
+    <div class="table-responsive border-autoscroll">
+      <table class="table table-condensed">
+        <thead>
+          <tr style="white-space: nowrap;">
+            <th translate="ID_ACTION"></th>
+            <th translate="IDS_COL_NAME"></th>
+            <th translate="IDS_COL_IM_TIME"></th>
+            <th translate="IDS_FORMAT_MISSED_CALL"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in w.missed_call_array">
+            <td>
+              <button type="button" class="btn btn-default" ng-click="remove(item)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}">
+                <span class="glyphicon glyphicon-remove">
+                <span ng-show="as.show_text" translate="ID_DELETE"></span></button>
+            </td>
+            <td>{{item.name}}</td>
+            <td>{{item.time_str}}</td>
+            <td>{{calc_type(item)}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+</span>

@@ -1,0 +1,15 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{title}}</h3>
+      <h6 class="modal-title">{{subtitle}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="form-group">
+          <input type="text" class="form-control" id="new_name" ng-keypress="onkeypress($event)" ng-model="w.new_name">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

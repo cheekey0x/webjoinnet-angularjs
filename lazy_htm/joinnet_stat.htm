@@ -1,0 +1,23 @@
+        <div ng-controller="StatCtrl">
+          <div ng-class="row_fluid()">
+            <div class="auto-overflow" ng-class="col_area()">
+              <div>
+                <button type="button" class="btn btn-default" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" ng-click="freeze()" 
+                  ><span class="glyphicon glyphicon-camera"></span>
+                  <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span></button>
+                <button type="button" class="btn btn-default" ng-click="show_stat_log()">
+                  <span translate="ID_SHOW_STAT_LOG"></span></button>
+              </div>
+              <span ng-bind-html="stat_html"></span>
+            </div>
+            <div class="auto-overflow col-xs-6" ng-if="has_snapshot">
+              <div>
+                <button type="button" class="btn btn-default" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CLOSE' | translate)}}" ng-click="close()" 
+                  ><span class="glyphicon glyphicon-remove"></span>
+                  <span ng-show="as.show_text" translate="ID_CLOSE"></span></button>
+                <span class="text-info">{{snapshot_info}}</span>
+              </div>
+              <span id="stat_snapshot" ng-bind-html="snapshot_html"></span>
+            </div>
+          </div>
+        </div>

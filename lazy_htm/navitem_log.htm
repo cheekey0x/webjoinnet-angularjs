@@ -1,0 +1,56 @@
+      <span ng-controller="LogCtrl">
+      <div ng-class="row_fluid">
+        <div ng-class="col_main_log" ng-show="w.show_main_log">
+          <button type="button" class="btn btn-default" ng-click="refreshLog()" translate="ID_REFRESH_LOG"></button>
+          <button type="button" class="btn btn-default" ng-click="clearLog()" translate="ID_CLEAR_LOG"></button>
+          <span><button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_TOP' | translate)}}" 
+            ng-click="scroll_to_top('hmtg_log')"> <span class="glyphicon glyphicon-chevron-up"></span> </button></span>
+          <span><button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_BOTTOM' | translate)}}" 
+            ng-click="scroll_to_bottom('hmtg_log')"> <span class="glyphicon glyphicon-chevron-down"></span> </button></span>
+          <span>
+            <button type="button" class="btn btn-default" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_FILE' | translate)}}" 
+            ng-click="save_log()"> <span class="glyphicon glyphicon-floppy-save"></span> 
+            <span ng-show="as.show_text" translate="ID_SAVE_FILE"></span></button>
+          </span>
+          <span class="float-right">
+            <button type="button" class="btn btn-info" ng-show="w.show_toggle1" tooltip-placement="bottom"
+              tooltip="{{as.no_tip || as.show_text ? '' : ((w.show_stat_log ? 'ID_HIDE_STAT_LOG' : 'ID_SHOW_STAT_LOG') | translate)}}" 
+              ng-model="w.show_stat_log" btn-checkbox btn-checkbox-true="1" btn-checkbox-false="0">
+              {{w.show_stat_log ? '-' : '+'}}<span ng-show="as.show_text">
+              {{(w.show_stat_log ? 'ID_HIDE_STAT_LOG' : 'ID_SHOW_STAT_LOG') | translate}}</span></button>
+          </span>
+          <br/>
+          <div>
+            <textarea id="hmtg_log" class="auto-width equal-width vertical-resize" cols="100" rows="20" ng-style="style_height" 
+              ng-model="log" readonly></textarea>
+          </div>
+        </div>
+        <div ng-class="col_stat_log" ng-show="w.show_stat_log">
+          <span translate="ID_STAT_LOG"></span>
+          <button type="button" class="btn btn-default" ng-click="refreshStatLog()" translate="ID_REFRESH_LOG"></button>
+          <button type="button" class="btn btn-default" ng-click="clearStatLog()" translate="ID_CLEAR_LOG"></button>
+          <span><button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_TOP' | translate)}}" 
+            ng-click="scroll_to_top('Textarea_stat_log')"> <span class="glyphicon glyphicon-chevron-up"></span> </button></span>
+          <span><button type="button" class="btn btn-default" tooltip="{{as.no_tip ? '' : ('ID_SCROLL_TO_BOTTOM' | translate)}}" 
+            ng-click="scroll_to_bottom('Textarea_stat_log')"> <span class="glyphicon glyphicon-chevron-down"></span> </button></span>
+          <span>
+            <button type="button" class="btn btn-default" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_FILE' | translate)}}" 
+            ng-click="save_stat_log()"> <span class="glyphicon glyphicon-floppy-save"></span> 
+            <span ng-show="as.show_text" translate="ID_SAVE_FILE"></span></button>
+          </span>
+          <span class="float-right">
+            <button type="button" class="btn btn-info" tooltip-placement="bottom"
+			  tooltip="{{as.no_tip || as.show_text ? '' : ('ID_HIDE_STAT_LOG' | translate)}}" 
+              ng-model="w.show_stat_log" btn-checkbox btn-checkbox-true="1" btn-checkbox-false="0"> - 
+              <span ng-show="as.show_text" translate="ID_HIDE_STAT_LOG"></span></button>
+          </span>
+          <br/>
+          <div>
+            <textarea id="Textarea_stat_log" class="auto-width equal-width vertical-resize" cols="100" rows="20" 
+              ng-style="style_height" ng-model="stat_log" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </span>

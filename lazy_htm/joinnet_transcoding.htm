@@ -1,0 +1,56 @@
+          <div ng-controller="JoinNetTranscodingCtrl" ng-show="jt.transcoding">
+            <video id="html5_media1" crossorigin controls ng-show="!w.audio_only && w.crossorigin"></video>
+            <video id="html5_media2" controls ng-show="!w.audio_only && !w.crossorigin"></video>
+            <audio id="html5_media3" crossorigin controls ng-show="w.audio_only"></audio>
+            <div class="text-danger">{{w.video_info}}</div>
+            <div>
+              <span><button type="button" class="btn btn-default" ng-click="import_html5()" tooltip-placement="right" 
+                tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_HTML5' | translate)}}"><span class="glyphicon glyphicon-import"></span>
+                <span ng-show="as.show_text" translate="ID_IMPORT_HTML5"></span></button></span>
+              <span ng-show="!w.audio_only"><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[jt.active_video]" 
+                ng-click="active_video()" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_BROADCAST_VIDEO' | translate)}}">
+                <span class="glyphicon glyphicon-random"></span>
+                <span ng-show="as.show_text" translate="ID_BROADCAST_VIDEO"></span></button></span>
+              <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.loop]" ng-click="loop()" 
+                tooltip="{{as.no_tip || as.show_text ? '' : ('ID_LOOP' | translate)}}"><span class="glyphicon glyphicon-repeat"></span>
+                <span ng-show="as.show_text" translate="ID_LOOP"></span></button></span>
+              <span>
+                <div class="inline-block">
+                  <button type="button" class="btn btn-default" ng-click="mute_transcoding(1)" 
+                    tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_TRANSCODING' | translate)}}" 
+                    ng-show="!jt.transcoding_muted"><span class="glyphicon glyphicon-record"></span>
+                    <span ng-show="as.show_text" translate="ID_MUTE_TRANSCODING"></span></button>
+                  <button type="button" class="btn btn-default" ng-click="mute_transcoding(0)" 
+                    tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_TRANSCODING' | translate)}}" 
+                    ng-show="jt.transcoding_muted"><span class="glyphicon glyphicon-remove-circle"></span>
+                    <span ng-show="as.show_text" translate="ID_UNMUTE_TRANSCODING"></span></button>
+                  <span style="position: relative;">
+                    <canvas id="html5_signal_strength" width="100" height="10"></canvas>
+                    <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                      tooltip="{{as.no_tip ? '' : ('ID_BROADCAST_VOLUME' | translate)}}" ng-model="jt.transcoding_gain">
+                  </span>
+                </div>
+              </span>
+              <span>
+                <div class="inline-block">
+                  <button type="button" class="btn btn-default" ng-click="mute_local(1)" 
+                    tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_LOCAL' | translate)}}" 
+                    ng-show="!jt.local_muted"><span class="glyphicon glyphicon-volume-up"></span>
+                    <span ng-show="as.show_text" translate="ID_MUTE_LOCAL"></span></button>
+                  <button type="button" class="btn btn-default" ng-click="mute_local(0)" 
+                    tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_LOCAL' | translate)}}" 
+                    ng-show="jt.local_muted"><span class="glyphicon glyphicon-volume-off"></span>
+                    <span ng-show="as.show_text" translate="ID_UNMUTE_LOCAL"></span></button>
+                  <span style="position: relative;">
+                    <canvas id="html5_playback_signal_strength" width="100" height="10"></canvas>
+                    <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
+                      tooltip="{{as.no_tip ? '' : ('ID_LOCAL_PLAY_VOLUME' | translate)}}" ng-model="jt.local_gain">
+                  </span>
+                </div>
+              </span>
+              <button type="button" class="btn btn-default" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_IMPORTING' | translate)}}" ng-click="reset()">
+                <span class="glyphicon glyphicon-remove"></span>
+                <span ng-show="as.show_text" translate="ID_STOP_IMPORTING"></span></button>
+            </div>
+            <hr />
+          </div>

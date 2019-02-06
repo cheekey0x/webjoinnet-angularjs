@@ -1,0 +1,18 @@
+        <span ng-controller="MyPictureCtrl">
+          {{w.descr}}
+          <div>
+            <span style="display: none;"><input id="fileMyPicture" type="file"/></span>
+            <button type="button" class="btn btn-default" tooltip-placement="right" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_NEW_MYPICTURE' | translate)}}" 
+              ng-click="open()"> <span class="glyphicon glyphicon-list-alt"></span> 
+              <span ng-show="as.show_text" translate="ID_NEW_MYPICTURE"></span></button>
+            <button type="button" class="btn btn-default" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE_MYPICTURE' | translate)}}" ng-click="remove()" 
+              ng-show="w.has_data"> <span class="glyphicon glyphicon-remove"></span> 
+              <span ng-show="as.show_text" translate="ID_DELETE_MYPICTURE"></span></button>
+          </div>
+          {{w.img_descr}}
+          <div>
+            <img id="mypicture" class="mypicture-img" ng-src="{{w.image_url}}" ng-show="w.image_url" alt=""/>
+          </div>
+        </span>

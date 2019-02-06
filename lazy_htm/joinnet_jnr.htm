@@ -1,0 +1,36 @@
+      <div ng-show="is_ready()" ng-controller="JNRCtrl">
+        <div class="container-fluid">
+          <div class="row-fluid">
+            <div class="col-sm-4">
+              <h4 translate="ID_RECORDING_TIME"></h4>
+              <p>{{start_str()}}</p>
+            </div>
+            <div class="col-sm-4">
+              <h4 translate="IDS_COL_DURATION"></h4>
+              <p>{{duration}}</p>
+            </div>
+            <div class="col-sm-4">
+              <h4 translate="ID_BANDWIDTH"></h4>
+              <p>{{bandwidth}}</p>
+            </div>
+          </div>
+        </div>
+        <div ng-hide="jn.jnr_prop.empty">
+          <h4 translate="ID_JNR_PROPERTY"></h4>
+          <div class="table-responsive border-autoscroll">
+            <table class="table table-condensed">
+              <tr> <td translate="ID_JNR_TITLE"></td> <td>{{jn.jnr_prop.title}}</td> </tr>
+              <tr> <td translate="ID_JNR_CATEGORY"></td> <td>{{jn.jnr_prop.category}}</td> </tr>
+              <tr> <td translate="ID_JNR_KEYWORD"></td> <td>{{jn.jnr_prop.keyword}}</td> </tr>
+              <tr> <td translate="ID_JNR_ABSTRACT"></td> <td>{{jn.jnr_prop.abstrct}}</td> </tr>
+              <tr> <td translate="ID_JNR_COMMENT"></td> <td>{{jn.jnr_prop.comment}}</td> </tr>
+              <tr> <td translate="ID_JNR_REGISTRATION"></td> <td>{{jn.jnr_prop.registration}}</td> </tr>
+              <tr> <td translate="ID_JNR_RELEASE_DATE"></td> <td>{{jn.jnr_prop.release_date}}</td> </tr>
+            </table>
+          </div>
+        </div>
+        <div ng-show="jn.jnr_prop.user_record">
+          <h4>{{'ID_USER_RECORD' | translate}} ({{jn.jnr_prop.user_record_count}})</h4>
+          <span>{{jn.jnr_prop.user_record}}</span>
+        </div>
+      </div>

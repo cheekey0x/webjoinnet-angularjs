@@ -1,0 +1,34 @@
+        <span ng-controller="TestCtrl">
+          <p>{{sound_info}}</p>
+          <p>{{audio_info}}</p>
+          <p>{{url_info}}</p>
+          <p>{{gum_info}}</p>
+          <br />
+          <button type="button" class="btn btn-default" ng-click="worker_test()">Worker Test</button>
+          <button type="button" class="btn btn-default" ng-click="play_alert()">Play Alert</button>
+          <span ng-show="can_show_audio()">
+            <button type="button" class="btn btn-default" ng-click="play_audio()">Play Audio</button>
+            <button type="button" class="btn btn-default" ng-click="play_script_audio()">Play Script Audio</button>
+            <button type="button" class="btn btn-default" ng-click="turn_on_audio()">Turn On Audio</button>
+            <button type="button" class="btn btn-default" ng-click="play_alert_via_audio_mp3()">Play Alert via Audio mp3</button>
+            <button type="button" class="btn btn-default" ng-click="play_alert_via_audio_ogg()">Play Alert via Audio ogg</button>
+            <button type="button" class="btn btn-default" ng-click="play_alert_via_audio_wav()">Play Alert via Audio wav</button>
+          </span>
+          <span ng-show="can_show_audio2()">
+            <button type="button" class="btn btn-default" ng-click="start_audio_loop()">Start Audio Loop</button>
+            <button type="button" class="btn btn-default" ng-click="stop_audio_loop()">Stop Audio Loop</button>
+            <button type="button" class="btn btn-default" ng-click="start_script_audio_loop()">Start Script Audio Loop</button>
+            <button type="button" class="btn btn-default" ng-click="stop_script_audio_loop()">Stop Script Audio Loop</button>
+          </span>
+          <span ng-show="can_show_video()">
+            <button type="button" class="btn btn-default" ng-click="start_video_loop()">Start Video Loop</button>
+            <button type="button" class="btn btn-default" ng-click="stop_video_loop()">Stop Video Loop</button>
+            <button type="button" class="btn btn-default" ng-click="start_screen_loop()">Start Screen Loop</button>
+            <button type="button" class="btn btn-default" ng-click="stop_screen_loop()">Stop Screen Loop</button>
+            <div><video id="video" width="176" height="144" autoplay></video></div>
+            <div>
+              <canvas id="self_video_canvas" width="176" height="144"></canvas>
+              <canvas id="self_video_canvas2" width="176" height="144"></canvas>
+            </div>
+          </span>
+        </span>

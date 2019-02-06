@@ -1,0 +1,102 @@
+    <div>
+    <div class="modal-header">
+      <h3 class="modal-title">{{'IDD_DIALOG_SHARE_RESULT' | translate}}</h3>
+      <h6 class="modal-title"><img ng-src="{{w.item.img}}" alt="{{w.item.alt}}"/>{{w.item.tick_str}} {{w.item.title}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div ng-show="!w.via_msgr">
+          <span><button type="button" class="btn btn-default" ng-click="copy()" ng-show="w.can_copy" translate="IDD_DIALOG_SHARE_RESULT_OK"></button></span>
+          <span class="text-success">{{'ID_SHARE_PROMPT' | translate}}</span>
+          <pre id="share_url" class="share-url">{{w.share_url}}</pre>
+        </div>
+        <div class="checkbox">
+        <label>
+            <input type="checkbox" ng-model="w.via_msgr"> {{'IDC_SHARE' | translate}}
+        </label>
+        </div>
+        <div ng-show="w.via_msgr">
+        <div class="form-group" ng-show="w.array.length > 1">
+          <label>{{'IDS_WEBOFFICE' | translate}}: </label>
+          <select class="vertical-middle" ng-model="w.param" ng-options="item.param as item.name for item in w.array"></select>
+        </div>
+        <div class="form-group">
+          <label>{{'IDD_DIALOG_SUBJECT' | translate}}: </label>
+          <input type="text" class="form-control" placeholder="{{'IDD_DIALOG_SUBJECT' | translate}}" ng-model="w.subject">
+        </div>
+        <div class="like-table">
+          <div class="like-row">
+            <div class="fix-cell">
+              <button type="button" class="btn btn-default" ng-click="share()" tooltip="{{as.no_tip ? '' : ('ID_SHARE_TOOLTIP' | translate)}}" translate="ID_SHARE"></button>
+            </div>
+            <div class="fill-cell">
+              <input type="text" class="form-control search-box" placeholder="{{'IDC_SEARCH' | translate}}" ng-model="w.hint">
+            </div>
+            <div class="fix-cell">
+              <button type="button" class="btn btn-default" ng-click="w.hint=''" ng-show="w.hint"><span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+          </div>
+        </div>
+        <div id="sharejnruserlist" class="table-responsive border-autoscroll min_height_100px" ng-style="style_height">
+          <table class="table table-condensed">
+            <thead>
+              <tr style="white-space: nowrap;">
+                <th><span ng-show="w.matched_selection">
+                  <span class="dropdown" dropdown on-toggle="ontoggle(open)">
+                    <span class="dropdown-toggle user-pointer" dropdown-toggle>
+                      <span class="user-selected">{{w.selection_descr}}</span>
+                    </span>
+                    <ul class="dropdown-menu">
+                      <li ng-repeat="menu in w.selection_menu">
+                        <a class="user-pointer" ng-click="menu.onclick();">{{menu.text}}</a>
+                      </li>
+                    </ul>
+                  </span>
+                </span>
+                <input type="checkbox" class="user-pointer" ng-model="w.all_selected" ng-hide="w.matched_selection || !w.user_list.length" ng-click="select_all()"> 
+                </th>
+                <th>{{'ID_TAB_USER' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="user in w.user_list" ng-show="user.matched">
+                <td>
+                  <input type="checkbox" class="user-pointer" ng-model="user.is_selected" 
+                    ng-click="user_selected(user)"> 
+                </td>
+                <td>{{user.name}}</td>
+              </tr>
+              <tr ng-show="w.has_action_menu"><td style="border-top: none;height: 240px;"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.add_new"> {{'ID_INPUT_NEW_USER' | translate}}
+          </label>
+        </div>
+        <div class="table-responsive border-autoscroll" ng-show="w.add_new">
+          <span ng-show="w.userid"><button type="button" class="btn btn-default" ng-click="add_user()" translate="ID_ADD_TO_LIST"></button></span>
+          <table class="table table-condensed">
+            <thead>
+              <tr style="white-space: nowrap;">
+                <th>{{'IDS_COL_USERID' | translate}}</th>
+                <th>{{'IDC_STATIC_3_USERNAME' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" class="form-control" placeholder="{{'IDS_COL_USERID' | translate}}" ng-model="w.userid"></td>
+                <td><input type="text" class="form-control" placeholder="{{'IDC_STATIC_3_USERNAME' | translate}}" ng-model="w.username"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+      </form>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <span ng-show="w.via_msgr"><button type="button" class="btn btn-default" ng-click="share()" tooltip="{{as.no_tip ? '' : ('ID_SHARE_TOOLTIP' | translate)}}" translate="ID_SHARE"></button></span>
+      <span><button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CLOSE"></button></span>
+    </div>

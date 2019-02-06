@@ -1,0 +1,44 @@
+    <div>
+    <div class="modal-header">
+      <h3 class="modal-title">{{'IDD_DIALOG_VIEW_RECORD' | translate}}</h3>
+      <h6 class="modal-title"><img ng-src="{{w.item.img}}" alt="{{w.item.alt}}"/>{{w.item.tick_str}} {{w.item.title}}</h6>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div style="overflow: auto;" ng-style="style_height3" ng-if="w.is_mmc">
+          <iframe class="auto-width" frameborder="0" scrolling="auto" marginheight="0" marginwidth="0" 
+            ng-src="{{w.url2}}" ng-style="style_height2"></iframe>
+        </div>
+        <div class="table-responsive border-autoscroll min_height_100px" ng-if="!w.is_mmc" ng-style="style_height">
+          <table class="table table-condensed">
+            <thead>
+              <tr class="user-pointer" style="white-space: nowrap;">
+                <th ng-click="resort(1)">{{'IDS_COL_PLAYER' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="w.sort_target==1 && w.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="w.sort_target==1 && !w.ascending"></span></th>
+                <th ng-click="resort(2)">{{'ID_SORT_BASE4' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="w.sort_target==2 && w.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="w.sort_target==2 && !w.ascending"></span></th>
+                <th ng-click="resort(3)">{{'ID_CUMULATIVE_PLAYBACK_TIME' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="w.sort_target==3 && w.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="w.sort_target==3 && !w.ascending"></span></th>
+                <th ng-click="resort(4)">{{'IDS_COL_LAST_START_TIME' | translate}}<span class="glyphicon glyphicon-arrow-up" ng-if="w.sort_target==4 && w.ascending"></span><span class="glyphicon glyphicon-arrow-down" ng-if="w.sort_target==4 && !w.ascending"></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in w.item_list">
+                <td>{{item.player_name}}</td>
+                <td>{{item.view_count}}</td>
+                <td>{{item.total_time_str}}</td>
+                <td>{{item.last_playtime_str}}</td>
+              </tr>
+              <tr ng-show="w.has_action_menu"><td style="border-top: none;height: 240px;"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <span ng-if="w.is_mmc">
+            <button type="button" class="btn btn-default" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_OPEN_NEW_WINDOW' | translate)}}" 
+            ng-click="open_url()"><span class="glyphicon glyphicon-new-window"></span>
+            <span ng-show="as.show_text" translate="ID_OPEN_NEW_WINDOW"></span></button>
+        </span>
+      <span><button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CLOSE"></button></span>
+    </div>

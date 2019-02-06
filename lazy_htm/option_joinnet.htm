@@ -1,0 +1,149 @@
+        <span ng-controller="JoinNetSettingCtrl">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_text"> <span translate="ID_DESCR_SHOW_TEXT"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.is_enter_for_newline"> <span translate="ID_DESCR_ENTER_FOR_NEWLINE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.no_tip"> <span translate="ID_DESCR_HIDE_TOOLTIP"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.meetintg_idle_mode"> <span translate="ID_MEETING_IDLE_MODE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_download_all"> <span translate="ID_AUTO_DOWNLOAD_ALL"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_follow_tab"> <span translate="ID_AUTO_FOLLOW_TAB"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_try_webrtc"> <span translate="ID_AUTO_TRY_WEBRTC"></span>
+            </label>
+          </div>
+          <div><span translate="ID_WEBRTC_BANDWIDTH_DESCR"></span>
+          <select ng-model="w.webrtc_bandwidth_profile" ng-options="profile.value as profile.text for profile in profiles"></select>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.use_max_video_bitrate"> <span translate="ID_USE_MAX_VIDEO_BITRATE"></span>
+            </label>
+            <span ng-show="w.use_max_video_bitrate">
+              <div class="inline-block">
+                <input type="range" class="vertical-middle" style="width: 100px;display: inline;" 
+                  min="10" max="1000" step="10" 
+                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }"
+                  ng-model="w.max_video_bitrate">{{w.max_video_bitrate}}kbps
+              </div>
+            </span>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.use_max_appdata_bitrate"> <span translate="ID_USE_MAX_APPDATA_BITRATE"></span>
+            </label>
+            <span ng-show="w.use_max_appdata_bitrate">
+              <div class="inline-block">
+                <input type="range" class="vertical-middle" style="width: 100px;display: inline;" 
+                  min="20" max="2000" step="20" 
+                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }"
+                  ng-model="w.max_appdata_bitrate">{{w.max_appdata_bitrate}}kbps
+              </div>
+            </span>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.meeting_capture_video"> <span translate="ID_MEETING_CAPTURE_VIDEO"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_send_video"> <span translate="ID_AUTO_SEND_VIDEO"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_recv_video"> <span translate="ID_AUTO_RECV_VIDEO"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.wait_key_frame"> <span translate="ID_WAIT_KEY_FRAME"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.prefer_questioner"> <span translate="ID_PREFER_QUESTIONER"></span>
+            </label>
+          </div>
+          <div class="checkbox" ng-if="0">
+            <label>
+              <input type="checkbox" ng-model="vr.show_2nd_video"> <span translate="ID_SHOW_TWO_VIDEO"></span>
+            </label>
+          </div>
+          <div class="checkbox" ng-show="0 && vr.show_2nd_video">
+            <label>
+              <input type="checkbox" ng-model="m2.overlap_two_video"> <span translate="ID_SMALL_2ND_VIDEO"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.restrict_audio_decoding"> <span translate="ID_RESTRICT_AUDIO_DECODING"></span>
+            </label>
+            <span ng-show="w.restrict_audio_decoding">
+              <select tooltip="{{as.no_tip ? '' : ('ID_RESTRICTED_AUDIO_DECODING' | translate)}}" ng-model="w.max_audio_decoding" ng-init="nums=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]" ng-options="num for num in nums"></select>
+            </span>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_reject_visitor"> <span translate="ID_AUTO_REJECT_VISITOR"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_allow_visitor"> <span translate="ID_AUTO_ALLOW_VISITOR"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.auto_allow_question"> <span translate="ID_AUTO_ALLOW_QUESTION"></span>
+            </label>
+          </div>
+          <div class="checkbox" ng-if="support_monitor_mode" ng-show="!rdc.is_control">
+            <label>
+              <input type="checkbox" ng-model="w.remote_monitor_mode"> <span translate="ID_REMOTE_MONITOR_MODE"></span>
+            </label>
+          </div>
+          <div class="checkbox" ng-if="is_secure">
+            <label>
+              <input type="checkbox" ng-model="w.auto_https"> <span translate="ID_AUTO_HTTPS"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_private_note"> <span translate="ID_SHOW_PRIVATE_NOTE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_control_panel_textchat"> <span translate="ID_SHOW_CONTROL_PANEL_TEXTCHAT"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_advanced_function"> <span translate="ID_SHOW_ADVANCED_FUNCTION"></span>
+            </label>
+          </div>
+        </span>

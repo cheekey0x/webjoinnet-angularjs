@@ -1,0 +1,57 @@
+        <span ng-controller="WebAppSettingCtrl">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.show_text"> <span translate="ID_DESCR_SHOW_TEXT"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.is_enter_for_newline"> <span translate="ID_DESCR_ENTER_FOR_NEWLINE"></span>
+            </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.no_tip"> <span translate="ID_DESCR_HIDE_TOOLTIP"></span>
+            </label>
+          </div>
+          <div><span translate="ID_DESCR_MAX_DISPLAY_ITEM"></span>
+            <div class="inline-block">
+              <input type="range" class="vertical-middle" style="width: 200px;display: inline;" min="1" max="200" step="1" ng-model="w.max_display_item">{{w.max_display_item}}
+            </div>
+          </div>
+          <br />
+
+          <div><span translate="IDC_STATIC_1_LEVEL"></span>
+          <select ng-model="data.loglevel" ng-init="levels=[0,1,2,3,4,5,6,7,8,9]" ng-options="level for level in levels"></select></div>
+          <br />
+
+          <div class="checkbox" ng-show="0">
+            <label>
+              <input type="checkbox" ng-model="w.show_snapshot"> <span translate="ID_DESCR_SHOW_SNAPSHOT"></span>
+            </label>
+          </div>
+          <div><span translate="ID_DESCR_SNAPSHOT_DELAY"></span>
+          <select ng-model="w.snapshot_delay" ng-init="delays=[0,1,2,3,4,5,6,7,8,9,10]" ng-options="delay for delay in delays"></select>
+          </div>
+          <br />
+
+          <div><span translate="ID_DATA_LIMIT_DESCR"></span>
+          <select ng-model="w.max_blob" ng-options="limit.value as limit.text for limit in limits"></select>
+          <button type="button" class="btn btn-default" ng-click="test_blob_limit()" ng-show="!in_probe" 
+            tooltip="{{as.no_tip ? '' : ('ID_LIMIT_PROBING_INFO' | translate)}}" translate="ID_PROBE_LIMIT"></button>
+          <span ng-show="in_probe">{{progress}}</span>
+          <span ng-show="probe_result">{{probe_result}}</span>
+          </div>
+          <br />
+
+          <div><span translate="ID_ZIP_LIMIT_DESCR"></span>
+          <select ng-model="w.max_zip_size" ng-options="limit.value as limit.text for limit in zip_limits"></select>
+          </div>
+          <div class="checkbox" ng-if="is_secure">
+            <label>
+              <input type="checkbox" ng-model="w.auto_https"> <span translate="ID_AUTO_HTTPS"></span>
+            </label>
+          </div>
+          <br />
+
+        </span>

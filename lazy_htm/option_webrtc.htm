@@ -1,0 +1,63 @@
+        <span ng-controller="WebRTCSettingCtrl">
+        <div>
+          <span>
+            <button type="button" class="btn btn-default" ng-click="add_turn_server()" ng-hide="w.editing" translate="ID_ADD_TURN_SERVER"></button>
+          </span>
+        </div>
+        <div class="table-responsive autoscroll">
+          <table class="table table-condensed">
+            <tbody>
+              <tr ng-repeat="item in ms.turn_server_array">
+                <td>
+                  <span ng-if="!w.editing && !item.edit">
+                    <button type="button" class="btn btn-default" ng-click="remove(item)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}">
+                      <span class="glyphicon glyphicon-remove"></span>
+                      <span ng-show="as.show_text" translate="ID_DELETE"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="edit(item)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_EDIT_URL' | translate)}}">
+                      <span class="glyphicon glyphicon-pencil"></span>
+                      <span ng-show="as.show_text" translate="ID_EDIT_URL"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="move_up(item)" ng-show="w.url_array.indexOf(item) != 0" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_UP' | translate)}}">
+                      <span class="glyphicon glyphicon-arrow-up"></span>
+                      <span ng-show="as.show_text" translate="ID_MOVE_UP"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="move_down(item)" ng-show="w.url_array.indexOf(item) != w.url_array.length - 1"
+                      tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MOVE_DOWN' | translate)}}">
+                      <span class="glyphicon glyphicon-arrow-down"></span>
+                      <span ng-show="as.show_text" translate="ID_MOVE_DOWN"></span>
+                    </button>
+                  </span>
+                  <span ng-if="item.edit">
+                    <button type="button" class="btn btn-default" ng-click="ok(item)" ng-disable="!item.link">
+                      <span translate="ID_OK"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="cancel(item)">
+                      <span translate="ID_CANCEL"></span>
+                    </button>
+                  </span>
+                </td>
+                <td>
+                  <span ng-if="!item.edit">
+                    <span>{{item.server}}</span>
+                  </span>
+                  <span ng-if="item.edit">
+                    <div class="form-group">
+                      <label for="turn_server">{{'ID_TURN_SERVER' | translate}}</label>
+                      <input type="text" class="form-control" id="turn_server" placeholder="turn:192.168.1.1:3456" ng-model="w.edit_server">
+                    </div>
+                    <div class="form-group">
+                      <label for="turn_username">{{'IDC_STATIC_3_USERNAME' | translate}}:</label>
+                      <input type="text" class="form-control" id="turn_username" placeholder="{{'IDC_STATIC_3_USERNAME' | translate}}" ng-model="w.edit_username">
+                    </div>
+                    <div class="form-group">
+                      <label for="turn_password">{{'IDC_STATIC_PASSWORD' | translate}}</label>
+                      <input type="password" class="form-control" id="turn_password" placeholder="********" ng-model="w.edit_password">
+                    </div>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        </span>

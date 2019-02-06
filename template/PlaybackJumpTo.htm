@@ -1,0 +1,42 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{title}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div>
+          {{start_tick_str}} - {{end_tick_str}}
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" readonly ng-model="w.tick_str">
+        </div>
+        <input type="range" class="vertical-middle" min="0" max="1000" step="1" class="auto-width" ng-model="w.pos">
+        <br>
+        <div class="form-group">
+          <span ng-repeat="interval in back_array"><button type="button" class="btn btn-default" ng-show="can_backward(interval)" 
+            ng-click="backward(interval)" tooltip="{{w.show_tooltip ? interval.tooltip : ''}}">
+            <span class="glyphicon glyphicon-backward"></span>{{interval.name}}</button></span>
+        </div>
+        <div class="form-group">
+          <button type="button" class="btn btn-danger" ng-click="reset()" translate="ID_RESET"></button>
+        </div>
+        <div class="form-group">
+          <span ng-repeat="interval in forward_array"><button type="button" class="btn btn-default" ng-show="can_forward(interval)" 
+          ng-click="forward(interval)" tooltip="{{w.show_tooltip ? interval.tooltip : ''}}">
+          <span class="glyphicon glyphicon-forward"></span>{{interval.name}}</button></span>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.show_tooltip"> {{'IDC_CHECK_SHOW_TOOLTIP' | translate}}
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.show_ms"> {{'IDC_CHECK_SHOW_MS' | translate}}
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>

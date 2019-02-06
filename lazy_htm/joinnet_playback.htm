@@ -1,0 +1,31 @@
+        <span ng-controller="PlaybackCtrl">
+          <span><button type="button" class="btn btn-default" ng-click="resume()" tooltip="{{as.no_tip ? '' : ('ID_PLAYBACK_RESUME' | translate)}}" 
+            ng-show="paused()"><span class="glyphicon glyphicon-play"></span></button></span>
+          <span><button type="button" class="btn btn-default" ng-click="pause()" tooltip="{{as.no_tip ? '' : ('ID_PLAYBACK_PAUSE' | translate)}}" 
+            ng-show="!paused()"><span class="glyphicon glyphicon-pause"></span></button></span>
+          <span><button type="button" class="btn btn-default" ng-click="stop()" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_STOP' | translate)}}">
+            <span class="glyphicon glyphicon-stop"></span>
+            <span ng-show="as.show_text" translate="ID_PLAYBACK_STOP"></span></button></span>
+          <div class="inline-block">
+            <span><button type="button" class="btn btn-default" ng-click="backward()" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_BACKWARD' | translate)}} {{interval_list[interval_idx].name}}">
+              <span class="glyphicon glyphicon-backward"></span>
+              <span ng-show="as.show_text">{{'ID_PLAYBACK_BACKWARD' | translate}} {{interval_list[interval_idx].name}}</span></button></span>
+            <span>
+              <select class="vertical-middle" 
+                ng-model="interval_idx" ng-options="si.value as si.name for si in interval_list"></select>
+            </span>
+            <span><button type="button" class="btn btn-default" ng-click="forward()" 
+              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_FORWARD' | translate)}} {{interval_list[interval_idx].name}}">
+              <span class="glyphicon glyphicon-forward"></span>
+              <span ng-show="as.show_text">{{'ID_PLAYBACK_FORWARD' | translate}} {{interval_list[interval_idx].name}}</span></button></span>
+          </div>
+          <span><button type="button" class="btn btn-default" ng-click="jump()" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_RANDOM_ACCESS' | translate)}}">
+            <span class="glyphicon glyphicon-circle-arrow-up"></span>
+            <span ng-show="as.show_text" translate="ID_PLAYBACK_RANDOM_ACCESS"></span></button></span>
+          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[is_repeat()]" 
+            ng-click="repeat()" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_REPEAT' | translate)}}">
+            <span class="glyphicon glyphicon-repeat"></span>
+            <span ng-show="as.show_text" translate="ID_PLAYBACK_REPEAT"></span></button></span>
+        </span>

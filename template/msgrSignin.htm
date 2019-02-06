@@ -1,0 +1,45 @@
+    <div class="modal-header">
+      <h3 class="modal-title">{{title}}</h3>
+    </div>
+    <div class="modal-body">
+      <form role="form">
+        <div class="form-group">
+          <label for="signin_homepage">{{'IDC_STATIC_1_HOMEPAGE' | translate}}</label>
+          <div class="text-warning" ng-show="is_secure && w.bad_https">{{'ID_BAD_HTTPS_URL' | translate}}</div>
+          <input type="text" class="form-control" id="signin_homepage" list="signin_homepage_list" placeholder="{{homepage_placeholder}}" ng-disabled="w.is_reconnect" ng-model="w.homepage">
+          <datalist id="signin_homepage_list">
+            <option ng-repeat="hm in hmlist" value="{{hm.name}}">{{hm.name}}</option>
+          </datalist>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-disabled="w.is_reconnect" ng-model="w.guest"> {{'IDC_CHECK_GUEST' | translate}}
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="signin_id">{{'IDS_COL_USERID' | translate}}:</label>
+          <input type="text" class="form-control" id="signin_id" list="signin_userid_list" placeholder="{{userid_placeholder}}" ng-disabled="w.guest || w.is_reconnect" ng-model="w.userid">
+          <datalist id="signin_userid_list">
+            <option ng-repeat="id in idlist" value="{{id.name}}">{{id.name}}</option>
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label for="signin_password">{{'IDC_STATIC_PASSWORD' | translate}}</label>
+          <input type="password" class="form-control" id="signin_password" ng-disabled="w.guest || (w.is_reconnect && !w.is_password_error)" ng-model="w.password">
+        </div>
+        <div class="form-group">
+          <label for="signin_mystatus">{{'IDC_SET_STATUS' | translate}}:</label>
+          <select ng-disabled="w.guest" ng-model="w.initial_status" ng-init="statuses=[1,2,3,4,5]" ng-options="status as userstatus2string(status) for status in statuses">
+          </select>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="w.remember_passwd" ng-disabled="w.guest"> {{'IDC_CHECK_REMEMBER_PASSWORD' | translate}}
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button>
+      <button type="button" class="btn btn-warning" ng-click="cancel()" translate="ID_CANCEL"></button>
+    </div>
