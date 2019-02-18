@@ -1746,6 +1746,14 @@ angular.module('joinnet', ['pascalprecht.translate'])
       hmtgHelper.inside_angular++;
       hmtg.jnkernel.jn_command_QuitConnection();
       hmtgHelper.inside_angular--;
+
+      // when manually disconnect, stop audio/video capture
+      if(joinnetAudio.recording) {
+        $scope.stopAudioRecording();
+      }
+      if(joinnetVideo.recording) {
+        $scope.stopVideoRecording();
+      }
     }
 
     $scope.reconnect = function() {
