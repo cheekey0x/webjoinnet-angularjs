@@ -59,6 +59,9 @@ angular.module('joinnet')
         need_adjust_volume = true;
       }
       if(need_adjust_volume) {
+        if(hmtgSound.record_muted) {
+          hmtg.util.log('stat, audio record mute status is Unmuted');
+        }
         hmtgSound.record_muted = false;
         hmtgSound.record_gain = hmtgSound.MIN_GAIN;
         hmtg.util.localStorage['hmtg_record_muted'] = JSON.stringify(hmtgSound.record_muted);
@@ -66,6 +69,7 @@ angular.module('joinnet')
       }
 
       hmtgSound.shadowRecording = this.recording = true;
+      hmtg.util.log('stat, local audio capture is ON');
       $rootScope.$broadcast(hmtgHelper.WM_AUDIO_RECORDING_CHANGED);
       $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
       mediasoupWebRTC.updateAudioSending();
@@ -125,6 +129,9 @@ angular.module('joinnet')
         hmtg.util.log(5, 'capture audio fails, error: ' + hmtgSound.getUserMediaError(e));
         hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_AUDIO') + hmtgSound.getUserMediaError(e) }, 20);
         _joinnetAudio.error_occurred = true;
+        if(_joinnetAudio.recording) {
+          hmtg.util.log('stat, local audio capture is OFF');
+        }
         hmtgSound.shadowRecording = _joinnetAudio.recording = false;
         //$rootScope.$broadcast(hmtgHelper.WM_AUDIO_RECORDING_CHANGED);
         //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
@@ -186,6 +193,7 @@ angular.module('joinnet')
     this.stop = function() {
       this.remove_alert_item();
       if(!this.recording) return;
+      hmtg.util.log('stat, local audio capture is OFF');
       hmtgSound.shadowRecording = this.recording = false;
       $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
       if(_joinnetAudio.audio_stream)
@@ -247,6 +255,9 @@ angular.module('joinnet')
         need_adjust_volume = true;
       }
       if(need_adjust_volume) {
+        if(hmtgSound.playback_muted) {
+          hmtg.util.log('stat, audio playback mute status is Unmuted');
+        }
         hmtgSound.playback_muted = false;
         hmtgSound.playback_gain = hmtgSound.MIN_GAIN;
         hmtg.util.localStorage['hmtg_playback_muted'] = JSON.stringify(hmtgSound.playback_muted);
@@ -316,6 +327,9 @@ angular.module('joinnet')
 
     $scope.mute_record = function(muted) {
       if($scope.w.record_gain == 0 && !muted) return;
+      if($scope.w.record_muted != (!!muted)) {
+        hmtg.util.log('stat, audio record mute status is ' + ((!!muted) ? 'Muted' : 'Unmuted'));
+      }
       $scope.w.record_muted = !!muted;
       mediasoupWebRTC.updateAudioSending();
       hmtg.util.localStorage['hmtg_record_muted'] = JSON.stringify($scope.w.record_muted);
@@ -333,6 +347,9 @@ angular.module('joinnet')
     $scope.mute_playback = function(muted) {
       if($scope.w.playback_gain == 0 && !muted) return;
       var old_status = $scope.w.playback_muted;
+      if($scope.w.playback_muted != (!!muted)) {
+        hmtg.util.log('stat, audio playback mute status is ' + ((!!muted) ? 'Muted' : 'Unmuted'));
+      }
       $scope.w.playback_muted = !!muted;
       hmtg.util.localStorage['hmtg_playback_muted'] = JSON.stringify($scope.w.playback_muted);
       $scope.w.playback_gain_node_gain_value = hmtgSound.playback_muted ? 0.0 : hmtgSound.playback_gain / 100.0;
@@ -346,6 +363,9 @@ angular.module('joinnet')
     }
 
     $scope.$watch('w.record_gain', function() {
+      if($scope.w.record_muted != ($scope.w.record_gain == 0)) {
+        hmtg.util.log('stat, audio record mute status is ' + ($scope.w.record_gain == 0 ? 'Muted' : 'Unmuted'));
+      }
       $scope.w.record_muted = $scope.w.record_gain == 0;
       mediasoupWebRTC.updateAudioSending();
       hmtg.util.localStorage['hmtg_record_gain'] = JSON.stringify($scope.w.record_gain);
@@ -357,6 +377,9 @@ angular.module('joinnet')
 
     $scope.$watch('w.playback_gain', function() {
       var old_status = $scope.w.playback_muted;
+      if($scope.w.playback_muted != ($scope.w.playback_gain == 0)) {
+        hmtg.util.log('stat, audio playback mute status is ' + (($scope.w.playback_gain == 0) ? 'Muted' : 'Unmuted'));
+      }
       $scope.w.playback_muted = $scope.w.playback_gain == 0;
       hmtg.util.localStorage['hmtg_playback_gain'] = JSON.stringify($scope.w.playback_gain);
       $scope.w.playback_gain_node_gain_value = hmtgSound.playback_muted ? 0.0 : hmtgSound.playback_gain / 100.0;
@@ -447,6 +470,7 @@ angular.module('joinnet')
       hmtgSound.audio_video_capture_tick = capture_tick;
 
       this.recording = true;
+      hmtg.util.log('stat, local video capture is ON');
       var elem_video = this.elem_video;
 
       /*
@@ -551,6 +575,9 @@ angular.module('joinnet')
         hmtg.util.log(5, 'capture video fails, error: ' + hmtgSound.getUserMediaError(e));
         hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_VIDEO') + ' Error: ' + hmtgSound.getUserMediaError(e) }, 20);
         _joinnetVideo.error_occurred = true;
+        if(_joinnetVideo.recording) {
+          hmtg.util.log('stat, local video capture is OFF');
+        }
         _joinnetVideo.recording = false;
         //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
         //$rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);
@@ -605,6 +632,9 @@ angular.module('joinnet')
       }
       this.video_stream = null;
       if(this.elem_video) this.elem_video.src = null;
+      if(this.recording) {
+        hmtg.util.log('stat, local video capture is OFF');
+      }
       this.recording = false;
       mediasoupWebRTC.localVideoStream = null;
       hmtgHelper.inside_angular++;
@@ -706,6 +736,7 @@ angular.module('joinnet')
       if(this.screen_recording) return;
 
       this.screen_recording = true;
+      hmtg.util.log('stat, screen capture status is ON');
       var elem_screen = this.elem_screen;
 
       if(typeof getScreenId != 'function') {
@@ -715,7 +746,13 @@ angular.module('joinnet')
           hmtgHelper.inside_angular--;
         }, function(e) {
           hmtg.util.log(-1, 'Warning! lazy_loading getScreenId fails');
+          if(_joinnetVideo.screen_recording) {
+            hmtg.util.log('stat, screen capture status is OFF');
+          }
           _joinnetVideo.screen_recording = false;
+          if(_joinnetVideo.use_screen_as_video) {
+            hmtg.util.log('stat, use screen as video status: No');
+          }
           _joinnetVideo.use_screen_as_video = false;
         });
       } else {
@@ -728,7 +765,13 @@ angular.module('joinnet')
           // sourceId == null || 'string' || 'firefox'
           if(error) {
             hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_SCREEN') + error }, 20);
+            if(_joinnetVideo.screen_recording) {
+              hmtg.util.log('stat, screen capture status is OFF');
+            }
             _joinnetVideo.screen_recording = false;
+            if(_joinnetVideo.use_screen_as_video) {
+              hmtg.util.log('stat, use screen as video status: No');
+            }
             _joinnetVideo.use_screen_as_video = false;
             mediasoupWebRTC.localScreenStream = null;
             //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
@@ -772,7 +815,13 @@ angular.module('joinnet')
             }
           }, function(e) {
             hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_SCREEN') + hmtgSound.getUserMediaError(e) }, 20);
+            if(_joinnetVideo.screen_recording) {
+              hmtg.util.log('stat, screen capture status is OFF');
+            }
             _joinnetVideo.screen_recording = false;
+            if(_joinnetVideo.use_screen_as_video) {
+              hmtg.util.log('stat, use screen as video status: No');
+            }
             _joinnetVideo.use_screen_as_video = false;
             mediasoupWebRTC.localScreenStream = null;
             //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
@@ -795,7 +844,13 @@ angular.module('joinnet')
       }
       this.screen_stream = null;
       if(this.elem_screen) this.elem_screen.src = null;
+      if(this.screen_recording) {
+        hmtg.util.log('stat, screen capture status is OFF');
+      }
       this.screen_recording = false;
+      if(this.use_screen_as_video) {
+        hmtg.util.log('stat, use screen as video status: No');
+      }
       mediasoupWebRTC.use_screen_as_video = this.use_screen_as_video = false;
       mediasoupWebRTC.localScreenStream = null;
       hmtgHelper.inside_angular++;

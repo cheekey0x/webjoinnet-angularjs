@@ -282,6 +282,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     jnkernel['jn_callback_NetInitFinish'] = function() {
       _JoinNet.net_init_finished = true;
+      if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
+        hmtg.util.log('stat, audio record mute status is ' + (hmtgSound.record_muted ? 'Muted' : 'Unmuted'));
+        hmtg.util.log('stat, audio playback mute status is ' + (hmtgSound.playback_muted ? 'Muted' : 'Unmuted'));
+        hmtg.util.log('stat, video sending status is ' + (video_bitrate.is_send_video ? 'ON' : 'OFF'));
+        hmtg.util.log('stat, video recving status is ' + (video_recving.is_recv_video ? 'ON' : 'OFF'));
+      }
       _JoinNet.is_owner = hmtg.jnkernel._jn_ssrc_index() == 0;
       //hmtg.util.log(-2, '******debug, net init finish');
       var v = hmtg.jnkernel._jn_auto_download_all();
@@ -2170,6 +2176,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.toggle_video_sending = function() {
       if(hmtg.jnkernel._jn_bConnected() && hmtg.jnkernel._jn_iWorkMode() != hmtg.config.NORMAL) return;
       mediasoupWebRTC.is_send_video = video_bitrate.is_send_video = !video_bitrate.is_send_video;
+      hmtg.util.log('stat, video sending status is ' + (video_bitrate.is_send_video ? 'ON' : 'OFF'));
       hmtgHelper.inside_angular++;
       mediasoupWebRTC.updateVideoSending();
       hmtgHelper.inside_angular--;
@@ -2177,6 +2184,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
     $scope.toggle_screen_as_video = function() {
       mediasoupWebRTC.use_screen_as_video = joinnetVideo.use_screen_as_video = !joinnetVideo.use_screen_as_video;
+      hmtg.util.log('stat, use screen as video status: ' + (joinnetVideo.use_screen_as_video ? 'Yes' : 'No'));
       hmtgHelper.inside_angular++;
       mediasoupWebRTC.updateVideoSource();
       $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);

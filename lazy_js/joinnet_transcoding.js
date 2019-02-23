@@ -85,6 +85,9 @@ angular.module('joinnet')
         $scope.elem3_html5.removeAttribute('src');
         $scope.elem1_html5.autoplay = $scope.elem2_html5.autoplay = $scope.elem3_html5.autoplay = true;
         joinnetTranscoding.transcoding_gain = Math.min(100, Math.max(0, audio_broadcast_volume));
+        if(joinnetTranscoding.transcoding_muted != (joinnetTranscoding.transcoding_gain == 0)) {
+          hmtg.util.log('stat, html5 audio muted status is ' + (joinnetTranscoding.transcoding_gain == 0 ? 'Muted' : 'Unmuted'));
+        }
         joinnetTranscoding.transcoding_muted = joinnetTranscoding.transcoding_gain == 0;
         joinnetTranscoding.local_gain = Math.min(100, Math.max(0, audio_local_volume));
         joinnetTranscoding.local_muted = joinnetTranscoding.local_gain == 0;
@@ -249,7 +252,11 @@ angular.module('joinnet')
       if(!hmtgSound.ac) return;
       if(joinnetTranscoding.transcoding) return;
       joinnetTranscoding.audio_transcoding = true;
+      hmtg.util.log('stat, html5 audio forwarding is ON');
       joinnetTranscoding.video_transcoding = !$scope.w.audio_only;
+      if(joinnetTranscoding.video_transcoding) {
+        hmtg.util.log('stat, html5 video forwarding is ON');
+      }
 
       var elem_html5 = $scope.w.audio_only ? $scope.elem3_html5 : ($scope.w.crossorigin ? $scope.elem1_html5 : $scope.elem2_html5);
       var input = $scope.input = $scope.w.audio_only ? $scope.input3 : ($scope.w.crossorigin ? $scope.input1 : $scope.input2);
@@ -477,7 +484,13 @@ angular.module('joinnet')
       }
       mediasoupWebRTC.updateAudioSending();
       hmtgHelper.inside_angular--;
+      if(joinnetTranscoding.audio_transcoding) {
+        hmtg.util.log('stat, html5 audio forwarding is OFF');
+      }
       joinnetTranscoding.audio_transcoding = false;
+      if(joinnetTranscoding.video_transcoding) {
+        hmtg.util.log('stat, html5 video forwarding is OFF');
+      }
       joinnetTranscoding.video_transcoding = false;
       hmtgHelper.inside_angular++;
       $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
@@ -505,6 +518,9 @@ angular.module('joinnet')
 
     $scope.mute_transcoding = function (muted) {
       if(joinnetTranscoding.transcoding_gain == 0 && !muted) return;
+      if(joinnetTranscoding.transcoding_muted != (!!muted)) {
+        hmtg.util.log('stat, html5 audio muted status is ' + ((!!muted) ? 'Muted' : 'Unmuted'));
+      }
       joinnetTranscoding.transcoding_muted = !!muted;
       hmtgHelper.inside_angular++;
       mediasoupWebRTC.updateAudioSending();
@@ -522,6 +538,9 @@ angular.module('joinnet')
     }
 
     $scope.$watch('jt.transcoding_gain', function () {
+      if(joinnetTranscoding.transcoding_muted != (joinnetTranscoding.transcoding_gain == 0)) {
+        hmtg.util.log('stat, html5 audio muted status is ' + ((joinnetTranscoding.transcoding_gain == 0) ? 'Muted' : 'Unmuted'));
+      }
       joinnetTranscoding.transcoding_muted = joinnetTranscoding.transcoding_gain == 0;
       hmtgHelper.inside_angular++;
       mediasoupWebRTC.updateAudioSending();

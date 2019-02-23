@@ -412,6 +412,7 @@ angular.module('joinnet')
       video_recving.is_recv_video = true;
       if(!hmtg.jnkernel._jn_bConnected()) return;
       video_recving.update_holder_sender_video_recv_status();
+      hmtg.util.log('stat, video recving status is ON');
 
       var list = hmtg.jnkernel._jn_iParticipantAudioSsrc(); // use speaker array for requesting
       var i;
@@ -426,6 +427,7 @@ angular.module('joinnet')
       video_recving.is_recv_video = false;
       if(!hmtg.jnkernel._jn_bConnected()) return;
       hmtg.jnkernel.jn_command_RequestVideo(false);
+      hmtg.util.log('stat, video recving status is OFF');
 
       var list = hmtg.jnkernel._jn_iParticipantVideoSsrc(); // use video ssrc array for stopping
       var i;

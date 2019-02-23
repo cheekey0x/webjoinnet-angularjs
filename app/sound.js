@@ -21,12 +21,14 @@ angular.module('hmtgs')
     this.record_gain = Math.max(0.0, Math.min(100.0, this.record_gain));
     this.record_muted = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_record_muted']);
     this.record_muted = this.record_muted === 'undefined' ? false : !!this.record_muted;
-
+    if(this.record_gain) this.record_muted = false;
+    
     this.playback_gain = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_playback_gain']);
     if(this.playback_gain === 'undefined') this.playback_gain = 100.0;
     this.playback_gain = Math.max(0.0, Math.min(100.0, this.playback_gain));
     this.playback_muted = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_playback_muted']);
     this.playback_muted = this.playback_muted === 'undefined' ? false : !!this.playback_muted;
+    if(this.playback_gain) this.playback_muted = false;
 
     this.mixer_node = null;    
     this.MIN_GAIN = 10.0;

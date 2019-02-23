@@ -327,6 +327,7 @@ angular.module('joinnet')
             return;
           }
           this.webrtcStatus = 1;
+          hmtg.util.log('stat, webrtc status change to 1');
           hmtg.jnkernel.jn_command_WebRTCStatusNotification(1); // WebRTC connecting or error
           this.request_delayed_turn_servers(hmtg.jnkernel._jn_turn_server_array(), startWebRTC);
 
@@ -516,6 +517,7 @@ angular.module('joinnet')
       if(connectionstate == 'connected') {
         if(this.webrtcStatus != 4) {
           this.webrtcStatus = 4;
+          hmtg.util.log('stat, webrtc status change to 4');
           hmtg.jnkernel.jn_command_WebRTCStatusNotification(4); // WebRTC connected, good ice
         }
         return;
@@ -530,6 +532,7 @@ angular.module('joinnet')
         //}
         if(this.webrtcStatus != 3) {
           this.webrtcStatus = 3;
+          hmtg.util.log('stat, webrtc status change to 3');
           hmtg.jnkernel.jn_command_WebRTCStatusNotification(3); // WebRTC connected, failed ice
         }
         return;
@@ -606,6 +609,7 @@ angular.module('joinnet')
           _mediasoupWebRTC.startVideoSource();
 
           _mediasoupWebRTC.webrtcStatus = 2;
+          hmtg.util.log('stat, webrtc status change to 2');
           hmtg.jnkernel.jn_command_WebRTCStatusNotification(2); // WebRTC probing
 
           _mediasoupWebRTC.update_bitrate();
@@ -689,6 +693,7 @@ angular.module('joinnet')
         _mediasoupWebRTC.webrtc_reset_upon_disconnection();
         // the protoo will try to reconnect, show the connecting status
         _mediasoupWebRTC.webrtcStatus = 1;
+        hmtg.util.log('stat, webrtc status change to 1');
         hmtg.jnkernel.jn_command_WebRTCStatusNotification(1); // WebRTC connecting or error
       });
 
@@ -701,6 +706,7 @@ angular.module('joinnet')
 
         _mediasoupWebRTC.webrtc_reset_upon_disconnection();
         _mediasoupWebRTC.webrtcStatus = 1;
+        hmtg.util.log('stat, webrtc status change to 1');
         hmtg.jnkernel.jn_command_WebRTCStatusNotification(1); // WebRTC connecting or error
       });
 
@@ -876,9 +882,23 @@ angular.module('joinnet')
               _mediasoupWebRTC.remote_node[peerId] = hmtgSound.ac.createMediaStreamSource(stream);
               _mediasoupWebRTC.remote_node[peerId].connect(hmtgSound.create_playback_gain_node());
 
+              var stat_logged = false;
               consumer.on('stats', function(stats) {
                 _mediasoupWebRTC.remoteAudioStats[peerId] = stats;
                 _mediasoupWebRTC.remoteAudioStatsTick[peerId] = hmtg.util.GetTickCount();
+                if(!stat_logged) {
+                  if(stats.length && stats[0] && stats[0].bitrate) {
+                    stat_logged = true;
+                    if(consumer.rtpParameters
+                      && consumer.rtpParameters.codecs
+                      && consumer.rtpParameters.codecs[0]
+                      && consumer.rtpParameters.codecs[0].name
+                    ) {
+                      hmtg.util.log('stat, webrtc ssrc[' + peerId + '] audio codec ' + consumer.rtpParameters.codecs[0].name);
+                    }
+                    hmtg.util.log('stat, webrtc ssrc[' + peerId + '] audio recving bitrate ' + stats[0].bitrate);
+                  }
+                }
               });
               consumer.on('close', function() {
                 _mediasoupWebRTC.remoteAudioConsumer[peerId] = null;
@@ -905,9 +925,23 @@ angular.module('joinnet')
                 $rootScope.$broadcast(hmtgHelper.WM_UPDATE_VIDEO_WINDOW); // to update webrtc video or canvas
               }
 
+              var stat_logged = false;
               consumer.on('stats', function(stats) {
                 _mediasoupWebRTC.remoteVideoStats[peerId] = stats;
                 _mediasoupWebRTC.remoteVideoStatsTick[peerId] = hmtg.util.GetTickCount();
+                if(!stat_logged) {
+                  if(stats.length && stats[0] && stats[0].bitrate) {
+                    stat_logged = true;
+                    if(consumer.rtpParameters
+                      && consumer.rtpParameters.codecs
+                      && consumer.rtpParameters.codecs[0]
+                      && consumer.rtpParameters.codecs[0].name
+                    ) {
+                      hmtg.util.log('stat, webrtc ssrc[' + peerId + '] video codec ' + consumer.rtpParameters.codecs[0].name);
+                    }
+                    hmtg.util.log('stat, webrtc ssrc[' + peerId + '] video recving bitrate ' + stats[0].bitrate);
+                  }
+                }
               });
               consumer.on('resume', function() {
                 consumer_init_resume();
@@ -1128,9 +1162,23 @@ angular.module('joinnet')
           this._videoProducer.send(this._sendTransport);
           this._videoProducer.enableStats(3000);
 
+          var stat_logged = false;
           this._videoProducer.on('stats', function(stats) { 
             _mediasoupWebRTC.videoStats = stats;
             _mediasoupWebRTC.videoStatsTick = hmtg.util.GetTickCount();
+            if(!stat_logged) {
+              if(stats.length && stats[0] && stats[0].bitrate) {
+                stat_logged = true;
+                if(_mediasoupWebRTC._videoProducer.rtpParameters
+                  && _mediasoupWebRTC._videoProducer.rtpParameters.codecs
+                  && _mediasoupWebRTC._videoProducer.rtpParameters.codecs[0]
+                  && _mediasoupWebRTC._videoProducer.rtpParameters.codecs[0].name
+                ) {
+                  hmtg.util.log('stat, webrtc video codec ' + _mediasoupWebRTC._videoProducer.rtpParameters.codecs[0].name);
+                }
+                hmtg.util.log('stat, webrtc video sending bitrate ' + stats[0].bitrate);
+              }
+            }
             //console.log('video stats: %o', stats);
           })
 
@@ -1247,6 +1295,7 @@ angular.module('joinnet')
         if(this._videoProducer) {
           if(this._videoProducer.locallyPaused) {
             this._videoProducer.resume();
+            hmtg.util.log('stat, webrtc, video sending resume');
             this.video_producer_init_or_resume();
 
             // get around receiver video size is 0 issue
@@ -1258,6 +1307,7 @@ angular.module('joinnet')
       } else {
         if(!this._videoProducer || this._videoProducer.locallyPaused) return;
         this._videoProducer.pause();
+        hmtg.util.log('stat, webrtc, video sending pause');
         this.video_producer_stop_or_pause();
       }
     }  
@@ -1313,9 +1363,23 @@ angular.module('joinnet')
           this._audioProducer.send(this._sendTransport);
           this._audioProducer.enableStats(3000);
 
+          var stat_logged = false;
           this._audioProducer.on('stats', function(stats) {
             _mediasoupWebRTC.audioStats = stats;
             _mediasoupWebRTC.audioStatsTick = hmtg.util.GetTickCount();
+            if(!stat_logged) {
+              if(stats.length && stats[0] && stats[0].bitrate) {
+                stat_logged = true;
+                if(_mediasoupWebRTC._audioProducer.rtpParameters
+                  && _mediasoupWebRTC._audioProducer.rtpParameters.codecs
+                  && _mediasoupWebRTC._audioProducer.rtpParameters.codecs[0]
+                  && _mediasoupWebRTC._audioProducer.rtpParameters.codecs[0].name
+                ) {
+                  hmtg.util.log('stat, webrtc audio codec ' + _mediasoupWebRTC._audioProducer.rtpParameters.codecs[0].name);
+                }
+                hmtg.util.log('stat, webrtc audio sending bitrate ' + stats[0].bitrate);
+              }
+            }
             //console.log('audio stats: %o', stats);
           })
 
@@ -1348,10 +1412,12 @@ angular.module('joinnet')
         && (!joinnetTranscoding.audio_transcoding || joinnetTranscoding.transcoding_muted)) {
         if(!this._audioProducer || this._audioProducer.locallyPaused) return;
         this._audioProducer.pause();
+        hmtg.util.log('stat, webrtc, audio sending pause');
       } else {
         if(this._audioProducer) {
           if(this._audioProducer.locallyPaused) {
             this._audioProducer.resume();
+            hmtg.util.log('stat, webrtc, audio sending resume');
           }  
         } else {
           this.startAudioSource();
