@@ -860,10 +860,21 @@ angular.module('joinnet')
 
             var stream = new MediaStream;
             stream.addTrack(track);
+
             // Attach the track to a MediaStream and play it.
             if(consumer.kind === 'audio') {
               _mediasoupWebRTC.remoteAudioConsumer[peerId] = consumer;
               _mediasoupWebRTC.remoteIsWebRTCAudio[peerId] = true;
+
+              function playAudioStream() {
+                if(_mediasoupWebRTC.remote_node[peerId]) {
+                  _mediasoupWebRTC.remote_node[peerId].disconnect();
+                }
+                _mediasoupWebRTC.remote_node[peerId] = hmtgSound.ac.createMediaStreamSource(stream);
+                _mediasoupWebRTC.remote_node[peerId].connect(hmtgSound.create_playback_gain_node());
+              }
+
+              // without the remotePlayer, the audio will not work
               if(!_mediasoupWebRTC.remotePlayer[peerId]) {
                 _mediasoupWebRTC.remotePlayer[peerId] = new Audio();
               }
@@ -876,11 +887,32 @@ angular.module('joinnet')
                 } catch(e) { }
               }
 
-              if(_mediasoupWebRTC.remote_node[peerId]) {
-                _mediasoupWebRTC.remote_node[peerId].disconnect();
+              if(!hmtgHelper.isiOS) {
+                playAudioStream();
+              } else {
+                var item = {};
+                item['timeout'] = 3600 * 24 * 10;
+                item['update'] = function() {
+                  var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
+                  var username = 'User';
+                  if(a && a[peerId] && a[peerId]._szRealName()) {
+                    username = a[peerId]._szRealName();
+                  }
+
+                  return $translate.instant('ID_UNMUTE_WEBRTC_AUDIO').replace('#username#', hmtg.util.decodeUtf8(username))
+                };
+                item['text'] = item['update']();
+                item['type'] = 'info';
+                item['click'] = function(index) {
+                  playAudioStream();
+
+                  hmtgHelper.inside_angular++;
+                  hmtgAlert.click_link(index);
+                  hmtgHelper.inside_angular--;
+                };
+
+                hmtgAlert.add_link_item(item);
               }
-              _mediasoupWebRTC.remote_node[peerId] = hmtgSound.ac.createMediaStreamSource(stream);
-              _mediasoupWebRTC.remote_node[peerId].connect(hmtgSound.create_playback_gain_node());
 
               var stat_logged = false;
               consumer.on('stats', function(stats) {

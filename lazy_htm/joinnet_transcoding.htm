@@ -1,6 +1,6 @@
           <div ng-controller="JoinNetTranscodingCtrl" ng-show="jt.transcoding">
-            <video id="html5_media1" crossorigin controls ng-show="!w.audio_only && w.crossorigin"></video>
-            <video id="html5_media2" controls ng-show="!w.audio_only && !w.crossorigin"></video>
+            <video id="html5_media1" crossorigin controls playsinline ng-show="!w.audio_only && w.crossorigin"></video>
+            <video id="html5_media2" controls playsinline ng-show="!w.audio_only && !w.crossorigin"></video>
             <audio id="html5_media3" crossorigin controls ng-show="w.audio_only"></audio>
             <div class="text-danger">{{w.video_info}}</div>
             <div>

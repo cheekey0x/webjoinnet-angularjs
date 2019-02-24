@@ -200,8 +200,8 @@
       </span>
       <span ng-controller="JoinNetVideoCtrl">
         <span ng-show="jv.can_show_record_control()">
-          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="joinnet_video" autoplay></video></div>
-          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="screen_capture" autoplay></video></div>
+          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="joinnet_video" autoplay playsinline></video></div>
+          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="screen_capture" autoplay playsinline></video></div>
           <button type="button" class="btn btn-default" ng-click="start()" ng-show="!jv.recording" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_CAPTURE_VIDEO_PROMPT' | translate)}}"><span class="glyphicon glyphicon-facetime-video"></span>
             <span ng-show="as.show_text" translate="ID_CAMERA_DESCR"></span></button>
@@ -311,7 +311,7 @@
           </span>
           <div id="main_video_container" style="padding-top: 1px;">
             <canvas id="main_video" ng-show="!rtc.is_main_video_webrtc" class="video_canvas" width="0" height="0" ></canvas>
-            <video id="webrtc_main_video" ng-show="rtc.is_main_video_webrtc" ng-style="style_webrtc_main_video" autoplay muted></video>
+            <video id="webrtc_main_video" ng-show="rtc.is_main_video_webrtc" ng-style="style_webrtc_main_video" autoplay muted playsinline></video>
           </div>
           <span ng-if="0 && vr.show_2nd_video">
             <span>
@@ -1198,8 +1198,8 @@
       <div class="auto-overflow" ng-class="col_area()" ng-repeat="im in im_array" ng-show="im.visible" ng-controller="IMCtrl">
         <span ng-include="'template/imTitle.htm' + cache_param"></span>
         <div style="position: relative;text-align: center;" ng-show="im.pc">
-          <video class="webrtc-local" ng-style="im.style_webrtc_video('local')" autoplay muted ng-show="im.has_video_webrtc" ng-click="im.toggle_video_layout()"></video>
-          <video class="webrtc-remote" ng-style="im.style_webrtc_video('remote')" autoplay ng-show="im.has_video_webrtc" ng-click="im.toggle_video_layout()"></video>
+          <video class="webrtc-local" ng-style="im.style_webrtc_video('local')" autoplay playsinline muted ng-show="im.has_video_webrtc" ng-click="im.toggle_video_layout()"></video>
+          <video class="webrtc-remote" ng-style="im.style_webrtc_video('remote')" autoplay playsinline ng-show="im.has_video_webrtc" ng-click="im.toggle_video_layout()"></video>
         </div>
         <div ng-show="im.pc && im.webrtc_connected">
           <div>
@@ -1275,7 +1275,7 @@
         </div>
         <div ng-show="im.has_import_media">
           <hr />
-          <video class="webrtc-import-video" style="width: 100%;height: 100%;max-height:160px;" crossorigin controls ng-hide="im.audio_only"></video>
+          <video class="webrtc-import-video" style="width: 100%;height: 100%;max-height:160px;" crossorigin controls playsinline ng-hide="im.audio_only"></video>
           <audio class="webrtc-import-audio" crossorigin controls ng-show="im.audio_only"></audio>
           <div class="text-danger">{{w.video_info}}</div>
           <div>

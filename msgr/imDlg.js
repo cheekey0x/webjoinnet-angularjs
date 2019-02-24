@@ -561,11 +561,35 @@ angular.module('msgr')
           //attachMediaStream(target.remotePlayer, e.streams[0]);
           //target.remotePlayer.play();
 
-          if(target.remote_node) {
-            target.remote_node.disconnect();
+          function playAudioStream() {
+            if(target.remote_node) {
+              target.remote_node.disconnect();
+            }
+            target.remote_node = hmtgSound.ac.createMediaStreamSource(e.streams[0]);
+            target.remote_node.connect(target.speaker_gain_node);
           }
-          target.remote_node = hmtgSound.ac.createMediaStreamSource(e.streams[0]);
-          target.remote_node.connect(target.speaker_gain_node);
+          if(!hmtgHelper.isiOS) {
+            playAudioStream();
+          } else {
+            var item = {};
+            item['timeout'] = 3600 * 24 * 10;
+            item['update'] = function() {
+              var username = target.calc_peer_name();
+
+              return $translate.instant('ID_UNMUTE_WEBRTC_AUDIO').replace('#username#', hmtg.util.decodeUtf8(username))
+            };
+            item['text'] = item['update']();
+            item['type'] = 'info';
+            item['click'] = function(index) {
+              playAudioStream();
+
+              hmtgHelper.inside_angular++;
+              hmtgAlert.click_link(index);
+              hmtgHelper.inside_angular--;
+            };
+
+            hmtgAlert.add_link_item(item);
+          }
         } else if(e.track.kind == 'video') {
           target.has_video_webrtc = true;
           if(target.remote_video) {
@@ -579,21 +603,6 @@ angular.module('msgr')
           }
           target.update_typing_status(true);
         }
-
-        // web audio connect seems not working
-        /*
-        if(target.remoteNode) {
-          target.remoteNode.disconnect();
-        }
-        target.remoteNode = hmtgSound.ac.createMediaStreamSource(e.streams[0]);
-        //target.remoteNode.connect(hmtgSound.create_playback_gain_node()); // Connect to speakers
-        target.remoteNode.connect(hmtgSound.ac.destination);   // if the script node is not connected to an output the
-        */
-        /*
-        if(audio2.srcObject !== e.streams[0]) {
-          audio2.srcObject = e.streams[0];
-        }
-        */
       }
 
       function handleConnectionStateChange(target, event) {

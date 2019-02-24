@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "JoinNet Webアプリケーション",
+"ID_UNMUTE_WEBRTC_AUDIO": "The audio from #username# is muted, click here to unmute it.",
 "ID_CANNOT_START_WEBRTC_SESSION": "Cannot start a WebRTC session.",
 "ID_NO_OFFICE_PROMPT": "Click here to add office",
 "ID_SHOW_CONTROL_PANEL_TEXTCHAT": "コントロールパネルでテキストチャットを表示する",

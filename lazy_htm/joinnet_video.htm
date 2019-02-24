@@ -85,7 +85,7 @@
             </span>
             <div id="{{container_id(ssrc)}}">
               <canvas id="{{canvas_id(ssrc)}}" ng-show="!rtc.to_show_webrtc_video(ssrc)" class="video_canvas" width="0" height="0"></canvas>
-              <video id="{{video_id(ssrc)}}" ng-show="!!rtc.to_show_webrtc_video(ssrc)" ng-style="style_webrtc_video" autoplay muted"></video>
+              <video id="{{video_id(ssrc)}}" ng-show="!!rtc.to_show_webrtc_video(ssrc)" ng-style="style_webrtc_video" autoplay muted playsinline></video>
             </div>
           </div>
         </div>
