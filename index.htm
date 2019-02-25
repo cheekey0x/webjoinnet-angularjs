@@ -1440,7 +1440,7 @@
   </footer>
 
   <!-- ==== popup alert -->
-  <div class="navbar-fixed-bottom" ng-controller="AlertCtrl" ng-cloak>
+  <div class="navbar-fixed-bottom scroll-alert" ng-controller="AlertCtrl" ng-cloak>
     <div class="row-fluid">
       <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="item in get_download_array() | limitTo: 10">
         <alert type="info" close="close_download($index)">

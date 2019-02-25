@@ -887,6 +887,7 @@ angular.module('joinnet')
                 } catch(e) { }
               }
 
+              var ios_unmute_alert_item;
               if(!hmtgHelper.isiOS) {
                 playAudioStream();
               } else {
@@ -912,6 +913,7 @@ angular.module('joinnet')
                 };
 
                 hmtgAlert.add_link_item(item);
+                ios_unmute_alert_item = item;
               }
 
               var stat_logged = false;
@@ -933,7 +935,14 @@ angular.module('joinnet')
                 }
               });
               consumer.on('close', function() {
-                _mediasoupWebRTC.remoteAudioConsumer[peerId] = null;
+                if(ios_unmute_alert_item) {
+                  hmtgAlert.remove_link_item(ios_unmute_alert_item);
+                }
+
+                try {
+                  _mediasoupWebRTC.remoteAudioConsumer[peerId] = null;
+                } catch(e) { }
+                
                 try {
                   _mediasoupWebRTC.remotePlayer[peerId].srcObject = null;
                 } catch(e) {

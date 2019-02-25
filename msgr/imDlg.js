@@ -589,6 +589,10 @@ angular.module('msgr')
             };
 
             hmtgAlert.add_link_item(item);
+            if(target.ios_unmute_alert_item) {
+              hmtgAlert.remove_link_item(target.ios_unmute_alert_item);
+            }
+            target.ios_unmute_alert_item = item;
           }
         } else if(e.track.kind == 'video') {
           target.has_video_webrtc = true;
@@ -680,12 +684,19 @@ angular.module('msgr')
 
         function ok() {
           hmtg.util.log('stop webrtc session. ' + target.im_id_string());
+          hmtgHelper.inside_angular++;
           target.stopWebRTCSession(true);
+          hmtgHelper.inside_angular--;
         }
       }
 
       im.prototype.stopWebRTCSession = function(to_signal_peer) {
         var target = this;
+
+        if(target.ios_unmute_alert_item) {
+          hmtgAlert.remove_link_item(target.ios_unmute_alert_item);
+          target.ios_unmute_alert_item = null;
+        }
 
         if(to_signal_peer) {
           if(target.webrtc_connected) {
