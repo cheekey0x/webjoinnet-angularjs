@@ -1,2 +1,2 @@
 // This string MUST be the same as the one set in hmtg.config.APP_VERSION
-window.cache_detection_string = '2.0.5';
+window.cache_detection_string = '2.0.6';

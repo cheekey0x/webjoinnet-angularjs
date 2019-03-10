@@ -7148,10 +7148,10 @@ angular.module('joinnet')
 
       // this logic can prevent exception caused by too frequent $digest
       // [$rootScope:infdig]
-      if(myheight > old_h && myheight - old_h < 5) {
+      if(myheight > old_h && myheight - old_h < 15) {
         myheight = old_h;
       }
-      if(mywidth > old_w && mywidth - old_w < 5) {
+      if(mywidth > old_w && mywidth - old_w < 15) {
         mywidth = old_w;
       }
       board.board_width_height_ratio = myheight > 0 ? mywidth / myheight : 1.0;

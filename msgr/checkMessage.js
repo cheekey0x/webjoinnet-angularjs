@@ -798,7 +798,7 @@ angular.module('msgr')
 
       // this logic can prevent exception caused by too frequent $digest
       // [$rootScope:infdig]
-      if(myheight > old && myheight - old < 5) {
+      if(myheight > old && myheight - old < 15) {
         myheight = old;
       }
       return {
