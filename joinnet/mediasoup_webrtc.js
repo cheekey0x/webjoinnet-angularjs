@@ -267,22 +267,53 @@ angular.module('joinnet')
     }
 
     this.to_play_webrtc_audio = function(ssrc) {
+      // both peers should support webrtc signal
       if(this.webrtcStatus != 4) return false;
       var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
       var item = a[ssrc];
       if(!item) return false;
       if(item._m_iWebRTCStatus() != 4) return false;
+
+      // ios need user's unmute action
+      if(!this.remoteIsWebRTCAudio[ssrc]) return false;
       return true;
     }
 
     this.to_show_webrtc_video = function(ssrc) {
       if(!this.remoteVideoStream[ssrc]) return false;
+
+      // both peers should support webrtc signal
       if(this.webrtcStatus != 4) return false;
       var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
       var item = a[ssrc];
       if(!item) return false;
       if(item._m_iWebRTCStatus() != 4) return false;
+
+      // the peer's video codec may not be supported
+      if(!this.remoteIsWebRTCVideo[ssrc]) return false;
       return true;
+    }
+
+    this.webrtc_reset_media_status = function() {
+      this.remoteVideoStream = {};
+      this.remoteIsWebRTCAudio = {};
+
+      // turn off webrtc video for all sources
+      for(var key in this.remoteIsWebRTCVideo) {
+        if(!this.remoteIsWebRTCVideo.hasOwnProperty(key)) continue;
+        // only send command if webrtc video is ON
+        if(this.remoteIsWebRTCVideo[key]) {
+          hmtg.jnkernel.jn_command_WebRTCMediaStatusNotification(1, key, 0); // (type_video, source_ssrc, status)
+        }
+      }
+      this.remoteIsWebRTCVideo = {};
+
+      var old = this.is_main_video_webrtc;
+      this.is_main_video_webrtc = false;
+      if(old != this.is_main_video_webrtc) {
+        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);
+      }
+      $rootScope.$broadcast(hmtgHelper.WM_UPDATE_VIDEO_WINDOW); // to update webrtc video or canvas
     }
 
     this.webrtc_reset_upon_disconnection = function() {
@@ -300,10 +331,7 @@ angular.module('joinnet')
 
       this.activeVideoStream = null;
 
-      this.remoteVideoStream = {};
-      this.remoteIsWebRTCAudio = {};
-      this.remoteIsWebRTCVideo = {};
-      this.is_main_video_webrtc = false;
+      this.webrtc_reset_media_status();
     }
 
     this.net_init_finished = function() {
@@ -532,6 +560,9 @@ angular.module('joinnet')
         //}
         if(this.webrtcStatus != 3) {
           this.webrtcStatus = 3;
+
+          this.webrtc_reset_media_status();
+
           hmtg.util.log('stat, webrtc status change to 3');
           hmtg.jnkernel.jn_command_WebRTCStatusNotification(3); // WebRTC connected, failed ice
         }
@@ -864,7 +895,10 @@ angular.module('joinnet')
             // Attach the track to a MediaStream and play it.
             if(consumer.kind === 'audio') {
               _mediasoupWebRTC.remoteAudioConsumer[peerId] = consumer;
-              _mediasoupWebRTC.remoteIsWebRTCAudio[peerId] = true;
+              if(!hmtgHelper.isiOS) {
+                // for normal device, turn on webrtc audio immediately
+                _mediasoupWebRTC.remoteIsWebRTCAudio[peerId] = true;
+              }
 
               function playAudioStream() {
                 if(_mediasoupWebRTC.remote_node[peerId]) {
@@ -872,6 +906,12 @@ angular.module('joinnet')
                 }
                 _mediasoupWebRTC.remote_node[peerId] = hmtgSound.ac.createMediaStreamSource(stream);
                 _mediasoupWebRTC.remote_node[peerId].connect(hmtgSound.create_playback_gain_node());
+
+                if(hmtgHelper.isiOS) {
+                  // for iOS device, when the user unmute the audio stream, turn on webrtc audio
+                  _mediasoupWebRTC.remoteIsWebRTCAudio[peerId] = true;
+                  hmtg.jnkernel.jn_command_WebRTCMediaStatusNotification(0, peerId, 1); // (type_audio, source_ssrc, status)
+                }
               }
 
               // without the remotePlayer, the audio will not work
@@ -891,6 +931,10 @@ angular.module('joinnet')
               if(!hmtgHelper.isiOS) {
                 playAudioStream();
               } else {
+                if(hmtgHelper.isiOS) {
+                  // for iOS device, turn off webrtc audio until the user unmute the audio stream
+                  hmtg.jnkernel.jn_command_WebRTCMediaStatusNotification(0, peerId, 0); // (type_audio, source_ssrc, status)
+                }
                 var item = {};
                 item['timeout'] = 3600 * 24 * 10;
                 item['update'] = function() {
@@ -960,12 +1004,7 @@ angular.module('joinnet')
               var old = _mediasoupWebRTC.remoteVideoStream[peerId];
               _mediasoupWebRTC.remoteVideoConsumer[peerId] = consumer;
               _mediasoupWebRTC.remoteVideoStream[peerId] = stream;
-              _mediasoupWebRTC.remoteIsWebRTCVideo[peerId] = true;
-
-              if(!old) {
-                $rootScope.$broadcast(hmtgHelper.WM_UPDATE_VIDEO_WINDOW); // to update webrtc video or canvas
-              }
-
+              
               var stat_logged = false;
               consumer.on('stats', function(stats) {
                 _mediasoupWebRTC.remoteVideoStats[peerId] = stats;
@@ -981,6 +1020,38 @@ angular.module('joinnet')
                       hmtg.util.log('stat, webrtc ssrc[' + peerId + '] video codec ' + consumer.rtpParameters.codecs[0].name);
                     }
                     hmtg.util.log('stat, webrtc ssrc[' + peerId + '] video recving bitrate ' + stats[0].bitrate);
+                  }
+                }
+                if(stat_logged && !_mediasoupWebRTC.remoteIsWebRTCVideo[peerId]) {
+                  // try to obtain webrtc video size
+                  var webrtc_video_width = 0;
+                  var webrtc_video_height = 0;
+                  var elem = document.getElementById('webrtc-video-' + peerId);
+                  if(elem) {
+                    webrtc_video_width = elem.videoWidth;
+                    webrtc_video_height = elem.videoHeight;
+                  } else if(peerId == video_recving.main_video_ssrc) {
+                    elem = document.getElementById('webrtc_main_video');
+                    if(elem) {
+                      webrtc_video_width = elem.videoWidth;
+                      webrtc_video_height = elem.videoHeight;
+                    }
+                  }
+                  if(webrtc_video_width) {
+                    _mediasoupWebRTC.remoteIsWebRTCVideo[peerId] = true;
+
+                    if(peerId == video_recving.main_video_ssrc) {
+                      var old = _mediasoupWebRTC.is_main_video_webrtc;
+                      _mediasoupWebRTC.is_main_video_webrtc = _mediasoupWebRTC.to_show_webrtc_video(peerId);
+                      if(old != _mediasoupWebRTC.is_main_video_webrtc) {
+                        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);
+                      }
+                    }
+
+                    $rootScope.$broadcast(hmtgHelper.WM_UPDATE_VIDEO_WINDOW); // to update webrtc video or canvas
+
+                    hmtg.jnkernel.jn_command_WebRTCMediaStatusNotification(1, peerId, 1); // (type_video, source_ssrc, status)
+                    hmtg.util.log('stat, webrtc ssrc[' + peerId + '] video size ' + webrtc_video_width + ' x ' + webrtc_video_height);
                   }
                 }
               });

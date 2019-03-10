@@ -594,6 +594,18 @@ angular.module('joinnet')
         }
         menu.push({ "text": $translate.instant('ID_TERMINATE_MEETING'), "onclick": _userlist.terminateMeeting });
       }
+      /*
+      var this_user = hmtg.jnkernel._jn_UserArray()[this.ssrc];
+      if(this.ssrc != my_ssrc
+        && appSetting.show_advanced_function
+        && hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL
+        && mediasoupWebRTC.webrtcStatus == 4
+        && this_user._m_iWebRTCStatus() == 4
+        && mediasoupWebRTC.remoteIsWebRTCVideo[this.ssrc]
+      ) {
+        menu.push({ "text": "Use non-webrtc video (if WebRTC video doesn't display)", "onclick": _userlist.turnoffWebRTCVideo });
+      }
+      */
       if(poll_controller == my_ssrc && hmtg.util.GetTickCount() - _userlist.last_poll_tick > 50000) {
         menu.push({ "text": $translate.instant('ID_POLL'), "onclick": _userlist.poll });
       }
@@ -661,6 +673,13 @@ angular.module('joinnet')
       //_userlist.menu_item = null;
       hmtg.jnkernel.jn_command_AssignAssistant(-1);
     }
+    /*
+    this.turnoffWebRTCVideo = function(user) {
+      // turn off webrtc video, switch to mjpg
+      mediasoupWebRTC.remoteIsWebRTCVideo[user.ssrc] = false;
+      hmtg.jnkernel.jn_command_WebRTCMediaStatusNotification(1, user.ssrc, 0); // (type_video, source_ssrc, status)
+    }
+    */
     this.disconnectUser = function (user) {
       //_userlist.menu_item = null;
       if(user.guest_type) {

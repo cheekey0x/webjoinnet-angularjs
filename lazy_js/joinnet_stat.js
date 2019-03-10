@@ -301,7 +301,7 @@ angular.module('joinnet')
 
           // audio
           var has_audio_stat = false;
-          if(me_using_webrtc && peer_using_webrtc) {
+          if(me_using_webrtc && peer_using_webrtc && mediasoupWebRTC.remoteIsWebRTCAudio[ssrc]) {
             if(mediasoupWebRTC.remoteAudioConsumer[ssrc]) {
               if(!header) {
                 header = true;
@@ -362,7 +362,7 @@ angular.module('joinnet')
 
           // video
           var has_video_stat = false;
-          if(me_using_webrtc && peer_using_webrtc) {
+          if(me_using_webrtc && peer_using_webrtc && mediasoupWebRTC.remoteIsWebRTCVideo[ssrc]) {
             if(mediasoupWebRTC.remoteVideoConsumer[ssrc]) {
               if(!header) {
                 header = true;

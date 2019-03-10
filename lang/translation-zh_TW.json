@@ -1,6 +1,6 @@
 ﻿{
   "IDS_APP_NAME": "JoinNet 網頁版",
-  "ID_UNMUTE_WEBRTC_AUDIO": "The audio from #username# is muted, click here to unmute it.",
+  "ID_UNMUTE_WEBRTC_AUDIO": "The WebRTC audio from #username# is muted, click here to unmute it.",
   "ID_CANNOT_START_WEBRTC_SESSION": "無法啟動 WebRTC 會議。",
   "ID_NO_OFFICE_PROMPT": "點選此處新增辦公室",
   "ID_SHOW_CONTROL_PANEL_TEXTCHAT": "在控制臺中顯示文字交談視窗",
