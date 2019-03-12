@@ -105,6 +105,9 @@ angular.module('hmtgs')
     this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
     this.isChrome = "chrome" in window;
 
+    //https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser/9851769
+    this.isFirefox = typeof InstallTrigger !== 'undefined';
+
     this.apply_timer = null;
     this.fast_apply = function() {
       if(this.apply_timer) return;

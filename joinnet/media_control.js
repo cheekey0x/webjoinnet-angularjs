@@ -738,25 +738,39 @@ angular.module('joinnet')
       this.screen_recording = true;
       hmtg.util.log('stat, screen capture status is ON');
       var elem_screen = this.elem_screen;
-
-      if(typeof getScreenId != 'function') {
-        $ocLazyLoad.load('//cdn.WebRTC-Experiment.com/getScreenId.js').then(function() {
-          hmtgHelper.inside_angular++;
-          if(_joinnetVideo.screen_recording) screen_capture();
-          hmtgHelper.inside_angular--;
-        }, function(e) {
-          hmtg.util.log(-1, 'Warning! lazy_loading getScreenId fails');
-          if(_joinnetVideo.screen_recording) {
-            hmtg.util.log('stat, screen capture status is OFF');
-          }
-          _joinnetVideo.screen_recording = false;
-          if(_joinnetVideo.use_screen_as_video) {
-            hmtg.util.log('stat, use screen as video status: No');
-          }
-          _joinnetVideo.use_screen_as_video = false;
-        });
+      if(hmtgHelper.isFirefox
+        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        hmtg.util.log(2, '(firefox)try to capture screen via navigator.mediaDevices.getUserMedia');
+        navigator.mediaDevices.getUserMedia({
+          video: { mediaSource: (window_mode ? 'window' : 'screen') }
+        }).then(getUserMediaOK, videoStreamError);
+      } else if(hmtgHelper.isChrome && hmtgHelper.isAndroid
+        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        hmtg.util.log(2, '(androidChrome)try to capture screen via navigator.mediaDevices.getUserMedia');
+        navigator.mediaDevices.getUserMedia({
+          video: { 'mandatory': { 'chromeMediaSource': 'screen', maxHeight: 1280 } }
+        }).then(getUserMediaOK, videoStreamError);
       } else {
-        screen_capture();
+        hmtg.util.log(2, '(extension)try to capture screen via extension');
+        if(typeof getScreenId != 'function') {
+          $ocLazyLoad.load('//cdn.WebRTC-Experiment.com/getScreenId.js').then(function() {
+            hmtgHelper.inside_angular++;
+            if(_joinnetVideo.screen_recording) screen_capture();
+            hmtgHelper.inside_angular--;
+          }, function(e) {
+            hmtg.util.log(-1, 'Warning! lazy_loading getScreenId fails');
+            if(_joinnetVideo.screen_recording) {
+              hmtg.util.log('stat, screen capture status is OFF');
+            }
+            _joinnetVideo.screen_recording = false;
+            if(_joinnetVideo.use_screen_as_video) {
+              hmtg.util.log('stat, use screen as video status: No');
+            }
+            _joinnetVideo.use_screen_as_video = false;
+          });
+        } else {
+          screen_capture();
+        }
       }
 
       function screen_capture() {
@@ -787,47 +801,50 @@ angular.module('joinnet')
               }
             };
           }
-          navigator.getUserMedia(screen_constraints, function(stream) {
-            $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
-            _joinnetVideo.screen_stream = stream;
-            mediasoupWebRTC.localScreenStream = stream;
-            mediasoupWebRTC.updateVideoSource();
-            if(typeof elem_screen.srcObject == "object") {
-              // http://chasefarmer.com/articles/2017-06-06-ios-webrtc/
-              elem_screen.srcObject = stream;
-            } else {
-              try {
-                elem_screen.src = (window.URL && window.URL.createObjectURL) ? window.URL.createObjectURL(stream) : stream;
-              } catch(e) {
-              }
-            }
-            if(!_joinnetVideo.screenWorker) {
-              try {
-                _joinnetVideo.screenWorker = new Worker(_joinnetVideo.frameURL);
-              } catch(e) {
-                _joinnetVideo.screenWorker = new Worker('worker/worker_interval_40.js');
-              }
-              _joinnetVideo.screenWorker.onmessage = function(e) {
-                getScreenFrame();
-              };
+          navigator.getUserMedia(screen_constraints, getUserMediaOK, videoStreamError);
+        });
+      }
 
-              _joinnetVideo.screenWorker.postMessage('dummy'); // Start the worker.
-            }
-          }, function(e) {
-            hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_SCREEN') + hmtgSound.getUserMediaError(e) }, 20);
-            if(_joinnetVideo.screen_recording) {
-              hmtg.util.log('stat, screen capture status is OFF');
-            }
-            _joinnetVideo.screen_recording = false;
-            if(_joinnetVideo.use_screen_as_video) {
-              hmtg.util.log('stat, use screen as video status: No');
-            }
-            _joinnetVideo.use_screen_as_video = false;
-            mediasoupWebRTC.localScreenStream = null;
+      function videoStreamError(e) {
+        hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_SCREEN') + hmtgSound.getUserMediaError(e) }, 20);
+        if(_joinnetVideo.screen_recording) {
+          hmtg.util.log('stat, screen capture status is OFF');
+        }
+        _joinnetVideo.screen_recording = false;
+        if(_joinnetVideo.use_screen_as_video) {
+          hmtg.util.log('stat, use screen as video status: No');
+        }
+        _joinnetVideo.use_screen_as_video = false;
+        mediasoupWebRTC.localScreenStream = null;
             //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
             //$rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);
-          });
-        });
+      }
+      function getUserMediaOK(stream) {
+        $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
+        _joinnetVideo.screen_stream = stream;
+        mediasoupWebRTC.localScreenStream = stream;
+        mediasoupWebRTC.updateVideoSource();
+        if(typeof elem_screen.srcObject == "object") {
+          // http://chasefarmer.com/articles/2017-06-06-ios-webrtc/
+          elem_screen.srcObject = stream;
+        } else {
+          try {
+            elem_screen.src = (window.URL && window.URL.createObjectURL) ? window.URL.createObjectURL(stream) : stream;
+          } catch(e) {
+          }
+        }
+        if(!_joinnetVideo.screenWorker) {
+          try {
+            _joinnetVideo.screenWorker = new Worker(_joinnetVideo.frameURL);
+          } catch(e) {
+            _joinnetVideo.screenWorker = new Worker('worker/worker_interval_40.js');
+          }
+          _joinnetVideo.screenWorker.onmessage = function(e) {
+            getScreenFrame();
+          };
+
+          _joinnetVideo.screenWorker.postMessage('dummy'); // Start the worker.
+        }
       }
     }
 
