@@ -738,20 +738,28 @@ angular.module('joinnet')
       this.screen_recording = true;
       hmtg.util.log('stat, screen capture status is ON');
       var elem_screen = this.elem_screen;
-      if(hmtgHelper.isFirefox
+
+      if(hmtgHelper.isChrome && hmtgHelper.isAndroid
         && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        hmtg.util.log(2, '(firefox)try to capture screen via navigator.mediaDevices.getUserMedia');
-        navigator.mediaDevices.getUserMedia({
-          video: { mediaSource: (window_mode ? 'window' : 'screen') }
-        }).then(getUserMediaOK, videoStreamError);
-      } else if(hmtgHelper.isChrome && hmtgHelper.isAndroid
-        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // android chrome already support navigator.mediaDevices.getDisplayMedia
+        // however, calling navigator.mediaDevices.getDisplayMedia will crash the browser
+        // check android chrome first and use chromeMediaSource if matched
         hmtg.util.log(2, '(androidChrome)try to capture screen via navigator.mediaDevices.getUserMedia');
         navigator.mediaDevices.getUserMedia({
           video: { 'mandatory': { 'chromeMediaSource': 'screen', maxHeight: 1280 } }
         }).then(getUserMediaOK, videoStreamError);
-      } else {
-        hmtg.util.log(2, '(extension)try to capture screen via extension');
+      } else if(navigator.getDisplayMedia) {
+        hmtg.util.log(2, 'try to capture screen via navigator.getDisplayMedia');
+        navigator.getDisplayMedia({
+          video: true
+        }).then(getUserMediaOK, videoStreamError);
+      } else if(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+        hmtg.util.log(2, 'try to capture screen via navigator.mediaDevices.getDisplayMedia');
+        navigator.mediaDevices.getDisplayMedia({
+          video: true
+        }).then(getUserMediaOK, videoStreamError);
+      } else if(hmtgHelper.isChrome) {
+        hmtg.util.log(2, '(chrome)try to capture screen via Chrome extension');
         if(typeof getScreenId != 'function') {
           $ocLazyLoad.load('//cdn.WebRTC-Experiment.com/getScreenId.js').then(function() {
             hmtgHelper.inside_angular++;
@@ -771,6 +779,22 @@ angular.module('joinnet')
         } else {
           screen_capture();
         }
+      } else if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        hmtg.util.log(2, 'try to capture screen via navigator.mediaDevices.getUserMedia/mediaSource');
+        navigator.mediaDevices.getUserMedia({
+          video: { mediaSource: (window_mode ? 'window' : 'screen') }
+        }).then(getUserMediaOK, videoStreamError);
+      } else {
+        hmtg.util.log(2, 'donot know how to capture screen');
+        hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_SCREEN') }, 20);
+        if(_joinnetVideo.screen_recording) {
+          hmtg.util.log('stat, screen capture status is OFF');
+        }
+        _joinnetVideo.screen_recording = false;
+        if(_joinnetVideo.use_screen_as_video) {
+          hmtg.util.log('stat, use screen as video status: No');
+        }
+        _joinnetVideo.use_screen_as_video = false;
       }
 
       function screen_capture() {
