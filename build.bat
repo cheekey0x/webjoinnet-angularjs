@@ -271,14 +271,6 @@ java -jar ../compiler/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --la
 --js_output_file min/worker_interval.js ^
 --js worker_interval.js
 
-java -jar ../compiler/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --language_in=ECMASCRIPT6 ^
---js_output_file min/worklet-playback.js ^
---js worklet-playback.js
-
-java -jar ../compiler/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --language_in=ECMASCRIPT6 ^
---js_output_file min/worklet-record.js ^
---js worklet-record.js
-
 cd ..
 
 @rem ============ create the dist folder ============

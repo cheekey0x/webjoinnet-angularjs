@@ -24,8 +24,9 @@ angular.module('joinnet')
     var WORKER_G711_ENCODE_PATH = 'worker/g711_encode.js' + hmtgHelper.cache_param;
     var WORKER_OPUS_ENCODE_PATH = 'worker/opus_encode.js' + hmtgHelper.cache_param;
 
-    if(hmtgSound.promiseRecordWorklet) {
-      hmtgSound.promiseRecordWorklet.then(function() { 
+    if(hmtgSound.ac.audioWorklet) {
+      hmtgSound.ac.audioWorklet.addModule('worker/worklet-record.js?p=' + hmtgHelper.cache_param).then(function() { 
+        hmtg.util.log("Use AudioWorklet for recording");
         hmtgSound.recordWorkletReady = true;
         create_merge_node();
       }).catch(function() { 
@@ -40,7 +41,7 @@ angular.module('joinnet')
       var ac = hmtgSound.ac;
       var node;
       var bufferLen = hmtgSound.record_buffer_size;
-      if(hmtgSound.playbackWorkletReady) {
+      if(hmtgSound.recordWorkletReady) {
         node = new AudioWorkletNode(hmtgSound.ac, 'worklet-record');
         node.port.postMessage({ command: 'init', good_worker: hmtgHelper.good_worker });
         node.port.onmessage = function(e) {
@@ -56,7 +57,7 @@ angular.module('joinnet')
       }
 
       _audio_capture.merge_node = node;
-      if(!hmtgSound.playbackWorkletReady) {
+      if(!hmtgSound.recordWorkletReady) {
         node.onaudioprocess = function(e) {
           if(!can_record()) return;
 

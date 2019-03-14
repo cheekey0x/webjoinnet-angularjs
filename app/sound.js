@@ -42,7 +42,6 @@ angular.module('hmtgs')
 
     this.playbackWorkletReady = false;
     this.recordWorkletReady = false;
-    this.promiseRecordWorklet = null;
 
     this.shadowRecording = false; // shadow variable connecting joinnetAudio and mediasoupWebRTC
 
@@ -228,13 +227,10 @@ angular.module('hmtgs')
       if(this.ac.audioWorklet) {
         hmtg.util.log("Support AudioWorklet: Yes");
         this.ac.audioWorklet.addModule('worker/worklet-playback.js?p=' + hmtgHelper.cache_param).then(function() { 
-          this.playbackWorkletReady = true;
+          _hmtgSound.playbackWorkletReady = true;
+          hmtg.util.log("Use AudioWorklet for playback");
         });
-        this.promiseRecordWorklet =
-          this.ac.audioWorklet.addModule('worker/worklet-record.js?p=' + hmtgHelper.cache_param);
-        this.promiseRecordWorklet.then(function() {
-          this.recordWorkletReady = true;
-        });
+        // worklet recording is done in service audio_capture
       }  
     }
 
