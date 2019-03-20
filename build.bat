@@ -214,6 +214,7 @@ cd ..
 
 @rem  ============== worker modules  ====================
 cd worker
+del /q min\*.* >nul 2>nul
 
 java -jar ../compiler/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --language_in=ECMASCRIPT5 ^
 --js_output_file min/dt_encode.js ^

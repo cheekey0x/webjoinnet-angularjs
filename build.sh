@@ -217,6 +217,7 @@ cd ..
 
 #  ============== worker modules  ====================
 cd worker
+rm -f min/* > /dev/null 2>&1
 
 java -jar ../compiler/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --language_in=ECMASCRIPT5 \
 --js_output_file min/dt_encode.js \
@@ -309,7 +310,7 @@ cp -r -f lang/* dist/lang > /dev/null 2>&1
 
 mkdir dist/lazy_htm > /dev/null 2>&1
 cp -r -f lazy_htm/* dist/lazy_htm > /dev/null 2>&1
-del dist/lazy_htm/_* > /dev/null 2>&1
+rm -f dist/lazy_htm/_* > /dev/null 2>&1
 
 mkdir dist/lazy_js_min > /dev/null 2>&1
 cp -r -f lazy_js_min/*.min.js dist/lazy_js_min > /dev/null 2>&1
