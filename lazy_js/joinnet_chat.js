@@ -139,7 +139,7 @@ angular.module('joinnet')
 
       var skip_name = false;
       if(item.dst != -1) {
-        var pattern = /(.+)>\[(.+)\](.+)/;
+        var pattern = /([^>]+)>\[([^\[\]]+)\](.+)/;
         var m = pattern.exec(text1);
         if(m && m[1].length + m[2].length + m[3].length + 3 == text1.length) {
           check_count();
@@ -197,7 +197,7 @@ angular.module('joinnet')
         prefix.addClass('im-ul');
         text.append(prefix)
       } else {
-        var pattern = /(.+)>(.+)/;
+        var pattern = /([^>]+)>(.+)/;
         var m = pattern.exec(text1);
         if(m && m[1].length + m[2].length + 1 == text1.length) {
           check_count();
@@ -344,10 +344,14 @@ angular.module('joinnet')
 ])
 
 .controller('Chat1Ctrl', ['$scope', 'chat', 'hmtgHelper', 'JoinNet', 'appSetting', 'userlist', '$controller',
-  function($scope, chat, hmtgHelper, JoinNet, appSetting, userlist, $controller) {
+  '$rootScope',
+  function($scope, chat, hmtgHelper, JoinNet, appSetting, userlist, $controller, $rootScope) {
     $controller('ChatCtrl', { $scope: $scope });
     $scope.style_chat_height = function() {
       var myheight = Math.max(240, (hmtgHelper.view_port_height >> 2));
+      if($rootScope.gui_mode == 'concise') {
+        myheight = hmtgHelper.view_port_height - 150;
+      }
       return {
         'max-height': '' + myheight + 'px'
       };

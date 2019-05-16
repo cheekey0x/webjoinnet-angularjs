@@ -1,13 +1,14 @@
 angular.module('joinnet')
 .controller('VideoWindowCtrl', ['$scope', 'hmtgHelper', 'JoinNet', 'appSetting', 'userlist', 'main_video', 'video_recving',
-  'video_playback', '$rootScope', 'main_video_canvas', 'mediasoupWebRTC',
+  'video_playback', '$rootScope', 'main_video_canvas', 'mediasoupWebRTC', 'layout',
   function ($scope, hmtgHelper, JoinNet, appSetting, userlist, main_video, video_recving, video_playback, $rootScope,
-    main_video_canvas, mediasoupWebRTC) {
+    main_video_canvas, mediasoupWebRTC, layout) {
     $scope.w = {};
     $scope.as = appSetting;
     $scope.ul = userlist;
     $scope.vr = video_recving;
     $scope.rtc = mediasoupWebRTC;
+    $scope.lo = layout;
     $scope.count = (appSetting.max_display_item >> 0);
     $scope.name_hash = {};  // ssrc -> name
     $scope.removed_hash = {}; // those are removed from the list explicity by the user
@@ -17,8 +18,19 @@ angular.module('joinnet')
     $scope.show_name = true;
     $scope.MAX_VIDEO_ITEM = 100;   // maximum video item in the list
     $scope.container = document.getElementById('video_container');
+    $scope.video_list = document.getElementById('video-list');
     $scope.auto_add_video = true;
     $scope.video_list_info = '';
+
+    // concise layout related code
+    $scope.onVideoClick = function(ssrc) {
+      if(ssrc != video_recving.main_video_ssrc) {
+        video_recving.main_video_ssrc = ssrc;
+        if($rootScope.gui_mode == 'concise') {
+          layout.is_board_visible = false;
+        }
+      }
+    }
 
     $scope.$on(hmtgHelper.WM_NET_INIT_FINISH, function () {
       if(!hmtgHelper.inside_angular) $scope.$digest();
@@ -84,6 +96,17 @@ angular.module('joinnet')
       $scope.removed_hash = {};
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
+    $scope.$on(hmtgHelper.WM_WIDTH_CHANGED, adjust_size);
+    $scope.$on(hmtgHelper.WM_HEIGHT_CHANGED, adjust_size);
+    function adjust_size() {
+      // update gallery display size when not in concise layout or in concise gallery mode
+      if($rootScope.gui_mode != 'concise' || layout.is_gallery_visible) {
+        video_recving.display_size = hmtgHelper.calcGalleryDisplaySize(video_recving.ssrc_array.length);
+        if($rootScope.gui_mode != 'concise') {
+          video_recving.display_size = Math.min(640, video_recving.display_size);
+        }
+      }
+    }
 
     $scope.canvas_id = function (ssrc) {
       return 'video-' + ssrc;
@@ -250,15 +273,42 @@ angular.module('joinnet')
       return false;
     }
 
+    $scope.username_trimmed = function(name) {
+      if(name.length > 10) {
+        return name.slice(0, 8) + '...';
+      }
+      return name;
+    }
+
+    var myheight = 100;
+    $scope.style_video_height = function() {
+      var old = myheight;
+      var offset = {};
+      hmtg.util.calcOffset($scope.video_list, offset);
+      if(offset.y >= 0) {
+        myheight = hmtgHelper.view_port_height - offset.y - 1;
+      }
+
+      // this logic can prevent exception caused by too frequent $digest
+      // [$rootScope:infdig]
+      if(myheight > old && myheight - old < 15) {
+        myheight = old;
+      }
+      return {
+        'max-height': '' + (myheight) + 'px'
+      };
+    }
+
+
     $scope.$watch('vr.display_size', function () {
       var ssrc;
       var i;
       var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
       $scope.style_webrtc_video =
-        {
-          'max-width': '' + video_recving.display_size + 'px',
-          'max-height': '' + video_recving.display_size + 'px'
-        };
+      {
+        'max-width': '' + video_recving.display_size + 'px',
+        'max-height': '' + video_recving.display_size + 'px'
+      };
       hmtgHelper.inside_angular++;
       for(i = 0; i < video_recving.ssrc_array.length; i++) {
         ssrc = video_recving.ssrc_array[i];
@@ -449,6 +499,9 @@ angular.module('joinnet')
       } else {
         $scope.video_list_info = '';
       }
+
+      // when talker number changes, react as the viewport size changes
+      adjust_size();
     }
 
     // init, remember all the names

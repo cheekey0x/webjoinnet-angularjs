@@ -737,6 +737,10 @@ angular.module('joinnet')
 
       this.screen_recording = true;
       hmtg.util.log('stat, screen capture status is ON');
+      if(!_joinnetVideo.use_screen_as_video) {
+        hmtg.util.log('stat, use screen as video status: Yes');
+      }
+      mediasoupWebRTC.use_screen_as_video = _joinnetVideo.use_screen_as_video = true;
       var elem_screen = this.elem_screen;
 
       if(hmtgHelper.isChrome && hmtgHelper.isAndroid
@@ -774,7 +778,7 @@ angular.module('joinnet')
             if(_joinnetVideo.use_screen_as_video) {
               hmtg.util.log('stat, use screen as video status: No');
             }
-            _joinnetVideo.use_screen_as_video = false;
+            mediasoupWebRTC.use_screen_as_video = _joinnetVideo.use_screen_as_video = false;
           });
         } else {
           screen_capture();
@@ -794,7 +798,7 @@ angular.module('joinnet')
         if(_joinnetVideo.use_screen_as_video) {
           hmtg.util.log('stat, use screen as video status: No');
         }
-        _joinnetVideo.use_screen_as_video = false;
+        mediasoupWebRTC.use_screen_as_video = _joinnetVideo.use_screen_as_video = false;
       }
 
       function screen_capture() {
@@ -810,7 +814,7 @@ angular.module('joinnet')
             if(_joinnetVideo.use_screen_as_video) {
               hmtg.util.log('stat, use screen as video status: No');
             }
-            _joinnetVideo.use_screen_as_video = false;
+            mediasoupWebRTC.use_screen_as_video = _joinnetVideo.use_screen_as_video = false;
             mediasoupWebRTC.localScreenStream = null;
             //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
             //$rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);
@@ -838,7 +842,7 @@ angular.module('joinnet')
         if(_joinnetVideo.use_screen_as_video) {
           hmtg.util.log('stat, use screen as video status: No');
         }
-        _joinnetVideo.use_screen_as_video = false;
+        mediasoupWebRTC.use_screen_as_video = _joinnetVideo.use_screen_as_video = false;
         mediasoupWebRTC.localScreenStream = null;
             //$rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
             //$rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);

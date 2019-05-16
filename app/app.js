@@ -427,6 +427,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       missedCall.checkMissedCall();
       hmtg.util.log("jnj not found from the url");
     } else {
+      $rootScope.gui_mode = 'concise';
       if(typeof jlk !== 'undefined') {
         //http://192.168.10.2:2334/weboffice2_a.jnj
         //http%3A%2F%2F192.168.10.2%3A2334%2Fweboffice2_a.jnj%3Fa%3D1%26b%3D2
@@ -569,7 +570,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_advanced_function']);
     this.show_advanced_function = parsed === 'undefined' ? false : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_meeting_capture_video']);
-    this.meeting_capture_video = parsed === 'undefined' ? (hmtg.customization.capture_video_by_default ? true : false) : !!parsed;
+    this.meeting_capture_video = parsed === 'undefined' ? (hmtg.customization.capture_video_by_default || $rootScope.gui_mode == 'concise' ? true : false) : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_meeting_capture_audio']);
     this.meeting_capture_audio = parsed === 'undefined' ? true : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_meetintg_idle_mode']);
@@ -636,6 +637,8 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     }
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_webrtc_bandwidth_profile']);
     this.webrtc_bandwidth_profile = parsed === 'undefined' ? (hmtgHelper.isMobile ? 'low' : 'high') : parsed;
+    parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_board_hide_toolbar']);
+    this.board_hide_toolbar = parsed === 'undefined' ? false : !!parsed;
   }
 ])
 

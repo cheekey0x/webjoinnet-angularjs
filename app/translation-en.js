@@ -8,6 +8,9 @@ angular.module('hmtgs')
 .config(['$translateProvider', function ($translateProvider) {
   $translateProvider.translations('en', {
 "IDS_APP_NAME": "Web JoinNet",
+"ID_TOGGLE_CONCISE_LAYOUT": "Toggle Concise Layout",
+"ID_HIDE_BAR": "Hide",
+"ID_VIDEO_GALLERY": "Video Gallery",
 "ID_UNMUTE_WEBRTC_AUDIO": "The WebRTC audio from #username# is muted, click here to unmute it.",
 "ID_CANNOT_START_WEBRTC_SESSION": "Cannot start a WebRTC session.",
 "ID_NO_OFFICE_PROMPT": "Click here to add office",

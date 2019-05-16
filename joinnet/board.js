@@ -1733,11 +1733,11 @@ angular.module('joinnet')
         board0_offset_top = _board.board0.offsetTop - _board.container.offsetTop;
       }
       var bottom_space = 0;
-      if(!_board.hide_toolbar && appSetting.can_show_bottom_image_bar && _board.shape == 'image') {
+      if(!appSetting.board_hide_toolbar && appSetting.can_show_bottom_image_bar && _board.shape == 'image') {
         bottom_space = 40;
       }
       var right_space = 0;
-      if(!_board.hide_toolbar && !appSetting.has_type_color) right_space = 40;
+      if(!appSetting.board_hide_toolbar && !appSetting.has_type_color) right_space = 40;
 
       if(_board.is_fullscreen) {
         myheight = hmtgHelper.view_port_height - board0_offset_top - bottom_space - 1;
@@ -7125,6 +7125,7 @@ angular.module('joinnet')
   function($scope, board, hmtgHelper, $rootScope, $modal, $translate, hmtgAlert, joinnetHelper, $ocLazyLoad, appSetting) {
     $scope.w = board;
     $scope.hh = hmtgHelper;
+    $scope.as = appSetting;
 
     // mark-related stuff
     board.shape = 'pointer';
@@ -7188,11 +7189,15 @@ angular.module('joinnet')
     }
 
     $scope.toggle_toolbar = function() {
-      $scope.w.hide_toolbar = !$scope.w.hide_toolbar;
+      appSetting.board_hide_toolbar = !appSetting.board_hide_toolbar;
+      hmtg.util.localStorage['hmtg_board_hide_toolbar'] = JSON.stringify(appSetting.board_hide_toolbar);
       setTimeout(function() { 
         adjust_size();
-      },0);
+      }, 0);
     }
+
+    //$scope.$on(hmtgHelper.WM_UPDATE_LAYOUT_MODE, function() {
+    //});
 
     $scope.$on(hmtgHelper.WM_MAX_DISPLAY_ITEM_CHANGED, function() {
       // title/page view may need to change due to setting change
@@ -7555,7 +7560,7 @@ angular.module('joinnet')
         if(e.type == 'touchstart') {
           var abs_x = e.touches[0].pageX - offset.x;
           var abs_y = e.touches[0].pageY - offset.y;
-          if(board.hide_toolbar && e.touches.length <= 1) {
+          if(appSetting.board_hide_toolbar && e.touches.length <= 1) {
             if(abs_x >= 0 && abs_x <= 40 && abs_y >= 0 && abs_y <= 33) {
               board.drag_idx = -1;
               return;
@@ -7586,7 +7591,7 @@ angular.module('joinnet')
         } else {
           var abs_x = e.pageX - offset.x;
           var abs_y = e.pageY - offset.y;
-          if(board.hide_toolbar) {
+          if(appSetting.board_hide_toolbar) {
             if(abs_x >= 0 && abs_x <= 40 && abs_y >= 0 && abs_y <= 33) {
               board.drag_idx = -1;
               return;
@@ -7614,7 +7619,7 @@ angular.module('joinnet')
         if(e.type == 'touchstart') {
           var abs_x = e.touches[0].pageX - offset.x;
           var abs_y = e.touches[0].pageY - offset.y;
-          if(board.hide_toolbar) {
+          if(appSetting.board_hide_toolbar) {
             if(abs_x >= 0 && abs_x <= 40 && abs_y >= 0 && abs_y <= 33) {
               board.drag_idx = -1;
               return;
@@ -7628,7 +7633,7 @@ angular.module('joinnet')
         } else {
           var abs_x = e.pageX - offset.x;
           var abs_y = e.pageY - offset.y;
-          if(board.hide_toolbar) {
+          if(appSetting.board_hide_toolbar) {
             if(abs_x >= 0 && abs_x <= 40 && abs_y >= 0 && abs_y <= 33) {
               board.drag_idx = -1;
               return;

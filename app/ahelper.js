@@ -81,6 +81,7 @@ angular.module('hmtgs')
     this.WM_JNR_PROGRESS = 'jnr_progress';
     this.WM_UPDATE_DISPLAY_CM = 'update_display_cm';
     this.WM_UPDATE_ACTIVE_SPEAKER = 'update_active_speaker';
+    this.WM_UPDATE_LAYOUT_MODE = 'update_layout_mode';
 
     this.GUID_DESKTOP_SHARING = 'E5AF1A56-E29C-4BA6-839A-24C2F30EED02';
     this.GUID_REMOTE_CONTROL = '4FC0606A-DA4A-423F-A830-AC5D9853C201';
@@ -999,6 +1000,28 @@ angular.module('hmtgs')
 
       desc.sdp = lines.join('\r\n');
       return desc;
+    }
+
+    this.calcGalleryDisplaySize = function(count) {
+      if(count <= 0) return 100;
+      var size = Math.min(this.view_port_height, this.view_port_width) - 30;
+      if(size <= 80) return 80;
+      if(count == 1) {
+        return size;
+      }
+      while(size > 80) {
+        // 30, and 2 are determined via testing by changing view port height and width respectively
+        // 20 is for potential/temporary scrollbar width
+        var row = ((this.view_port_height - 20) / (size + 30)) >>> 0;
+        var col = ((this.view_port_width - 20) / (size + 2)) >>> 0;
+        if(row * col < count) {
+          size--;
+        } else {
+          //console.log('w=' + this.view_port_width + '; h=' + this.view_port_height + ';count=' + count + ';size=' + size + ';row=' + row + ';col=' + col);
+          return size;
+        }
+      }
+      return 80;
     }
 
   }

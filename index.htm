@@ -59,7 +59,7 @@
 
 <body ng-app="hmtgs" onload="onLoad()">
   <!-- ==== navigation bar -->
-  <nav class="navbar navbar-default" role="navigation" ng-class="{'im-has-msg' : has_msg() || has_missed_call()}" ng-cloak>
+  <nav class="navbar navbar-default" role="navigation" ng-class="{'im-has-msg' : has_msg() || has_missed_call()}" ng-show="!(nav_item == 'joinnet' && gui_mode == 'concise')" ng-cloak>
     <div class="container-fluid" ng-cloak>
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="navbar-header">
@@ -164,9 +164,15 @@
 
 
   <!-- ==== joinnet -->
-  <div class="container-fluid" ng-show="nav_item=='joinnet'" ng-controller="JoinnetCtrl" ng-cloak>
-    <div>
-      <div class="btn-group" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MENU' | translate)}}" 
+  <div ng-class="container_fluid()" ng-show="nav_item=='joinnet'" ng-controller="JoinnetCtrl" ng-cloak>
+    <div ng-show="gui_mode == 'concise' && !lo.is_navbar_visible">
+      <button type="button" class="btn btn-default concise_float_bottom_left" ng-click="onConciseShow()">
+        <span class="glyphicon glyphicon-menu-hamburger"></span>
+      </button>
+    </div>
+    <div ng-class="gui_mode == 'concise' ? 'concise_float_bottom_bar' : ''"
+     ng-show="gui_mode != 'concise' || lo.is_navbar_visible">
+      <div class="btn-group" ng-class="gui_mode == 'concise' ? 'dropup' : ''" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MENU' | translate)}}" 
         dropdown is-open="w.is_menu_open" on-toggle="ontoggle(open)">
         <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
           <span class="glyphicon glyphicon-menu-hamburger"></span><span ng-show="as.show_text" translate="ID_MENU"></span>
@@ -177,41 +183,51 @@
           </li>
         </ul>
       </div>
-      <button type="button" class="btn btn-info" ng-show="w.show_check_show_area2" 
+      <button type="button" class="btn btn-info" ng-show="w.show_check_show_area2 && gui_mode != 'concise'" 
         tooltip="{{as.no_tip || as.show_text ? '' : ((w.show_area2 ? 'ID_SHOW_ONE_AREA' : 'ID_SHOW_TWO_AREA') | translate)}}" 
         ng-model="w.show_area2" btn-checkbox btn-checkbox-true="0" btn-checkbox-false="1">
         {{w.show_area2 ? '-' : '+'}}<span ng-show="as.show_text">
         {{(w.show_area2 ? 'ID_SHOW_ONE_AREA' : 'ID_SHOW_TWO_AREA') | translate}}</span></button>
-      <span ng-hide="w.show_check_show_area2 && w.show_area2">
+      <span ng-hide="(w.show_check_show_area2 && w.show_area2) || gui_mode == 'concise'">
         <span ng-show="as.show_text" translate="ID_AREA1_DESCR"></span>
         <select class="vertical-middle" style="max-width: 160px;" ng-model="w.area1" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SELECT_AREA' | translate)}}" 
           ng-options="area.id as area.name for area in areas">
         </select>
       </span>
-      <span ng-show="w.show_check_show_area2 && w.show_area2">
+      <span ng-show="w.show_check_show_area2 && w.show_area2 && gui_mode != 'concise'">
         <span ng-show="as.show_text" translate="ID_AREA2_DESCR"></span>
         <select class="vertical-middle" style="max-width: 160px;" ng-model="w.area2" tooltip="{{as.no_tip || as.show_text? '' : ('ID_SELECT_AREA2' | translate)}}" 
           ng-options="area.id as area.name for area in areas">
         </select>
       </span>
       <span class="text-warning" ng-show="jn.jnr_decryption">{{jn.jnr_decryption_text}}</span>
-      <span ng-show="can_show_playback_button()">
+      <span ng-show="gui_mode != 'concise' && can_show_playback_button()">
         <span ng-include="partialPlayback"></span>
       </span>
       <span ng-controller="JoinNetVideoCtrl">
         <span ng-show="jv.can_show_record_control()">
-          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="joinnet_video" autoplay playsinline></video></div>
-          <div style="position: fixed; top: 0; left: 0; opacity: 0; z-index: -1;"><video id="screen_capture" autoplay playsinline></video></div>
-          <button type="button" class="btn btn-default" ng-click="start()" ng-show="!jv.recording" tooltip-placement="bottom" 
-            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_CAPTURE_VIDEO_PROMPT' | translate)}}"><span class="glyphicon glyphicon-facetime-video"></span>
-            <span ng-show="as.show_text" translate="ID_CAMERA_DESCR"></span></button>
+          <div style="position: fixed; bottom: 5; left: 0; opacity: 0; z-index: -1;">
+            <video id="joinnet_video" autoplay playsinline></video>
+          </div>
+          <div style="position: fixed; bottom: 5; left: 0; opacity: 0; z-index: -1;">
+            <video id="screen_capture" autoplay playsinline></video>
+          </div>
+          <button type="button" class="btn btn-default" ng-click="start()" ng-show="!jv.recording"
+            tooltip-placement="top" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_VIDEO_CAPTURE' | translate)}}">
+            <span class="glyphicon glyphicon-facetime-video"></span>
+            <span ng-show="as.show_text" translate="ID_CAMERA_DESCR"></span>
+          </button>
         </span>
       </span>
       <span ng-controller="JoinNetAudioCtrl">
         <span ng-show="ja.can_show_record_control()">
-          <button type="button" class="btn btn-default" ng-click="start()" ng-show="!ja.recording" tooltip-placement="bottom" 
-            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_CAPTURE_AUDIO_PROMPT' | translate)}}"><span class="glyphicon glyphicon-ice-lolly"></span>
-            <span ng-show="as.show_text" translate="ID_MICROPHONE_DESCR"></span></button>
+          <button type="button" class="btn btn-default" ng-click="start()" ng-show="!ja.recording"
+            tooltip-placement="top" 
+            tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_RECORD' | translate)}}">
+            <span class="glyphicon glyphicon-ice-lolly"></span>
+            <span ng-show="as.show_text" translate="ID_MICROPHONE_DESCR"></span>
+          </button>
           <div class="inline-block" ng-show="ja.recording">
             <button type="button" class="btn btn-default" ng-click="mute_record(1)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MUTE_RECORD' | translate)}}" 
               ng-show="!w.record_muted"><span class="glyphicon glyphicon-record"></span>
@@ -219,7 +235,7 @@
             <button type="button" class="btn btn-default" ng-click="mute_record(0)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_RECORD' | translate)}}" 
               ng-show="w.record_muted"><span class="glyphicon glyphicon-remove-circle"></span>
               <span ng-show="as.show_text" translate="ID_UNMUTE_RECORD"></span></button>
-            <span style="position: relative;">
+            <span style="position: relative;" ng-show="gui_mode != 'concise'">
               <canvas id="signal_strength" width="100" height="10"></canvas>
               <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
                 tooltip="{{as.no_tip ? '' : ('ID_MICROPHONE_VOLUME' | translate)}}" ng-model="w.record_gain">
@@ -234,7 +250,7 @@
             <button type="button" class="btn btn-default" ng-click="mute_playback(0)" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNMUTE_SPEAKER' | translate)}}" 
               ng-show="w.playback_muted"><span class="glyphicon glyphicon-volume-off"></span>
               <span ng-show="as.show_text" translate="ID_UNMUTE_SPEAKER"></span></button>
-            <span style="position: relative;">
+            <span style="position: relative;" ng-show="gui_mode != 'concise'">
               <canvas id="playback_signal_strength" width="100" height="10"></canvas>
               <input type="range" class="overlay" style="width: 100px;display: inline;" min="0" max="100" 
                 tooltip="{{as.no_tip ? '' : ('ID_SPEAKER_VOLUME' | translate)}}" ng-model="w.playback_gain">
@@ -249,19 +265,17 @@
         ng-show="can_reconnect()"><span class="glyphicon glyphicon-log-in"></span>
         <span ng-show="as.show_text" translate="ID_RECONNECT"></span></button>
       <button type="button" class="btn btn-danger" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_RESET' | translate)}}" ng-click="reset()" 
-        ng-show="can_reconnect()"><span class="glyphicon glyphicon-off"></span>
+        ng-show="gui_mode != 'concise' && can_reconnect()"><span class="glyphicon glyphicon-off"></span>
         <span ng-show="as.show_text" translate="ID_RESET"></span></button>
-      <button type="button" class="btn btn-danger" ng-show="0 && (jn.is_owner || jn.is_assistant)" ng-click="ul.terminateMeeting()">
-        <span translate="ID_TERMINATE_MEETING"></span></button>
-      <span class="user-owner" ng-show="jn.is_owner" tooltip-placement="bottom" 
+      <span class="user-owner" ng-show="gui_mode != 'concise' && jn.is_owner" tooltip-placement="bottom" 
         tooltip="{{'ID_OWNER_TIP' | translate}}">[{{'ID_LEGEND_OWNER' | translate}}]</span>
-      <span class="user-assistant" ng-show="jn.is_assistant" tooltip-placement="bottom" 
+      <span class="user-assistant" ng-show="gui_mode != 'concise' && jn.is_assistant" tooltip-placement="bottom" 
         tooltip="{{'ID_ASSISTANT_TIP' | translate}}">[{{'ID_LEGEND_ASSISTANT' | translate}}]</span>
-      <span class="user-controller" ng-show="jn.is_presenter && hmtg.customization.support_presenter" tooltip-placement="bottom" 
+      <span class="user-controller" ng-show="gui_mode != 'concise' && jn.is_presenter && hmtg.customization.support_presenter" tooltip-placement="bottom" 
         tooltip="{{jn.presenter_tooltip}}">[{{'ID_LEGEND_CONTROLLER' | translate}}]</span>
-      <span class="user-holder" ng-show="jn.is_holder" tooltip-placement="bottom" 
+      <span class="user-holder" ng-show="gui_mode != 'concise' && jn.is_holder" tooltip-placement="bottom" 
         tooltip="{{jn.holder_tooltip}}">[{{'ID_LEGEND_HOLDER' | translate}}]</span>
-      <span class="user-pending-questioner user-pointer" ng-show="ul.pending_count" tooltip-placement="bottom" 
+      <span class="user-pending-questioner user-pointer" ng-show="gui_mode != 'concise' && ul.pending_count" tooltip-placement="bottom" 
         ng-click="show_control_panel()"
         tooltip="{{as.no_tip ? '' : ('ID_HAS_REQUEST_TIP' | translate)}}">[{{'ID_LEGEND_PENDING_QUESTIONER' | translate}}({{ul.pending_count}})]</span>
       <button type="button" class="btn btn-default" ng-show="ul.can_ask_question()" ng-click="ul.askQuestion()">
@@ -270,19 +284,100 @@
         <span translate="ID_END_MY_QUESTION"></span></button>
       <button type="button" class="btn btn-default" ng-show="ul.can_cancel_question()" ng-click="ul.endMyQuestion()">
         <span translate="ID_CANCEL_MY_QUESTION"></span></button>
-      <span class="user-questioner" ng-show="jn.is_questioner" tooltip-placement="bottom" 
+      <span class="user-questioner" ng-show="gui_mode != 'concise' && jn.is_questioner" tooltip-placement="bottom" 
         tooltip="{{as.no_tip ? '' : ('ID_QUESTIONER_TIP' | translate)}}">[{{'ID_LEGEND_QUESTIONER' | translate}}]</span>
-      <span class="text-danger" ng-show="jn.recording_status == 0" translate="ID_NO_RECORDING"></span>
-      <span class="text-warning" ng-show="jn.recording_status == 2" translate="ID_RECORDING_PAUSED"></span>
-      <span class="text-warning" ng-show="jn.archive_status" translate="ID_RECORDING_ARCHIVED"></span>
-      <span class="text-success" ng-show="jn.has_jnr_password" translate="ID_HAS_JNR_PASSWORD"></span>
+      <span class="text-danger" ng-show="gui_mode != 'concise' && jn.recordinggui_mode != 'concise' && _status == 0" translate="ID_NO_RECORDING"></span>
+      <span class="text-warning" ng-show="gui_mode != 'concise' &&jn.recordgui_mode != 'concise' && ing_status == 2" translate="ID_RECORDING_PAUSED"></span>
+      <span class="text-warning" ng-show="gui_mode != 'concise' &&jn.archive_status" translate="ID_RECORDING_ARCHIVED"></span>
+      <span class="text-success" ng-show="gui_mode != 'concise' &&jn.has_jnr_password" translate="ID_HAS_JNR_PASSWORD"></span>
+      <span ng-if="ul.is_meeting_mode && gui_mode == 'concise'">
+        <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[v2.is_send_video]" 
+          ng-click="toggle_video_sending()" 
+          tooltip-placement="top"
+          tooltip="{{as.no_tip || as.show_text ? '' : ((v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate)}}">
+          <span class="glyphicon glyphicon-upload"></span>
+          <span ng-show="as.show_text">{{(v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate}}</span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
+          ng-click="toggle_video_recving()" 
+          tooltip-placement="top" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ((vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate)}}">
+          <span class="glyphicon glyphicon-download"></span>
+          <span ng-show="as.show_text">{{(vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate}}</span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn" 
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_gallery_visible]"
+          ng-click="onConciseGallery()"
+          tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_VIDEO_GALLERY' | translate)}}">
+          <span class="glyphicon glyphicon-th"></span>
+          <span ng-show="as.show_text" translate="ID_VIDEO_GALLERY"></span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn" 
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_board_visible]"
+          ng-click="onConciseBoard()"
+          tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_WHITE_BOARD' | translate)}}">
+          <span class="glyphicon glyphicon-blackboard"></span>
+          <span ng-show="as.show_text" translate="ID_WHITE_BOARD"></span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn" 
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_userlist_visible]" 
+          ng-click="onConciseUserList()"
+          tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_USER_RECORD' | translate)}}">
+          <span class="glyphicon glyphicon-user"></span>
+          <span ng-show="as.show_text" translate="ID_USER_RECORD"></span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn" 
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_textchat_visible]"
+          ng-click="onConciseTextChat()"
+          tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TEXT_CHAT' | translate)}}">
+          <span class="glyphicon glyphicon-pencil"></span>
+          <span ng-show="as.show_text" translate="ID_TEXT_CHAT"></span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn" 
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_video_visible]"
+          ng-click="onConciseVideo()"
+          tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_VIDEO_WINDOW' | translate)}}">
+          <span class="glyphicon glyphicon-film"></span>
+          <span ng-show="as.show_text" translate="ID_VIDEO_WINDOW"></span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_HIDE_BAR' | translate)}}"
+          ng-click="onConciseHide()"><span class="glyphicon glyphicon-chevron-down"></span>
+          <span ng-show="as.show_text" translate="ID_HIDE_BAR"></span>
+        </button>
+      </span>
+      <span ng-if="gui_mode == 'concise'" ng-controller="LangCtrl">
+        <a>
+          <select ng-model="lang">
+            <option value="en">English</option>
+            <option value="zh_CN">简体中文</option>
+            <option value="zh_TW">繁體中文</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국의</option>
+          </select>
+        </a>
+      </span>
     </div>
-    <hr style="margin: 3px 0px 3px 0px;"/>
+    <hr ng-if="!(gui_mode == 'concise')" style="margin: 3px 0px 3px 0px;"/>
     <div ng-class="row_fluid()">
       <div class="auto-overflow" ng-class="col_area('userlist')" ng-show="is_area_visible('userlist')">
       <div ng-controller="UserListCtrl">
-        <div><ng-include src="partialTranscoding" onload="jt.transcoding_loaded()"></ng-include></div>
-        <div ng-if="jn.bookmark.length">
+        <div ng-show="!is_concise_mode()"><ng-include src="partialTranscoding" onload="jt.transcoding_loaded()"></ng-include></div>
+        <div ng-if="jn.bookmark.length && !is_concise_mode()">
           <span class="user-pointer btn-link" ng-show="hide_bm" ng-click="toggle_bookmark()" translate="ID_BOOKMARK"></span>
           <div class="table-responsive border-autoscroll" ng-if="!hide_bm" ng-style="style_half_height">
             <table class="table table-condensed">
@@ -302,16 +397,19 @@
           </div>
         </div>
         <div>
-          <span><span ng-show="as.show_text" translate="ID_MAIN_VIDEO"></span>
-          <select class="vertical-middle" style="max-width: 160px;" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MAIN_VIDEO' | translate)}}" 
-            ng-model="vr.main_video_ssrc" ng-options="user.ssrc as user.name for user in m.main_video_userlist"></select></span>
-          <span><span ng-show="as.show_text" translate="ID_DISPLAY_SIZE"></span>
+          <span ng-class="gui_mode=='concise' ? 'overlay-foreground' : ''">
+            <span ng-show="as.show_text" translate="ID_MAIN_VIDEO"></span>
+            <select class="vertical-middle" style="max-width: 160px;" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MAIN_VIDEO' | translate)}}" 
+            ng-model="vr.main_video_ssrc" ng-options="user.ssrc as user.name for user in m.main_video_userlist"></select>
+          </span>
+          <span ng-show="!is_concise_mode()">
+            <span ng-show="as.show_text" translate="ID_DISPLAY_SIZE"></span>
             <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DISPLAY_SIZE' | translate)}}" ng-model="m2.display_size" 
             ng-options="ds.value as ds.name for ds in m2.size_list"></select>
           </span>
-          <div id="main_video_container" style="padding-top: 1px;">
-            <canvas id="main_video" ng-show="!rtc.is_main_video_webrtc" class="video_canvas" width="0" height="0" ></canvas>
-            <video id="webrtc_main_video" ng-show="rtc.is_main_video_webrtc" ng-style="style_webrtc_main_video" autoplay muted playsinline></video>
+          <div id="main_video_container" ng-style="style_main_video_container()">
+            <canvas id="main_video" ng-show="!rtc.is_main_video_webrtc" class="video_canvas" ng-class="class_main_canvas()" width="0" height="0" ></canvas>
+            <video id="webrtc_main_video" ng-show="rtc.is_main_video_webrtc" ng-style="style_webrtc_main_video" ng-class="class_main_canvas()" autoplay muted playsinline></video>
           </div>
           <span ng-if="0 && vr.show_2nd_video">
             <span>
@@ -320,13 +418,13 @@
                 ng-model="vr.main_video_ssrc2" ng-options="user.ssrc as user.name for user in m.main_video_userlist2"></select>
             </span>
           </span>
-          <span ng-if="jv.screen_recording">
+          <span ng-if="jv.screen_recording && !is_concise_mode()">
             <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[jv.use_screen_as_video]" 
               ng-click="toggle_screen_as_video()" 
               tooltip-placement="right" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_SCREEN_AS_VIDEO' | translate)}}">
               <span class="glyphicon glyphicon-modal-window"></span>
               <span ng-show="as.show_text" translate="ID_TOGGLE_SCREEN_AS_VIDEO"></span></button></span>
-          <span ng-show="ul.is_meeting_mode">
+          <span ng-show="ul.is_meeting_mode && !is_concise_mode()">
             <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[v2.is_send_video]" 
               ng-click="toggle_video_sending()" 
               tooltip-placement="right"
@@ -334,34 +432,34 @@
               <span class="glyphicon glyphicon-upload"></span>
               <span ng-show="as.show_text">{{(v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate}}</span>
               </button></span>
-          <span ng-show="v.video_codec && v2.is_send_video && as.show_advanced_function">
+          <span ng-show="v.video_codec && v2.is_send_video && as.show_advanced_function && !is_concise_mode()">
             <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="v.fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
           </span>
-          <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
+          <span ng-show="!is_concise_mode()"><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
             ng-click="toggle_video_recving()" 
             tooltip-placement="right" 
             tooltip="{{as.no_tip || as.show_text ? '' : ((vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate)}}">
             <span class="glyphicon glyphicon-download"></span>
             <span ng-show="as.show_text">{{(vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate}}</span>
             </button></span>
-          <span ng-show="m.show_snapshot()">
+          <span ng-show="m.show_snapshot() && !is_concise_mode()">
             <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
               ng-click="snapshot()"> <span class="glyphicon glyphicon-picture"></span>
               <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span>{{snapshot_tail}} </button></span>
           </span>
-          <span ng-show="m.request_fullscreen && !m2.is_fullscreen && !jv.has_video_loop()">
+          <span ng-show="m.request_fullscreen && !m2.is_fullscreen && !jv.has_video_loop() && !is_concise_mode()">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
               ng-click="m.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
               <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
           </span>
-          <span ng-show="m.request_fullscreen && m2.is_fullscreen">
+          <span ng-show="m.request_fullscreen && m2.is_fullscreen && !is_concise_mode()">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
               ng-click="m.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
               <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
           </span>
         </div>
-        <h4>
+        <h4 ng-show="!is_concise_mode()">
           <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[!!ul.legend]" 
             ng-click="ul.toggle_legend()" tooltip-placement="right"
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_LEGEND' | translate)}}">
@@ -369,8 +467,9 @@
             <span ng-show="as.show_text">{{'ID_TOGGLE_LEGEND' | translate}}</span>
             </button>          {{get_userlist_title()}}
         </h4>
-        <span ng-bind-html="ul.legend"></span>
-        <div id="userlist" class="table-responsive border-autoscroll" ng-style="style_half_height">
+        <span ng-show="!is_concise_mode()" ng-bind-html="ul.legend"></span>
+        <div id="userlist" class="table-responsive border-autoscroll" ng-class="class_concise_float()"
+          ng-hide="to_hide_userlist()" ng-style="style_half_height">
           <table class="table table-condensed">
             <thead>
               <tr style="white-space: nowrap;">
@@ -451,7 +550,7 @@
             </tbody>
           </table>
         </div>
-        <div ng-hide="!as.show_control_panel_textchat || is_area_visible('chat')">
+        <div ng-hide="to_hide_textchat()" ng-class="class_concise_float()">
           <div ng-include="partialChat1"></div>
         </div>
         <div ng-show="show_userlist_title()" ng-if="0">
@@ -492,17 +591,17 @@
       <div class="auto-overflow" ng-class="col_area('chat')" ng-show="is_area_visible('chat')">
         <div ng-include="partialChat2"></div>
       </div>
-      <div id="video_container" class="auto-overflow fullscreen" ng-class="col_area('video')" ng-show="is_area_visible('video')">
+      <div id="video_container" class="auto-overflow fullscreen" ng-class="class_concise_video()" ng-show="is_video_container_visible()">
         <div ng-include="partialVideo"></div>
       </div>
       <div id="board_container" class="auto-overflow fullscreen" ng-class="col_area('white_board')" 
         ng-show="is_area_visible('white_board')">
       <div ng-controller="BoardCtrl">
-        <div ng-if="!w.hide_toolbar">
-        <span ng-if="!w.hide_toolbar">
+        <div ng-if="!as.board_hide_toolbar">
+        <span ng-if="!as.board_hide_toolbar">
           <button type="button" class="btn btn-default" tooltip-placement="right" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_TOOLBAR' | translate)}}" 
-            ng-click="toggle_toolbar()"><span class="glyphicon glyphicon-th"></span>
+            ng-click="toggle_toolbar()"><span class="glyphicon glyphicon-option-horizontal"></span>
             <span ng-show="as.show_text" translate="ID_TOGGLE_TOOLBAR"></span></button>
         </span>
         <span ng-show="as.show_private_note">
@@ -739,7 +838,7 @@
 
         <div class="like-table">
           <div class="like-row">
-            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && hh.view_port_height>=720" ng-show="can_show_board_bar()">
+            <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && hh.view_port_height>=720" ng-show="can_show_board_bar()">
               <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='pointer']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_POINTER' | translate)}}" 
                 ng-click="set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
@@ -787,7 +886,7 @@
                 ng-options="level for level in levels">
               </select>
             </div>
-            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
+            <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
               <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='pointer']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_POINTER' | translate)}}" 
                 ng-click="set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
@@ -810,7 +909,7 @@
                 ng-show="hh.isMobile" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SCROLL' | translate)}}" 
                 ng-click="set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
             </div>
-            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
+            <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
               <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='freehand']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_FREEHAND' | translate)}}" 
                 ng-click="set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
@@ -839,20 +938,20 @@
             </div>
             <div style="position: relative;" id="board0" class="fill-cell">
               <div id="board_container2" style="overflow: auto;" ng-style="style_max_size()">
-                <button type="button" class="btn btn-default overlay-foreground" ng-if="w.hide_toolbar"
+                <button type="button" class="btn btn-default overlay-foreground" ng-if="as.board_hide_toolbar"
                   ng-click="toggle_toolbar()">
-                  <span class="glyphicon glyphicon-th"></span></button>
+                  <span class="glyphicon glyphicon-option-horizontal"></span></button>
                 <canvas style="border: 1px solid gray;" id="board" width="200" height="200"></canvas>
               </div>
             </div>
-            <div class="fix-cell btn-group-vertical" ng-if="!w.hide_toolbar && !as.has_type_color" 
+            <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && !as.has_type_color" 
               ng-show="can_show_board_bar()">
               <button type="button" ng-repeat="color in w.colors" class="btn btn-default" ng-style="style_color($index)" 
                 ng-click="choose_color($index)">{{text_color($index)}}</button>
             </div>
           </div>
         </div>
-        <div ng-if="!w.hide_toolbar">
+        <div ng-if="!as.board_hide_toolbar">
         <span ng-show="as.can_show_bottom_image_bar && w.shape=='image' && can_show_board_bar()">
           <button type="button" class="btn btn-default" tooltip-placement="top"
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MANAGE_MARK' | translate)}}" 
@@ -1426,7 +1525,7 @@
     </tabset>
   </div>
 
-  <footer>
+  <footer ng-show="!(nav_item == 'joinnet' && gui_mode == 'concise')">
     <div class="container-fluid" ng-controller="AboutCtrl" ng-cloak>
       <hr />
       <div class="row-fluid">

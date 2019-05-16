@@ -1,5 +1,5 @@
       <div ng-controller="VideoWindowCtrl">
-        <div>
+        <div ng-hide="gui_mode == 'concise'">
           <span><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[show_list]" 
             tooltip-placement="right" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_EDIT_VIDEO_LIST' | translate)}}" 
             ng-click="toggle_show_list()"><span class="glyphicon glyphicon-th-list"></span>
@@ -62,16 +62,18 @@
             </table>
           </div>
         </div>
-        <div class="vertical-top" style="overflow: auto;border: 1px solid gray;min-height: 200px;">
+        <div id="video-list" class="vertical-top center_align" ng-class="gui_mode=='concise' ? '' : 'simple_border'"
+          style="overflow: auto;min-height: 100px;" ng-style="style_video_height()">
           <div class="inline-block video-window" ng-repeat="ssrc in vr.ssrc_array">
             <span>
-              <span ng-show="show_snapshot(ssrc)">
+              <span class="vertical-middle">{{username_trimmed(name_hash[ssrc])}}</span>
+              <span ng-show="gui_mode != 'concise' && show_snapshot(ssrc)">
                 <span><button type="button" class="btn btn-default"
                 tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
                   ng-click="snapshot(ssrc)"> <span class="glyphicon glyphicon-picture"></span>
                   <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span></button></span>
               </span>
-              <span ng-show="request_fullscreen && !is_fullscreen(ssrc) && !has_video_loop(ssrc)">
+              <span ng-show="request_fullscreen && !is_fullscreen(ssrc) && gui_mode != 'concise' && !has_video_loop(ssrc)">
                 <button type="button" class="btn btn-default"tooltip="{{'ID_FULLSCREEN1' | translate}}" 
                   ng-click="fullscreen1(ssrc)"> <span class="glyphicon glyphicon-resize-full"></span> 
                   <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
@@ -81,13 +83,16 @@
                   ng-click="fullscreen0(ssrc)"> <span class="glyphicon glyphicon-resize-small"></span> 
                   <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
               </span>
-              <span class="vertical-middle">{{name_hash[ssrc]}}</span>
             </span>
-            <div id="{{container_id(ssrc)}}">
-              <canvas id="{{canvas_id(ssrc)}}" ng-show="!rtc.to_show_webrtc_video(ssrc)" class="video_canvas" width="0" height="0"></canvas>
-              <video id="{{video_id(ssrc)}}" ng-show="!!rtc.to_show_webrtc_video(ssrc)" ng-style="style_webrtc_video" autoplay muted playsinline></video>
+            <div id="{{container_id(ssrc)}}" ng-click="onVideoClick(ssrc)">
+              <canvas id="{{canvas_id(ssrc)}}" ng-show="!rtc.to_show_webrtc_video(ssrc)" class="video_canvas"
+                ng-class="ssrc == vr.main_video_ssrc ? 'active_video_border' : ''" width="0" height="0">
+              </canvas>
+              <video id="{{video_id(ssrc)}}" ng-show="!!rtc.to_show_webrtc_video(ssrc)"
+                ng-class="ssrc == vr.main_video_ssrc ? 'active_video_border' : ''"
+                ng-style="style_webrtc_video" autoplay muted playsinline>
+              </video>
             </div>
           </div>
         </div>
-        <br />
       </div>

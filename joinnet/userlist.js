@@ -1658,12 +1658,12 @@ angular.module('joinnet')
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_video_display_size']);
     this.display_size = parsed === 'undefined' ? 240 : Math.max(160, Math.min(640, parsed));
     this.is_fullscreen = false;
-    this.draw_size = []; // w,h
-    this.draw_size2 = [];
+    this.draw_size = []; // w,h, draw size of 1st video
+    this.draw_size2 = []; // draw size of 2nd video
     this.draw_x = 0;
-    this.draw_y = 0;
+    this.draw_y = 0;  // top-left corner of 1st video
     this.draw_x2 = 0;
-    this.draw_y2 = 0;
+    this.draw_y2 = 0; // top-left corner of 2nd video
 
     this.overlap_two_video = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_overlap_two_video']);
     this.overlap_two_video = this.overlap_two_video === 'undefined' ?
@@ -1690,7 +1690,10 @@ angular.module('joinnet')
       this.draw_video();
     }
 
-    this.draw_video = function () {
+    this.draw_video = function() {
+      if($rootScope.gui_mode == 'concise') {
+        this.overlap_two_video = true;
+      }
       if(this.overlap_two_video) {
         this.calc_canvas_size();
       } else {
@@ -1707,7 +1710,7 @@ angular.module('joinnet')
     // overlap video
     this.calc_draw_size = function (video_w, video_h, draw_size, is_alt_video) {
       var w, h;
-      if(this.is_fullscreen) {
+      if(this.is_fullscreen || $rootScope.gui_mode == 'concise') {
         w = hmtgHelper.view_port_width;
         h = (w * video_h / video_w) >> 0;
         if(h > hmtgHelper.view_port_height) {
@@ -1744,7 +1747,7 @@ angular.module('joinnet')
       this.draw_x = this.draw_y = 0;
 
       var w, h;
-      if(this.is_fullscreen) {
+      if(this.is_fullscreen || $rootScope.gui_mode == 'concise') {
         if(this.draw_size[0] + this.draw_size2[0] >= hmtgHelper.view_port_width) {
           w = hmtgHelper.view_port_width;
           this.draw_x2 = w - this.draw_size2[0];
@@ -1806,7 +1809,7 @@ angular.module('joinnet')
     // equal video size
     this.calc_draw_size2 = function (video_w, video_h, draw_size) {
       var w, h;
-      if(this.is_fullscreen) {
+      if(this.is_fullscreen || $rootScope.gui_mode == 'concise') {
         w = hmtgHelper.view_port_width;
         h = (w * video_h / video_w) >> 0;
         if(h > hmtgHelper.view_port_height) {
@@ -1864,7 +1867,7 @@ angular.module('joinnet')
 
       var total_w;
       var total_h;
-      if(this.is_fullscreen) {
+      if(this.is_fullscreen || $rootScope.gui_mode == 'concise') {
         total_w = hmtgHelper.view_port_width;
         total_h = hmtgHelper.view_port_height;
       } else {
@@ -2329,11 +2332,11 @@ angular.module('joinnet')
 .controller('UserListCtrl', ['$scope', 'userlist', 'hmtgHelper', '$translate', 'JoinNet', 'audio_codec',
   'audio_capture', 'main_video', 'main_video_canvas',
   'video_codec', 'video_bitrate', 'video_capture', 'video_recving', '$modal', 'appSetting', '$rootScope',
-  'joinnetTranscoding', 'joinnetVideo', 'playback', 'mediasoupWebRTC',
+  'joinnetTranscoding', 'joinnetVideo', 'playback', 'mediasoupWebRTC', 'layout',
   function ($scope, userlist, hmtgHelper, $translate, JoinNet, audio_codec,
     audio_capture, main_video, main_video_canvas, video_codec, video_bitrate,
     video_capture, video_recving, $modal, appSetting, $rootScope, joinnetTranscoding, joinnetVideo,
-    playback, mediasoupWebRTC) {
+    playback, mediasoupWebRTC, layout) {
     $scope.a = audio_codec;
     $scope.m = main_video;
     $scope.m2 = main_video_canvas;
@@ -2346,7 +2349,64 @@ angular.module('joinnet')
     $scope.jv = joinnetVideo;
     $scope.jn = JoinNet;
     $scope.rtc = mediasoupWebRTC;
+    $scope.lo = layout;
     $scope.jnk = hmtg.jnkernel;
+
+
+    $scope.is_concise_mode = function() {
+      return $rootScope.gui_mode == 'concise';
+    }
+
+    $scope.style_main_video_container = function() {
+      return $rootScope.gui_mode == 'concise' ? {'overflow': 'hidden'} : {'padding-top': '1px'};
+    }
+
+    $scope.class_main_canvas = function() {
+      return $rootScope.gui_mode == 'concise' ? 'center' : '';
+    }
+
+    $scope.update_webrtc_main_video_size = function() {
+      if($rootScope.gui_mode == 'concise') {
+        $scope.style_webrtc_main_video =
+          {
+            'overflow': 'hidden',
+            'width': '' + hmtgHelper.view_port_width + 'px',
+            'height': '' + hmtgHelper.view_port_height + 'px'
+          };
+      } else {
+        $scope.style_webrtc_main_video =
+          {
+            'max-width': '' + main_video_canvas.display_size + 'px',
+            'max-height': '' + main_video_canvas.display_size + 'px'
+          };
+      }
+    }
+
+    $scope.class_concise_float = function() {
+      return $rootScope.gui_mode == 'concise' ? 'concise_float' : '';
+    }
+
+    $scope.to_hide_userlist = function() {
+      if($rootScope.gui_mode == 'concise') {
+        return !layout.is_userlist_visible;
+
+      } else {
+        return false;
+      }
+    }
+
+    $scope.to_hide_textchat = function() {
+      if($rootScope.gui_mode == 'concise') {
+        return !layout.is_textchat_visible;
+
+      } else {
+        return !appSetting.show_control_panel_textchat || $scope.is_area_visible('chat');
+      }
+    }
+
+    $rootScope.$watch('gui_mode', function() {
+      $scope.update_webrtc_main_video_size();
+    });
 
     $scope.$on(hmtgHelper.WM_MAX_DISPLAY_ITEM_CHANGED, function () {
       userlist.count = (appSetting.max_display_item >> 0);
@@ -2372,6 +2432,10 @@ angular.module('joinnet')
 
     function adjust_size() {
       if(main_video_canvas.is_fullscreen) main_video_canvas.change_display_size();
+      if($rootScope.gui_mode == 'concise') {
+        $scope.update_webrtc_main_video_size();
+        if(!hmtgHelper.inside_angular) $scope.$digest();
+      }
     }
 
     $scope.$on(hmtgHelper.WM_UPDATE_USERLIST, function () {
@@ -2663,11 +2727,7 @@ angular.module('joinnet')
 
     $scope.$watch('m2.display_size', function () {
       hmtg.util.localStorage['hmtg_video_display_size'] = JSON.stringify(main_video_canvas.display_size);
-      $scope.style_webrtc_main_video =
-      {
-        'max-width': '' + main_video_canvas.display_size + 'px',
-        'max-height': '' + main_video_canvas.display_size + 'px'
-      };
+      $scope.update_webrtc_main_video_size();
       main_video_canvas.change_display_size();
       setTimeout(function () {
         $rootScope.$broadcast(hmtgHelper.WM_WIDTH_CHANGED);

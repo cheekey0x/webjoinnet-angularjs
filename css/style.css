@@ -210,7 +210,7 @@ a.msgr-inline
 .video-window
 {
   vertical-align: top;
-  margin: 1px;
+  padding-right: 1px;
 }
 
 .overlay-background
@@ -227,9 +227,10 @@ a.msgr-inline
 {
   position:absolute;
   background:transparent;
+  z-index: 8888;
   left:0px;
   top:0px;
-  opacity:0.3;
+  opacity:0.5;
 }
 
 .overlay
@@ -786,4 +787,60 @@ a.emoticon
 .scroll-alert {
    overflow: auto;
    max-height: 50%;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.concise_float {
+  float:right;
+  width:320px;
+  position: relative;
+  top: 0px;
+  right: 0px;
+  background-color: rgba(255,255,255,255);
+}
+
+.concise_float_video {
+  float:right;
+  width:100px;
+  position: relative;
+  top: 0px;
+  right: 0px;
+  background-color: rgba(255,255,255,255);
+}
+
+.center_align {
+  text-align: center;
+}
+
+.concise_float_bottom_left {
+  position:absolute;
+  background:transparent;
+  z-index: 8888;
+  left:0px;
+  bottom:0px;
+  opacity:0.5;
+}
+
+.concise_float_bottom_bar {
+  position:absolute;
+  background:transparent;
+  z-index: 9999;
+  left:0px;
+  bottom:0px;
+}
+
+.simple_border {
+  border: 1px solid gray; 
+}
+
+.active_video_border {
+  border: 1px solid red; 
 }
