@@ -25,6 +25,9 @@
     // whether to show native app under Options
     customization.show_native_app = false;
 
+    // whether to support joint browsing
+    customization.support_joint_browsing = false;
+
     // whether to support presenter
     customization.support_presenter = false;
 

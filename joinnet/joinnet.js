@@ -350,38 +350,41 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     jnkernel['jn_callback_JointBrowsing'] = function(command_type, url) {
-      //browser.callback_JointBrowsing(command_type, hmtg.util.decodeUtf8(url));
-      var func = function() {
-        // use the joint browsing rule to determine the source ssrc and its name
-        var username = '';
-        var ssrc = hmtg.jnkernel._tab_ssrc()
-        var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
-        var item = a[ssrc];
-        if(item) {
-          username += hmtg.util.decodeUtf8(item._szRealName());
-        }
-
-        // use the tick at the moment of receiving as the ts
-        var ts;
-        if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
-          // for meeting, the tick could be delayed if the user join the meeting after the URL is shared
-          ts = (hmtg.util.GetTickCount() - hmtg.jnkernel._jn_dwSessionStartTick()) >> 0;
-        } else {
-          // use the tick as ts
-          // for playback, the tick could be delayed if it is received during fast forwarding
-          ts = playback.tick;
-        }
-        var date;
-        // prefix the text chat with "Joint Web Browsing: " to show that this text chat 
-        // is the result of a joint browsing
-        chat.add_chat(ssrc, -1, 1, username + '>' + $translate.instant('IDS_JOINT_WEB_BROWSING') + ': ' + hmtg.util.decodeUtf8(url), 0, ts, date, _JoinNet.is_chat_area_visible);
-      }
-      if(_JoinNet.net_init_finished) {
-        func();
+      if(hmtg.customization.support_joint_browsing) {
+        browser.callback_JointBrowsing(command_type, hmtg.util.decodeUtf8(url));
       } else {
-        // the first browsing url, if available will be received before net_init_finished
-        // remember it and call it later when net_init_finished is set
-        _JoinNet.init_browsing_url_update_func = func;
+        var func = function() {
+          // use the joint browsing rule to determine the source ssrc and its name
+          var username = '';
+          var ssrc = hmtg.jnkernel._tab_ssrc()
+          var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
+          var item = a[ssrc];
+          if(item) {
+            username += hmtg.util.decodeUtf8(item._szRealName());
+          }
+
+          // use the tick at the moment of receiving as the ts
+          var ts;
+          if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
+            // for meeting, the tick could be delayed if the user join the meeting after the URL is shared
+            ts = (hmtg.util.GetTickCount() - hmtg.jnkernel._jn_dwSessionStartTick()) >> 0;
+          } else {
+            // use the tick as ts
+            // for playback, the tick could be delayed if it is received during fast forwarding
+            ts = playback.tick;
+          }
+          var date;
+          // prefix the text chat with "Joint Web Browsing: " to show that this text chat 
+          // is the result of a joint browsing
+          chat.add_chat(ssrc, -1, 1, username + '>' + $translate.instant('IDS_JOINT_WEB_BROWSING') + ': ' + hmtg.util.decodeUtf8(url), 0, ts, date, _JoinNet.is_chat_area_visible);
+        }
+        if(_JoinNet.net_init_finished) {
+          func();
+        } else {
+          // the first browsing url, if available will be received before net_init_finished
+          // remember it and call it later when net_init_finished is set
+          _JoinNet.init_browsing_url_update_func = func;
+        }
       }
     }
 
@@ -1444,20 +1447,25 @@ angular.module('joinnet', ['pascalprecht.translate'])
       { id: 'chat', name: 'chat' },
       { id: 'video', name: 'video' },
       { id: 'white_board', name: 'white board' },
-      //{ id: 'browser', name: 'browser' },
       { id: 'sdt', name: 'desktop sharing' },
       { id: 'rdc', name: 'remote control' }
     ];
+    if(hmtg.customization.support_joint_browsing) {
+      $scope.areas0.push({ id: 'browser', name: 'browser' });
+    }
     $scope.area_idx0 = {
       'userlist': 0,
       'statistics': 1,
       'chat': 2,
       'video': 3,
       'white_board': 4,
-      //'browser': 5,
       'sdt': 5,
       'rdc': 6
     };
+    if(hmtg.customization.support_joint_browsing) {
+      $scope.area_idx0['browser'] = 7;
+    }
+
     // playback
     $scope.areas1 = [
       { id: 'userlist', name: 'userlist' },
@@ -1466,10 +1474,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
       { id: 'chat', name: 'chat' },
       { id: 'video', name: 'video' },
       { id: 'white_board', name: 'white board' },
-      //{ id: 'browser', name: 'browser' },
       { id: 'sdt', name: 'desktop sharing' },
       { id: 'rdc', name: 'remote control' }
     ];
+    if(hmtg.customization.support_joint_browsing) {
+      $scope.areas1.push({ id: 'browser', name: 'browser' });
+    }
     $scope.area_idx1 = {
       'userlist': 0,
       'statistics': 1,
@@ -1477,10 +1487,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
       'chat': 3,
       'video': 4,
       'white_board': 5,
-      //'browser': 6,
       'sdt': 6,
       'rdc': 7
     };
+    if(hmtg.customization.support_joint_browsing) {
+      $scope.area_idx1['browser'] = 8;
+    }
     update_components();
     update_area_name();
     $scope.$watch('w.area1', switch_area);
@@ -1754,8 +1766,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           target_area = 'white_board';
           break;
         case 1:
-          //target_area = 'browser';
-          target_area = 'chat';
+          target_area = hmtg.customization.support_joint_browsing ? 'browser' : 'chat';
           break;
         case 2:
           target_area = 'sdt';
@@ -1870,7 +1881,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
       $scope.areas0[$scope.area_idx0['chat']].name = $translate.instant('ID_TEXT_CHAT');
       $scope.areas0[$scope.area_idx0['video']].name = $translate.instant('ID_VIDEO_WINDOW');
       $scope.areas0[$scope.area_idx0['white_board']].name = $translate.instant('ID_WHITE_BOARD');
-      //$scope.areas0[$scope.area_idx0['browser']].name = $translate.instant('IDS_JOINT_WEB_BROWSING');
+      if(hmtg.customization.support_joint_browsing) {
+        $scope.areas0[$scope.area_idx0['browser']].name = $translate.instant('IDS_JOINT_WEB_BROWSING');
+      }
       $scope.areas0[$scope.area_idx0['sdt']].name = $translate.instant('ID_DESKTOP_SHARING');
       var to_show_monitor = false;
       if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL && appSetting.remote_monitor_mode) {
@@ -1886,7 +1899,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
       $scope.areas1[$scope.area_idx1['chat']].name = $translate.instant('ID_TEXT_CHAT');
       $scope.areas1[$scope.area_idx1['video']].name = $translate.instant('ID_VIDEO_WINDOW');
       $scope.areas1[$scope.area_idx1['white_board']].name = $translate.instant('ID_WHITE_BOARD');
-      //$scope.areas1[$scope.area_idx1['browser']].name = $translate.instant('IDS_JOINT_WEB_BROWSING');
+      if(hmtg.customization.support_joint_browsing) {
+        $scope.areas1[$scope.area_idx1['browser']].name = $translate.instant('IDS_JOINT_WEB_BROWSING');
+      }
       $scope.areas1[$scope.area_idx1['sdt']].name = $translate.instant('ID_DESKTOP_SHARING');
       $scope.areas1[$scope.area_idx1['rdc']].name = $translate.instant('ID_REMOTE_CONTROL');
     }
