@@ -427,7 +427,9 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       missedCall.checkMissedCall();
       hmtg.util.log("jnj not found from the url");
     } else {
-      $rootScope.gui_mode = 'concise';
+      if(hmtg.customization.use_concise_layout_for_guest) {
+        $rootScope.gui_mode = 'concise';
+      }
       if(typeof jlk !== 'undefined') {
         //http://192.168.10.2:2334/weboffice2_a.jnj
         //http%3A%2F%2F192.168.10.2%3A2334%2Fweboffice2_a.jnj%3Fa%3D1%26b%3D2

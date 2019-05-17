@@ -25,6 +25,9 @@
     // whether to show native app under Options
     customization.show_native_app = false;
 
+    // whether to use concise layout for visiting guests
+    customization.use_concise_layout_for_guest = false;
+
     // whether to support joint browsing
     customization.support_joint_browsing = false;
 
