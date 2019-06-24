@@ -28,6 +28,9 @@
     // whether to use concise layout for visiting guests
     customization.use_concise_layout_for_guest = false;
 
+    // whether to use concise layout for mobile users
+    customization.use_concise_layout_for_mobile = false;
+
     // whether to support joint browsing
     customization.support_joint_browsing = false;
 
