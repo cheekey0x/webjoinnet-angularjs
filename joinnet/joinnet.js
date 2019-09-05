@@ -1231,6 +1231,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.vr = video_recving;
 
     // concise layout related code
+    $scope.show_concise_full_toolbar = false;
     $scope.toggle_concise_mode = function() {
       $rootScope.gui_mode = $rootScope.gui_mode == 'concise' ? '' : 'concise';
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_LAYOUT_MODE);
@@ -1306,12 +1307,47 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
     }
     $scope.track_mouse_move = function() {
-      $scope.untrack_mouse_move();
-      document.addEventListener('mousemove', onMouseMove, true);
+      //$scope.untrack_mouse_move();
+      //document.addEventListener('mousemove', onMouseMove, true);
     }
 
     $scope.untrack_mouse_move = function() {
-      document.removeEventListener('mousemove', onMouseMove, true);
+      //document.removeEventListener('mousemove', onMouseMove, true);
+    }
+
+    $scope.is_concise_toolbar_tall = function() {
+      var elem1 = document.getElementById('concise_tool_first');
+      var elem2 = document.getElementById('concise_tool_container');
+
+      if(!elem1 || !elem2) {
+        return false;
+      }
+      var height1 = elem1.offsetHeight;
+      var height2 = elem2.offsetHeight;
+      return height2 > height1;
+    }
+
+    $scope.style_concise_toolbar = function() {
+      var elem1 = document.getElementById('concise_tool_first');
+      var elem2 = document.getElementById('concise_tool_container');
+      
+      if(!elem1 || !elem2) {
+        return;
+      }
+      var pos = 0;
+
+      if(!$scope.show_concise_full_toolbar) {
+        var height1 = elem1.offsetHeight;
+        var height2 = elem2.offsetHeight;
+        //console.log('height1=' + height1 + ';height2=' + height2);
+        if(height2 > height1) {
+          pos = height1 - height2;
+        }
+      }
+
+      return {
+        'bottom': '' + (pos) + 'px'
+      };
     }
 
     $scope.class_concise_video = function() {
@@ -1332,6 +1368,10 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.onConciseShow = function() {
       if(!layout.is_navbar_visible) {
+        $scope.show_concise_full_toolbar = false;
+        setTimeout(function() { 
+          $scope.$digest(); // force style_concise_toolbar()
+        }, 100);
         layout.is_navbar_visible = true;
 
         // if the navbar is turned on manually
@@ -1346,12 +1386,14 @@ angular.module('joinnet', ['pascalprecht.translate'])
         clearTimeout(delayedShowupTimerID);
         delayedShowupTimerID = null;
       }
+      /*
       $scope.untrack_mouse_move();
       setTimeout(function() {
         if($rootScope.gui_mode == 'concise') {
           $scope.track_mouse_move();
         }
       }, 5000)
+      */
     }
 
     $scope.onConciseBoard = function() {
@@ -1659,6 +1701,17 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(fullscreenElement) {
         $scope.to_adjust_width_after_existing_fullscreen = true;
         return;
+      }
+
+      if($rootScope.gui_mode == 'concise'
+        && $rootScope.nav_item == 'joinnet'
+        && layout.is_navbar_visible
+        && !$scope.show_concise_full_toolbar
+      ) {
+        // to refresh the one-line toolbar display
+        setTimeout(function() {
+          $rootScope.$digest();
+        }, 1);
       }
 
       var min_width = Math.max(320, (main_video_canvas.display_size >> 0) + 36) - 1;

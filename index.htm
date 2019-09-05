@@ -170,11 +170,17 @@
         <span class="glyphicon glyphicon-menu-hamburger"></span>
       </button>
     </div>
-    <div ng-class="gui_mode == 'concise' ? 'concise_float_bottom_bar' : ''"
-     ng-show="gui_mode != 'concise' || lo.is_navbar_visible">
+    <div ng-show="gui_mode == 'concise' && lo.is_navbar_visible && !show_concise_full_toolbar && is_concise_toolbar_tall()">
+      <button type="button" class="btn btn-default concise_float_bottom_right" ng-click="show_concise_full_toolbar=!show_concise_full_toolbar">
+        <span class="glyphicon glyphicon-option-horizontal"></span>
+      </button>
+    </div>
+    <div id="concise_tool_container" ng-style="style_concise_toolbar()"
+      ng-class="gui_mode == 'concise' ? 'concise_float_bottom_bar' : ''"
+      ng-show="gui_mode != 'concise' || lo.is_navbar_visible">
       <div class="btn-group" ng-class="gui_mode == 'concise' ? 'dropup' : ''" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MENU' | translate)}}" 
         dropdown is-open="w.is_menu_open" on-toggle="ontoggle(open)">
-        <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+        <button id="concise_tool_first" type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
           <span class="glyphicon glyphicon-menu-hamburger"></span><span ng-show="as.show_text" translate="ID_MENU"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
@@ -183,6 +189,13 @@
           </li>
         </ul>
       </div>
+      <span ng-if="gui_mode == 'concise'">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_HIDE_BAR' | translate)}}"
+          ng-click="onConciseHide()"><span class="glyphicon glyphicon-chevron-down"></span>
+          <span ng-show="as.show_text" translate="ID_HIDE_BAR"></span>
+        </button>
+      </span>
       <button type="button" class="btn btn-info" ng-show="w.show_check_show_area2 && gui_mode != 'concise'" 
         tooltip="{{as.no_tip || as.show_text ? '' : ((w.show_area2 ? 'ID_SHOW_ONE_AREA' : 'ID_SHOW_TWO_AREA') | translate)}}" 
         ng-model="w.show_area2" btn-checkbox btn-checkbox-true="0" btn-checkbox-false="1">
@@ -351,13 +364,6 @@
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_VIDEO_WINDOW' | translate)}}">
           <span class="glyphicon glyphicon-film"></span>
           <span ng-show="as.show_text" translate="ID_VIDEO_WINDOW"></span>
-        </button>
-      </span>
-      <span ng-if="gui_mode == 'concise'">
-        <button type="button" class="btn btn-default"
-          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_HIDE_BAR' | translate)}}"
-          ng-click="onConciseHide()"><span class="glyphicon glyphicon-chevron-down"></span>
-          <span ng-show="as.show_text" translate="ID_HIDE_BAR"></span>
         </button>
       </span>
       <span ng-if="gui_mode == 'concise'" ng-controller="LangCtrl">
@@ -1563,6 +1569,46 @@
     </div>
   </div>
 
-  <script src="dep.min.js?random=0"></script>
-  <script src="hmtgs.min.js?random=0"></script>
+  <script src="dep/angular.js"></script>
+  <script src="dep/ocLazyLoad.js"></script>
+  <script src="dep/angular-translate.js"></script>
+  <script src="dep/angular-translate-loader-static-files.js"></script>
+  <script src="dep/ui-bootstrap-tpls-0.12.0.js"></script>
+  <script src="dep/adapter.js"></script>
+  <script src="dep/mediasoup-client.js"></script>
+  <script src="dep/protoo-client.js"></script>
+  <script src="dep/hmtg.min.js"></script>
+  <script src="joinnet/joinnet.js"></script>
+  <script src="joinnet/userlist.js"></script>
+  <script src="joinnet/chat.js"></script>
+  <script src="joinnet/board.js"></script>
+  <script src="joinnet/browser.js"></script>
+  <script src="joinnet/dt.js"></script>
+  <script src="joinnet/playback.js"></script>
+  <script src="joinnet/jhelper.js"></script>
+  <script src="joinnet/audio_playback.js"></script>
+  <script src="joinnet/audio_capture.js"></script>
+  <script src="joinnet/media_control.js"></script>
+  <script src="joinnet/audio_codec.js"></script>
+  <script src="joinnet/advanced.js"></script>
+  <script src="joinnet/video_playback.js"></script>
+  <script src="joinnet/video_capture.js"></script>
+  <script src="joinnet/video_codec.js"></script>
+  <script src="joinnet/reconnect_name.js"></script>
+  <script src="joinnet/mypicture.js"></script>
+  <script src="joinnet/mediasoup_webrtc.js"></script>
+  <script src="msgr/msgr.js"></script>
+  <script src="msgr/jnagentDlg.js"></script>
+  <script src="msgr/imDlg.js"></script>
+  <script src="msgr/checkIM.js"></script>
+  <script src="msgr/checkMessage.js"></script>
+  <script src="msgr/icon.js"></script>
+  <script src="msgr/mhelper.js"></script>
+  <script src="msgr/missedCall.js"></script>
+  <script src="app/version.js"></script>
+  <script src="app/app.js"></script>
+  <script src="app/ahelper.js"></script>
+  <script src="app/alert.js"></script>
+  <script src="app/sound.js"></script>
+  <script src="app/translation-en.js"></script>
 </body>

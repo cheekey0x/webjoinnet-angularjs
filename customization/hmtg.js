@@ -26,10 +26,10 @@
     customization.show_native_app = false;
 
     // whether to use concise layout for visiting guests
-    customization.use_concise_layout_for_guest = false;
+    customization.use_concise_layout_for_guest = true;
 
     // whether to use concise layout for mobile users
-    customization.use_concise_layout_for_mobile = false;
+    customization.use_concise_layout_for_mobile = true;
 
     // whether to support joint browsing
     customization.support_joint_browsing = false;

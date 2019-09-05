@@ -227,7 +227,7 @@ a.msgr-inline
 {
   position:absolute;
   background:transparent;
-  z-index: 8888;
+  z-index: 10;
   left:0px;
   top:0px;
   opacity:0.5;
@@ -821,20 +821,29 @@ a.emoticon
 }
 
 .concise_float_bottom_left {
-  position:absolute;
+  position:fixed;
   background:transparent;
-  z-index: 8888;
+  z-index: 10;
   left:0px;
   bottom:0px;
   opacity:0.5;
 }
 
-.concise_float_bottom_bar {
-  position:absolute;
+.concise_float_bottom_right {
+  position:fixed;
   background:transparent;
-  z-index: 9999;
+  z-index: 20;
+  right:0px;
+  bottom:35px;
+  opacity:0.5;
+}
+
+.concise_float_bottom_bar {
+  position:fixed;
+  background:transparent;
+  z-index: 10;
   left:0px;
-  bottom:0px;
+  bottom:-200px;
 }
 
 .simple_border {
