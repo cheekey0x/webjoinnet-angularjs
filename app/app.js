@@ -643,7 +643,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_webrtc_bandwidth_profile']);
     this.webrtc_bandwidth_profile = parsed === 'undefined' ? (hmtgHelper.isMobile ? 'low' : 'high') : parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_board_hide_toolbar']);
-    this.board_hide_toolbar = parsed === 'undefined' ? false : !!parsed;
+    this.board_hide_toolbar = parsed === 'undefined' ? ($rootScope.gui_mode = 'concise' ? true : false) : !!parsed;
   }
 ])
 

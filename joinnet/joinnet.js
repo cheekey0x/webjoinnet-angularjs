@@ -1358,6 +1358,28 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
     }
 
+    $scope.style_nav_bar_menu = function() {
+      if($rootScope.gui_mode == 'concise') {
+        var base = 40;
+        var elem1 = document.getElementById('concise_tool_first');
+        var elem2 = document.getElementById('concise_tool_container');
+
+        if(elem1 && elem2) {
+          if($scope.show_concise_full_toolbar) {
+            base = elem2.offsetHeight;
+          } else {
+            base = elem1.offsetHeight;
+          }
+        }
+        return {
+          'overflow-y': 'auto',
+          'max-height': '' + Math.max(50, hmtgHelper.view_port_height - base) + 'px'
+        };
+      } else {
+        return;
+      }
+    }
+
     $scope.is_video_container_visible = function() {
       if($rootScope.gui_mode == 'concise') {
         return layout.is_video_visible || layout.is_gallery_visible;
@@ -1401,6 +1423,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       layout.is_gallery_visible = false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
+      update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
     }
 
     $scope.onConciseUserList = function() {
@@ -1408,6 +1431,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(layout.is_userlist_visible) {
         layout.is_board_visible = false;
         layout.is_gallery_visible = false;
+        update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
       }
       layout.is_textchat_visible = false;
       layout.is_video_visible = false;
@@ -1418,6 +1442,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(layout.is_textchat_visible) {
         layout.is_board_visible = false;
         layout.is_gallery_visible = false;
+        update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
       }
       layout.is_userlist_visible = false;
       layout.is_video_visible = false;
@@ -1447,7 +1472,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
         // change display size from 100 to gallery value
         video_recving.display_size = hmtgHelper.calcGalleryDisplaySize(video_recving.ssrc_array.length);
       }
+      update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
     }
+
+    $scope.$on(hmtgHelper.WM_CONCISE_TAB_CHANGED, function() {
+      update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+    });
 
     //hmtgSound.refresh_device_list();
 
@@ -1608,6 +1638,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       else if(newValue == 'browser') mode = 1;
       else if(newValue == 'sdt') mode = 2;
       else if(newValue == 'rdc') mode = 3;
+      else if(newValue == 'userlist') mode = 4;
       if(mode != -1 && mode != last_mode) {
         last_mode = mode;
         if(update_tab_mode_timer) clearTimeout(update_tab_mode_timer);
@@ -1791,6 +1822,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           layout.is_gallery_visible = false;
           layout.is_userlist_visible = false;
           layout.is_video_visible = false;
+          update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
         }
       }
       if(!hmtgHelper.inside_angular) $scope.$digest();
@@ -1827,13 +1859,23 @@ angular.module('joinnet', ['pascalprecht.translate'])
         case 3:
           target_area = 'rdc';
           break;
+        case 4:
+          target_area = 'userlist';
+          break;
         default:
           return;
+      }
+      if(!JoinNet.net_init_finished && $rootScope.gui_mode == 'concise') {
+        // for concise mode, ignore the first mode update, which is white board or joint browsing, which is configured in configm.ini
+        return;
       }
       if(!$scope.is_area_visible(target_area)) {
         if(!appSetting.auto_follow_tab) {
           // no follow tab prompt in concise layout
-          if($rootScope.gui_mode == 'concise' && target_area != 'white_board') return;
+          if($rootScope.gui_mode == 'concise'
+            && target_area != 'white_board'
+            && target_area != 'userlist'
+          ) return;
 
           var item = {};
           item['timeout'] = 5;
@@ -1891,14 +1933,25 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if($rootScope.nav_item == 'joinnet') {
         hmtgHelper.exitFullScreen();
       }
-      if($rootScope.gui_mode == 'concise' && target == 'white_board') {
-        if(!layout.is_board_visible) {
-          layout.is_board_visible = true;
-          layout.is_video_visible = true; // when switching to board from other mode, turn on video automatically
-          layout.set_fixed_video_display_size();
-          layout.is_gallery_visible = false;
-          layout.is_userlist_visible = false;
-          layout.is_textchat_visible = false;
+      if($rootScope.gui_mode == 'concise') {
+        if(target == 'white_board') {
+          if(!layout.is_board_visible) {
+            layout.is_board_visible = true;
+            if(!hmtgHelper.isMobile) {
+              layout.is_video_visible = true; // when switching to board from other mode, turn on video automatically
+              layout.set_fixed_video_display_size();
+            } else {
+              layout.is_video_visible = false;
+            }
+            layout.is_gallery_visible = false;
+            layout.is_userlist_visible = false;
+            layout.is_textchat_visible = false;
+          }
+        }
+        else if(target == 'userlist') {
+          if(layout.is_board_visible) {
+            layout.is_board_visible = false;
+          }
         }
       }
       if($scope.w.show_check_show_area2 && $scope.w.show_area2) {

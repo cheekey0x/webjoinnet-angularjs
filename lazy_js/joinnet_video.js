@@ -28,6 +28,7 @@ angular.module('joinnet')
         video_recving.main_video_ssrc = ssrc;
         if($rootScope.gui_mode == 'concise') {
           layout.is_board_visible = false;
+          $rootScope.$broadcast(hmtgHelper.WM_CONCISE_TAB_CHANGED);
         }
       }
     }
