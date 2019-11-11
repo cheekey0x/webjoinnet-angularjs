@@ -59,7 +59,8 @@
 
 <body ng-app="hmtgs" onload="onLoad()">
   <!-- ==== navigation bar -->
-  <nav class="navbar navbar-default" role="navigation" ng-class="{'im-has-msg' : has_msg() || has_missed_call()}" ng-show="!(nav_item == 'joinnet' && gui_mode == 'concise')" ng-cloak>
+  <nav class="navbar navbar-default" role="navigation" ng-class="{'im-has-msg' : has_msg() || has_missed_call()}" 
+    ng-show="!(nav_item == 'joinnet' && gui_mode == 'concise')" ng-cloak>
     <div class="container-fluid" ng-cloak>
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="navbar-header">
@@ -165,8 +166,22 @@
 
   <!-- ==== joinnet -->
   <div ng-class="container_fluid()" ng-show="nav_item=='joinnet'" ng-controller="JoinnetCtrl" ng-cloak>
-    <div ng-show="gui_mode == 'concise' && !lo.is_navbar_visible">
-      <button type="button" class="btn btn-default concise_float_bottom_left" ng-click="onConciseShow()">
+    <div ng-show="gui_mode == 'concise' && !lo.is_navbar_visible" class="concise_float_bottom_left">
+      <span>
+        <p class="navbar-brand" ng-controller="DurationCtrl">
+          <span class="badge" ng-show="can_show_badge()">
+            <span ng-show="can_show_mode(0)" class="glyphicon glyphicon-user" tooltip-placement="right" 
+              tooltip="{{'ID_MEETNG_MODE' | translate}}"></span>
+            <span ng-show="can_show_mode(1)" class="glyphicon glyphicon-play" tooltip-placement="right" 
+              tooltip="{{'ID_PLAYBACK_MODE' | translate}}"></span>
+            <span ng-show="can_show_duration()" tooltip-placement="top" 
+              tooltip="{{'ID_DURATION' | translate}}">{{duration_str()}}</span>
+            <span ng-show="can_show_tick_str()" tooltip-placement="top" 
+              tooltip="{{'ID_TIME_POS' | translate}}">{{playback_tick_str()}}</span>
+          </span>
+        </p>
+      </span>
+      <button type="button" class="btn btn-default" ng-click="onConciseShow()">
         <span class="glyphicon glyphicon-menu-hamburger"></span>
       </button>
     </div>
@@ -214,7 +229,7 @@
         </select>
       </span>
       <span class="text-warning" ng-show="jn.jnr_decryption">{{jn.jnr_decryption_text}}</span>
-      <span ng-show="gui_mode != 'concise' && can_show_playback_button()">
+      <span ng-show="can_show_playback_button()">
         <span ng-include="partialPlayback"></span>
       </span>
       <span ng-controller="JoinNetVideoCtrl">
@@ -299,13 +314,13 @@
         <span translate="ID_CANCEL_MY_QUESTION"></span></button>
       <span class="user-questioner" ng-show="gui_mode != 'concise' && jn.is_questioner" tooltip-placement="bottom" 
         tooltip="{{as.no_tip ? '' : ('ID_QUESTIONER_TIP' | translate)}}">[{{'ID_LEGEND_QUESTIONER' | translate}}]</span>
-      <span class="text-danger" ng-show="gui_mode != 'concise' && jn.recordinggui_mode != 'concise' && _status == 0" translate="ID_NO_RECORDING"></span>
-      <span class="text-warning" ng-show="gui_mode != 'concise' &&jn.recordgui_mode != 'concise' && ing_status == 2" translate="ID_RECORDING_PAUSED"></span>
-      <span class="text-warning" ng-show="gui_mode != 'concise' &&jn.archive_status" translate="ID_RECORDING_ARCHIVED"></span>
-      <span class="text-success" ng-show="gui_mode != 'concise' &&jn.has_jnr_password" translate="ID_HAS_JNR_PASSWORD"></span>
+      <span class="text-danger" ng-show="gui_mode != 'concise' && jn.recording_status == 0" translate="ID_NO_RECORDING"></span>
+      <span class="text-warning" ng-show="gui_mode != 'concise' && jn.recording_status == 2" translate="ID_RECORDING_PAUSED"></span>
+      <span class="text-warning" ng-show="gui_mode != 'concise' && jn.archive_status" translate="ID_RECORDING_ARCHIVED"></span>
+      <span class="text-success" ng-show="gui_mode != 'concise' && jn.has_jnr_password" translate="ID_HAS_JNR_PASSWORD"></span>
       <span ng-if="ul.is_meeting_mode && gui_mode == 'concise'">
         <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[v2.is_send_video]" 
-          ng-click="toggle_video_sending()" 
+          ng-click="turn_on_auto_hide_navbar_timer();toggle_video_sending()" 
           tooltip-placement="top"
           tooltip="{{as.no_tip || as.show_text ? '' : ((v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate)}}">
           <span class="glyphicon glyphicon-upload"></span>
@@ -314,7 +329,7 @@
       </span>
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
-          ng-click="toggle_video_recving()" 
+          ng-click="turn_on_auto_hide_navbar_timer();toggle_video_recving()" 
           tooltip-placement="top" 
           tooltip="{{as.no_tip || as.show_text ? '' : ((vr.is_recv_video ? 'ID_STOP_VIDEO_RECVING' : 'ID_START_VIDEO_RECVING') | translate)}}">
           <span class="glyphicon glyphicon-download"></span>
@@ -324,7 +339,7 @@
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
           ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_gallery_visible]"
-          ng-click="onConciseGallery()"
+          ng-click="turn_on_auto_hide_navbar_timer();onConciseGallery()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_VIDEO_GALLERY' | translate)}}">
           <span class="glyphicon glyphicon-th"></span>
           <span ng-show="as.show_text" translate="ID_VIDEO_GALLERY"></span>
@@ -333,7 +348,7 @@
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
           ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_board_visible]"
-          ng-click="onConciseBoard()"
+          ng-click="turn_on_auto_hide_navbar_timer();onConciseBoard()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_WHITE_BOARD' | translate)}}">
           <span class="glyphicon glyphicon-blackboard"></span>
           <span ng-show="as.show_text" translate="ID_WHITE_BOARD"></span>
@@ -342,7 +357,7 @@
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
           ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_userlist_visible]" 
-          ng-click="onConciseUserList()"
+          ng-click="turn_on_auto_hide_navbar_timer();onConciseUserList()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_USER_RECORD' | translate)}}">
           <span class="glyphicon glyphicon-user"></span>
           <span ng-show="as.show_text" translate="ID_USER_RECORD"></span>
@@ -351,7 +366,7 @@
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
           ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_textchat_visible]"
-          ng-click="onConciseTextChat()"
+          ng-click="turn_on_auto_hide_navbar_timer();onConciseTextChat()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TEXT_CHAT' | translate)}}">
           <span class="glyphicon glyphicon-pencil"></span>
           <span ng-show="as.show_text" translate="ID_TEXT_CHAT"></span>
@@ -360,7 +375,7 @@
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
           ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_video_visible]"
-          ng-click="onConciseVideo()"
+          ng-click="turn_on_auto_hide_navbar_timer();onConciseVideo()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_VIDEO_WINDOW' | translate)}}">
           <span class="glyphicon glyphicon-film"></span>
           <span ng-show="as.show_text" translate="ID_VIDEO_WINDOW"></span>
@@ -603,8 +618,8 @@
       <div id="board_container" class="auto-overflow fullscreen" ng-class="col_area('white_board')" 
         ng-show="is_area_visible('white_board')">
       <div ng-controller="BoardCtrl">
-        <div ng-if="!as.board_hide_toolbar">
-        <span ng-if="!as.board_hide_toolbar">
+        <div ng-show="!as.board_hide_toolbar">
+        <span ng-show="!as.board_hide_toolbar">
           <button type="button" class="btn btn-default" tooltip-placement="right" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_TOOLBAR' | translate)}}" 
             ng-click="toggle_toolbar()"><span class="glyphicon glyphicon-option-horizontal"></span>
@@ -649,45 +664,45 @@
         <span ng-show="w.show_prev_slide">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PREV_SLIDE' | translate)}}" 
-            ng-click="w.prev_slide()"><span class="glyphicon glyphicon-arrow-left"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.prev_slide()"><span class="glyphicon glyphicon-arrow-left"></span>
             <span ng-show="as.show_text" translate="ID_PREV_SLIDE"></span></button>
         </span>
         <span ng-show="w.show_next_slide">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_NEXT_SLIDE' | translate)}}" 
-            ng-click="w.next_slide()"><span class="glyphicon glyphicon-arrow-right"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.next_slide()"><span class="glyphicon glyphicon-arrow-right"></span>
             <span ng-show="as.show_text" translate="ID_NEXT_SLIDE"></span></button>
         </span>
         <span ng-show="w.show_prev_group">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PREV_GROUP' | translate)}}" 
-            ng-click="w.prev_group()"><span class="glyphicon glyphicon-backward"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.prev_group()"><span class="glyphicon glyphicon-backward"></span>
             <span ng-show="as.show_text" translate="ID_PREV_GROUP"></span></button>
         </span>
         <span ng-show="w.show_next_group">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_NEXT_GROUP' | translate)}}" 
-            ng-click="w.next_group()"><span class="glyphicon glyphicon-forward"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.next_group()"><span class="glyphicon glyphicon-forward"></span>
             <span ng-show="as.show_text" translate="ID_NEXT_GROUP"></span></button>
         </span>
         <span ng-show="w.can_upload()">
           <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_BLANKPAGE' | translate)}}" 
-            ng-click="w.upload1()"> <span class="glyphicon glyphicon-unchecked"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.upload1()"> <span class="glyphicon glyphicon-unchecked"></span> 
             <span ng-show="as.show_text" translate="ID_UPLOAD_BLANKPAGE"></span></button></span>
           <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_SLIDE' | translate)}}" 
-            ng-click="w.upload2()"> <span class="glyphicon glyphicon-list-alt"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.upload2()"> <span class="glyphicon glyphicon-list-alt"></span> 
             <span ng-show="as.show_text" translate="ID_UPLOAD_SLIDE"></span></button></span>
           <span><button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_FILE' | translate)}}" 
-            ng-click="w.upload3()"> <span class="glyphicon glyphicon-floppy-open"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.upload3()"> <span class="glyphicon glyphicon-floppy-open"></span> 
             <span ng-show="as.show_text" translate="ID_UPLOAD_FILE"></span></button></span>
         </span>
         <span ng-show="w.can_delete()">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DELETE' | translate)}}" 
-            ng-click="w.delete_slide()"><span class="glyphicon glyphicon-remove"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.delete_slide()"><span class="glyphicon glyphicon-remove"></span>
             <span ng-show="as.show_text" translate="ID_DELETE"></span></button>
         </span>
         <span style="display: none;"><input id="fileInput" type="file"/></span>
@@ -695,50 +710,50 @@
         <span ng-show="w.can_clear_mark()">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CLEAR_MARK' | translate)}}" 
-            ng-click="w.clear_mark()"><span class="glyphicon glyphicon-erase"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.clear_mark()"><span class="glyphicon glyphicon-erase"></span>
             <span ng-show="as.show_text" translate="ID_CLEAR_MARK"></span></button>
         </span>
         <span ng-show="w.can_undo_mark()">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UNDO_MARK' | translate)}}" 
-            ng-click="w.undo_mark()"><span class="glyphicon glyphicon-menu-left"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();w.undo_mark()"><span class="glyphicon glyphicon-menu-left"></span>
             <span ng-show="as.show_text" translate="ID_UNDO_MARK"></span></button>
         </span>
         <span ng-show="w.show_save0">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_SLIDE0' | translate)}}" 
-            ng-click="w.save0()"> <span class="glyphicon glyphicon-floppy-save"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.save0()"> <span class="glyphicon glyphicon-floppy-save"></span> 
             <span ng-show="as.show_text" translate="ID_SAVE_SLIDE0"></span></button>
         </span>
         <span ng-show="w.show_save">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_SLIDE' | translate)}}" 
-            ng-click="w.save()"> <span class="glyphicon glyphicon-save"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.save()"> <span class="glyphicon glyphicon-save"></span> 
             <span ng-show="as.show_text" translate="ID_SAVE_SLIDE"></span></button>
         </span>
         <span ng-show="1 && w.show_refresh">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_REDOWNLOAD' | translate)}}" 
-            ng-click="w.refresh()"> <span class="glyphicon glyphicon-refresh"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.refresh()"> <span class="glyphicon glyphicon-refresh"></span> 
             <span ng-show="as.show_text" translate="ID_REDOWNLOAD"></span></button>
         </span>
         <span ng-if="w.support_sync_mode && !w.is_private">
           <span ng-show="!w.can_force_sync() && w.is_sync">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" 
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_DONOT_SYNC' | translate)}}" 
-              ng-click="w.toggle_sync_mode()"><span class="glyphicon glyphicon-eye-close"></span>
+              ng-click="turn_on_auto_hide_toolbar_timer();w.toggle_sync_mode()"><span class="glyphicon glyphicon-eye-close"></span>
               <span ng-show="as.show_text" translate="ID_DONOT_SYNC"></span></button>
           </span>
           <span ng-show="!w.can_force_sync() && !w.is_sync">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" 
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_ALLOW_SYNC' | translate)}}" 
-              ng-click="w.toggle_sync_mode()"><span class="glyphicon glyphicon-eye-open"></span>
+              ng-click="turn_on_auto_hide_toolbar_timer();w.toggle_sync_mode()"><span class="glyphicon glyphicon-eye-open"></span>
               <span ng-show="as.show_text" translate="ID_ALLOW_SYNC"></span></button>
           </span>
           <span ng-show="w.can_force_sync()">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" 
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FORCE_SYNC' | translate)}}" 
-              ng-click="w.force_sync()"><span class="glyphicon glyphicon-bullhorn"></span>
+              ng-click="turn_on_auto_hide_toolbar_timer();w.force_sync()"><span class="glyphicon glyphicon-bullhorn"></span>
               <span ng-show="as.show_text" translate="ID_FORCE_SYNC"></span></button>
           </span>
         </span>
@@ -751,7 +766,7 @@
         <span>
           <div class="btn-group" dropdown is-open="w.is_fit_menu_open" on-toggle="fit_ontoggle(open)">
             <button type="button" class="btn" ng-class="{true: (w.is_auto_fit ? 'btn-primary' : 'btn-success'), false: 'btn-muted'}[w.is_fit_page]" 
-              ng-click="w.fit_page()" tooltip-placement="bottom" 
+              ng-click="turn_on_auto_hide_toolbar_timer();w.fit_page()" tooltip-placement="bottom" 
               tooltip="{{as.no_tip ? '' : (('ID_TOGGLE_FIT_WINDOW' | translate) + w.ratio_percent + '%')}}">
               <span class="glyphicon glyphicon-resize-horizontal"></span>
               <span ng-show="as.show_text" translate="ID_AUTO_FIT"></span></button>
@@ -767,19 +782,19 @@
         </span>
         <span ng-show="w.request_fullscreen && !w.is_fullscreen">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}" 
-            ng-click="w.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.fullscreen1()"> <span class="glyphicon glyphicon-resize-full"></span> 
             <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
         </span>
         <span ng-show="w.request_fullscreen && w.is_fullscreen">
           <button type="button" class="btn btn-default" tooltip-placement="bottom" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN0' | translate)}}" 
-            ng-click="w.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
+            ng-click="turn_on_auto_hide_toolbar_timer();w.fullscreen0()"> <span class="glyphicon glyphicon-resize-small"></span> 
             <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span></button>
         </span>
         <span ng-show="w.show_upload_progress">
           <div class="inline-block">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" 
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_UPLOAD' | translate)}}" 
-              ng-click="w.stop_upload()"> <span class="glyphicon glyphicon-stop"></span> 
+              ng-click="turn_on_auto_hide_toolbar_timer();w.stop_upload()"> <span class="glyphicon glyphicon-stop"></span> 
               <span ng-show="as.show_text" translate="ID_STOP_UPLOAD"></span></button>
             <span class="glyphicon glyphicon-upload" tooltip-placement="bottom" 
               tooltip="{{'ID_UPLOADING' | translate}}"></span> {{w.upload_pos}}
@@ -795,7 +810,7 @@
           <div class="inline-block">
             <button type="button" class="btn btn-default" tooltip-placement="bottom" 
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_STOP_DOWNLOAD' | translate)}}" 
-              ng-click="w.stop_download()"> <span class="glyphicon glyphicon-stop"></span> 
+              ng-click="turn_on_auto_hide_toolbar_timer();w.stop_download()"> <span class="glyphicon glyphicon-stop"></span> 
               <span ng-show="as.show_text" translate="ID_STOP_DOWNLOAD"></span></button>
             <span class="glyphicon glyphicon-download" tooltip-placement="bottom" 
               tooltip="{{'ID_DOWNLOADING' | translate}}"></span> {{w.download_pos}}
@@ -804,7 +819,7 @@
         <span>
           <button type="button" class="btn btn-default" tooltip-placement="bottom"
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MANAGE_MARK' | translate)}}" 
-            ng-click="manage_mark(true)"><span class="glyphicon glyphicon-folder-open"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();manage_mark(true)"><span class="glyphicon glyphicon-folder-open"></span>
             <span ng-show="as.show_text" translate="ID_MANAGE_MARK"></span></button>
         </span>
         <span ng-if="as.can_show_image_bar && w.shape=='image'" ng-show="can_show_board_bar()" ng-include="partialImageBar"></span>
@@ -820,15 +835,15 @@
                 tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FONT_LIST' | translate)}}" 
                 ng-model="as.text_font" ng-options="font for font in as.font_list"></select></span>
               <div class="inline-block" style="white-space: nowrap;">
-              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_TEXT_SYMBOL' | translate)}}" ng-click="w.showTextSample = !w.showTextSample">
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_TEXT_SYMBOL' | translate)}}" ng-click="turn_on_auto_hide_toolbar_timer();w.showTextSample = !w.showTextSample">
                 <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[w.showTextSample]" src="img/icon_textmark_symbol.png" alt=""/></a>
-              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_BOLD' | translate)}}" ng-click="w.bold_text()">
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_BOLD' | translate)}}" ng-click="turn_on_auto_hide_toolbar_timer();w.bold_text()">
                 <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.is_bold_text]" src="img/icon_textmark_bold.png" alt=""/></a>
-              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ITALIC' | translate)}}" ng-click="w.italic_text()">
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ITALIC' | translate)}}" ng-click="turn_on_auto_hide_toolbar_timer();w.italic_text()">
                 <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.is_italic_text]" src="img/icon_textmark_italic.png" alt=""/></a>
-              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ROTATE_LEFT' | translate)}}" ng-click="w.rotate_text(270)">
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ROTATE_LEFT' | translate)}}" ng-click="turn_on_auto_hide_toolbar_timer();w.rotate_text(270)">
                 <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.text_rotate == 270]" src="img/icon_textmark_left.png" alt=""/></a>
-              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ROTATE_RIGHT' | translate)}}" ng-click="w.rotate_text(90)">
+              <a class="msgr-pointer" tooltip="{{as.no_tip ? '' : ('ID_ROTATE_RIGHT' | translate)}}" ng-click="turn_on_auto_hide_toolbar_timer();w.rotate_text(90)">
                 <img class="textmark-img" ng-class="{true: 'btn-primary', false: 'btn-muted'}[as.text_rotate == 90]" src="img/icon_textmark_right.png" alt=""/></a>
               </div>
             </div>
@@ -838,7 +853,7 @@
           <unicode-panel></unicode-panel>
         </div>
         <div ng-if="w.shape=='select' && can_show_board_bar()">
-          <button type="button" class="btn btn-default" ng-click="hide_mark()" translate="ID_DELETE_SELECTED_MARK"></button>
+          <button type="button" class="btn btn-default" ng-click="turn_on_auto_hide_toolbar_timer();hide_mark()" translate="ID_DELETE_SELECTED_MARK"></button>
         </div>
         </div>
 
@@ -847,43 +862,43 @@
             <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && hh.view_port_height>=720" ng-show="can_show_board_bar()">
               <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='pointer']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_POINTER' | translate)}}" 
-                ng-click="set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='freehand']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_FREEHAND' | translate)}}" 
-                ng-click="set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='text']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_TEXT' | translate)}}" 
-                ng-click="set_shape('text')"> <span class="glyphicon glyphicon-font"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('text')"> <span class="glyphicon glyphicon-font"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='line']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_LINE' | translate)}}" 
-                ng-click="set_shape('line')"> <span class="glyphicon glyphicon-minus"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('line')"> <span class="glyphicon glyphicon-minus"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE' | translate)}}" 
-                ng-click="set_shape('rect')"> <span class="glyphicon glyphicon-unchecked"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('rect')"> <span class="glyphicon glyphicon-unchecked"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect2']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE_FILLED' | translate)}}" 
-                ng-click="set_shape('rect2')"> <span class="glyphicon glyphicon-stop"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('rect2')"> <span class="glyphicon glyphicon-stop"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE' | translate)}}" 
-                ng-click="set_shape('ellipse')"> <span class="glyphicon glyphicon-search"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('ellipse')"> <span class="glyphicon glyphicon-search"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse2']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE_FILLED' | translate)}}" 
-                ng-click="set_shape('ellipse2')"> <span class="glyphicon glyphicon-record"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('ellipse2')"> <span class="glyphicon glyphicon-record"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='highlight']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_HIGHLIGHT' | translate)}}" 
-                ng-click="set_shape('highlight')"> <span class="glyphicon glyphicon-tags"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('highlight')"> <span class="glyphicon glyphicon-tags"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='select']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SELECT' | translate)}}" 
-                ng-click="set_shape('select')"> <span class="glyphicon glyphicon-retweet"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('select')"> <span class="glyphicon glyphicon-retweet"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='image']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_IMAGE' | translate)}}" 
-                ng-click="set_shape('image')"> <span class="glyphicon glyphicon-picture"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('image')"> <span class="glyphicon glyphicon-picture"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='eraser']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ERASER' | translate)}}" 
-                ng-click="set_shape('eraser')"> <span class="glyphicon glyphicon-erase"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('eraser')"> <span class="glyphicon glyphicon-erase"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='scroll']" 
                 ng-show="hh.isMobile" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SCROLL' | translate)}}" 
-                ng-click="set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
               <input type='color' tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_COLOR_TOOLTIP' | translate)}}"
                 ng-show="as.has_type_color"
                 style="max-width: 43px;" ng-model="w.color" ng-show='as.has_type_color'/>
@@ -895,45 +910,45 @@
             <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
               <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='pointer']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_POINTER' | translate)}}" 
-                ng-click="set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('pointer')"> <span class="glyphicon glyphicon-hand-left"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='text']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_TEXT' | translate)}}" 
-                ng-click="set_shape('text')"> <span class="glyphicon glyphicon-font"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('text')"> <span class="glyphicon glyphicon-font"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE' | translate)}}" 
-                ng-click="set_shape('rect')"> <span class="glyphicon glyphicon-unchecked"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('rect')"> <span class="glyphicon glyphicon-unchecked"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE' | translate)}}" 
-                ng-click="set_shape('ellipse')"> <span class="glyphicon glyphicon-search"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('ellipse')"> <span class="glyphicon glyphicon-search"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='highlight']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_HIGHLIGHT' | translate)}}" 
-                ng-click="set_shape('highlight')"> <span class="glyphicon glyphicon-tags"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('highlight')"> <span class="glyphicon glyphicon-tags"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='image']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_IMAGE' | translate)}}" 
-                ng-click="set_shape('image')"> <span class="glyphicon glyphicon-picture"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('image')"> <span class="glyphicon glyphicon-picture"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='scroll']" 
                 ng-show="hh.isMobile" tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SCROLL' | translate)}}" 
-                ng-click="set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('scroll')"> <span class="glyphicon glyphicon-move"></span> </button>
             </div>
             <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && hh.view_port_height<720" ng-show="can_show_board_bar()">
               <button type="button" style="min-width:43px;" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='freehand']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_FREEHAND' | translate)}}" 
-                ng-click="set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('freehand')"> <span class="glyphicon glyphicon-pencil"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='line']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_LINE' | translate)}}" 
-                ng-click="set_shape('line')"> <span class="glyphicon glyphicon-minus"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('line')"> <span class="glyphicon glyphicon-minus"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='rect2']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_RECTANGLE_FILLED' | translate)}}" 
-                ng-click="set_shape('rect2')"> <span class="glyphicon glyphicon-stop"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('rect2')"> <span class="glyphicon glyphicon-stop"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='ellipse2']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ELLIPSE_FILLED' | translate)}}" 
-                ng-click="set_shape('ellipse2')"> <span class="glyphicon glyphicon-record"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('ellipse2')"> <span class="glyphicon glyphicon-record"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='select']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_SELECT' | translate)}}" 
-                ng-click="set_shape('select')"> <span class="glyphicon glyphicon-retweet"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('select')"> <span class="glyphicon glyphicon-retweet"></span> </button>
               <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-default'}[w.shape=='eraser']" 
                 tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_ERASER' | translate)}}" 
-                ng-click="set_shape('eraser')"> <span class="glyphicon glyphicon-erase"></span> </button>
+                ng-click="turn_on_auto_hide_toolbar_timer();set_shape('eraser')"> <span class="glyphicon glyphicon-erase"></span> </button>
               <input type='color' tooltip-placement="right" tooltip="{{as.no_tip ? '' : ('IDS_COLOR_TOOLTIP' | translate)}}"
                 ng-show="as.has_type_color"
                 style="max-width: 43px;" ng-model="w.color" ng-show='as.has_type_color'/>
@@ -953,7 +968,7 @@
             <div class="fix-cell btn-group-vertical" ng-if="!as.board_hide_toolbar && !as.has_type_color" 
               ng-show="can_show_board_bar()">
               <button type="button" ng-repeat="color in w.colors" class="btn btn-default" ng-style="style_color($index)" 
-                ng-click="choose_color($index)">{{text_color($index)}}</button>
+                ng-click="turn_on_auto_hide_toolbar_timer();choose_color($index)">{{text_color($index)}}</button>
             </div>
           </div>
         </div>
@@ -961,7 +976,7 @@
         <span ng-show="as.can_show_bottom_image_bar && w.shape=='image' && can_show_board_bar()">
           <button type="button" class="btn btn-default" tooltip-placement="top"
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MANAGE_MARK' | translate)}}" 
-            ng-click="manage_mark(true)"><span class="glyphicon glyphicon-folder-open"></span>
+            ng-click="turn_on_auto_hide_toolbar_timer();manage_mark(true)"><span class="glyphicon glyphicon-folder-open"></span>
             <span ng-show="as.show_text" translate="ID_MANAGE_MARK"></span></button>
         </span>
         <span id="bottom_bar" ng-if="as.can_show_bottom_image_bar && w.shape=='image'" ng-show="can_show_board_bar()" ng-include="partialImageBar"></span>

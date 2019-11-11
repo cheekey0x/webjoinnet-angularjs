@@ -7188,12 +7188,36 @@ angular.module('joinnet')
       }
     }
 
+    var auto_hide_toolbar_timerID = null;
+    function turn_off_auto_hide_toolbar_timer() {
+      if(auto_hide_toolbar_timerID) {
+        clearTimeout(auto_hide_toolbar_timerID);
+        auto_hide_toolbar_timerID = null;
+      }
+    }
+    $scope.turn_on_auto_hide_toolbar_timer = function() {
+      turn_off_auto_hide_toolbar_timer();
+      auto_hide_toolbar_timerID = setTimeout(function() {
+        auto_hide_toolbar_timerID = null;
+        if(!appSetting.board_hide_toolbar) {
+          $scope.toggle_toolbar();
+          $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
+        }
+      }, 15000);
+    }
+    // do this when the board ctrl is created
+    if(!appSetting.board_hide_toolbar) {
+      $scope.turn_on_auto_hide_toolbar_timer();
+    }
     $scope.toggle_toolbar = function() {
       appSetting.board_hide_toolbar = !appSetting.board_hide_toolbar;
       hmtg.util.localStorage['hmtg_board_hide_toolbar'] = JSON.stringify(appSetting.board_hide_toolbar);
       setTimeout(function() { 
         adjust_size();
       }, 0);
+      if(!appSetting.board_hide_toolbar) {
+        $scope.turn_on_auto_hide_toolbar_timer();
+      }
     }
 
     //$scope.$on(hmtgHelper.WM_UPDATE_LAYOUT_MODE, function() {
@@ -8250,8 +8274,10 @@ angular.module('joinnet')
 
       if(!open) {
         if(board.has_action_menu == 'note') board.has_action_menu = '';
+        $scope.turn_on_auto_hide_toolbar_timer();
         return;
       }
+      turn_off_auto_hide_toolbar_timer();
 
       board.has_action_menu = 'note';
       var menu = $scope.note_menu;
@@ -8314,8 +8340,10 @@ angular.module('joinnet')
 
       if(!open) {
         if(board.has_action_menu == 'fit') board.has_action_menu = '';
+        $scope.turn_on_auto_hide_toolbar_timer();
         return;
       }
+      turn_off_auto_hide_toolbar_timer();
 
       board.has_action_menu = 'fit';
       var menu = $scope.fit_menu;

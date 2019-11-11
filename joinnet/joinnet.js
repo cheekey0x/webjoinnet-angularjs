@@ -1251,24 +1251,24 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
     }
 
-    var audo_hide_navbar_timerID = null;
+    var auto_hide_navbar_timerID = null;
     function turn_off_auto_hide_navbar_timer() {
-      if(audo_hide_navbar_timerID) {
-        clearTimeout(audo_hide_navbar_timerID);
-        audo_hide_navbar_timerID = null;
+      if(auto_hide_navbar_timerID) {
+        clearTimeout(auto_hide_navbar_timerID);
+        auto_hide_navbar_timerID = null;
       }
     }
-    function turn_on_auto_hide_navbar_timer() {
+    $scope.turn_on_auto_hide_navbar_timer = function() {
       turn_off_auto_hide_navbar_timer();
-      audo_hide_navbar_timerID = setTimeout(function() {
-        audo_hide_navbar_timerID = null;
+      auto_hide_navbar_timerID = setTimeout(function() {
+        auto_hide_navbar_timerID = null;
         if($rootScope.gui_mode == 'concise') {
           if(layout.is_navbar_visible) {
             layout.is_navbar_visible = false;
             $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
           }
         }
-      }, 5000);
+      }, 15000);
     }
     var delayedShowupTimerID = null;
     var onMouseMove = function(e) {
@@ -1280,8 +1280,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
       // when in concise mode
       // if the navbar is visible and the auto hide timer is on
       // refresh the timer when the mouse is moving
-      if(audo_hide_navbar_timerID && layout.is_navbar_visible) {
-        turn_on_auto_hide_navbar_timer(); // refresh the auto hide timer
+      if(auto_hide_navbar_timerID && layout.is_navbar_visible) {
+        $scope.turn_on_auto_hide_navbar_timer(); // refresh the auto hide timer
         return;
       }
 
@@ -1300,7 +1300,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           delayedShowupTimerID = null;
           if($rootScope.gui_mode == 'concise' && !layout.is_navbar_visible) {
             layout.is_navbar_visible = true;
-            turn_on_auto_hide_navbar_timer();
+            $scope.turn_on_auto_hide_navbar_timer();
             $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
           }
         }, 100)
@@ -1395,10 +1395,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           $scope.$digest(); // force style_concise_toolbar()
         }, 100);
         layout.is_navbar_visible = true;
-
-        // if the navbar is turned on manually
-        // do not auto-hide it
-        turn_off_auto_hide_navbar_timer();
+        $scope.turn_on_auto_hide_navbar_timer();
       }
     }
 
@@ -2310,6 +2307,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       $scope.menu = [];
 
       if(open) {
+        turn_off_auto_hide_navbar_timer();
         if(hmtg.util.test_error & 1) {
           $scope.$digest();  // trigger an angular error
         }
@@ -2395,20 +2393,20 @@ angular.module('joinnet', ['pascalprecht.translate'])
           && hmtg.jnkernel._jn_bTokenOwner()) {
           menu.push({ "text": $translate.instant('ID_SET_JNR_PASSWORD'), "onclick": $scope.change_jnr_password });
         }
-        if($scope.can_disconnect()) {
+        if($rootScope.gui_mode != 'concise' && $scope.can_disconnect()) {
           menu.push({ "text": $translate.instant('ID_SIGNOUT'), "onclick": $scope.disconnect });
         }
-        if($scope.can_reconnect()) {
+        if($rootScope.gui_mode != 'concise' && $scope.can_reconnect()) {
           menu.push({ "text": $translate.instant('ID_RECONNECT'), "onclick": $scope.reconnect });
           menu.push({ "text": $translate.instant('ID_RESET'), "onclick": $scope.reset });
         }
-        if(appSetting.show_advanced_function && $scope.can_disconnect()) {
+        if($rootScope.gui_mode != 'concise' && appSetting.show_advanced_function && $scope.can_disconnect()) {
           menu.push({ "text": $translate.instant('ID_SIMULATE_DISCONNECT'), "onclick": $scope.simulate_disconnect });
           menu.push({ "text": $translate.instant('ID_SIMULATE_RECONNECT'), "onclick": $scope.simulate_reconnect_overwrite });
         }
 
         if(joinnetAudio.can_show_playback_control()) {
-          if(joinnetAudio.recording
+          if($rootScope.gui_mode != 'concise' && joinnetAudio.recording
             //&& !hmtg.jnkernel._jn_bConnected()
           ) {
             if(!joinnetAudio.is_record_loop) {
@@ -2423,7 +2421,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
             menu.push({ "text": $translate.instant('ID_STOP_SOUND_FILE'), "onclick": $scope.stop_sound_file });
           }
 
-          if(hmtg.jnkernel._jn_bConnected()) {
+          if($rootScope.gui_mode != 'concise' && hmtg.jnkernel._jn_bConnected()) {
             menu.push({ "text": $translate.instant('ID_RESET_AUDIO_PLAYBACK'), "onclick": $scope.reset_audio_playback });
           }
           menu.push({ "text": $translate.instant('ID_TOGGLE_CONCISE_LAYOUT'), "onclick": $scope.toggle_concise_mode });
@@ -2431,6 +2429,10 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
         if(!menu.length) {
           $scope.w.is_menu_open = 0;
+        }
+      } else {
+        if($rootScope.gui_mode == 'concise' && layout.is_navbar_visible) {
+          $scope.turn_on_auto_hide_navbar_timer();
         }
       }
     }
