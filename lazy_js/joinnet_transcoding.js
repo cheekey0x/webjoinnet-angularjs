@@ -138,6 +138,63 @@ angular.module('joinnet')
         $scope.elem2_html5.play();
         $scope.elem3_html5.play();
       }
+      var myinput = hmtgHelper.file_reset('fileInput');
+
+      myinput.addEventListener("change", handleFile, false);
+      if(window.navigator.msSaveOrOpenBlob) {
+        setTimeout(function() {
+          myinput.click();  // use timeout, otherwise, IE will complain error
+        }, 0);
+      } else {
+        // it is necessary to exempt error here
+        // when there is an active dropdown menu, a direct click will cause "$apply already in progress" error
+        window.g_exempted_error++;
+        myinput.click();
+        window.g_exempted_error--;
+      }
+
+      function handleFile() {
+        myinput.removeEventListener("change", handleFile, false);
+        var file = myinput.files[0];
+
+        if(!file) {
+          return;
+        }
+
+        //$modalInstance.close({ src: window.URL.createObjectURL(file), auto_play: $scope.w.auto_play, audio_only: $scope.w.audio_only });
+        var result = { src: window.URL.createObjectURL(file), auto_play: true, audio_only: false };
+        hmtgHelper.inside_angular++;
+        $rootScope.$broadcast(hmtgHelper.WM_SHOW_CONTROL_PANEL);
+        hmtgHelper.inside_angular--;
+        $scope.stop_transcoding();
+        $scope.elem1_html5.pause();
+        $scope.elem2_html5.pause();
+        $scope.elem3_html5.pause();
+        $scope.elem1_html5.removeAttribute('src');
+        $scope.elem2_html5.removeAttribute('src');
+        $scope.elem3_html5.removeAttribute('src');
+        $scope.elem1_html5.autoplay = $scope.elem2_html5.autoplay = $scope.elem3_html5.autoplay = result.auto_play ? true : false;
+        if(result.audio_only) {
+          $scope.elem3_html5.src = result.src;
+          $scope.w.crossorigin = true;
+          joinnetTranscoding.active_video = false;
+          mediasoupWebRTC.use_imported_as_video = false;
+          $scope.w.video_info = '';
+          $scope.w.video_error = false;
+          $scope.w.audio_only = true;
+        } else {
+          $scope.elem1_html5.src = result.src;
+          $scope.w.crossorigin = true;
+          joinnetTranscoding.active_video = true;
+          mediasoupWebRTC.use_imported_as_video = joinnetTranscoding.transcoding;
+          $scope.w.video_info = '';
+          $scope.w.video_error = false;
+          $scope.w.audio_only = false;
+        }
+        $scope.start_transcoding();
+      }
+
+      /*
       $ocLazyLoad.load({
         name: 'joinnet',
         files: ['lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/modal_import_media' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param]
@@ -186,6 +243,7 @@ angular.module('joinnet')
       }, function (e) {
         hmtg.util.log(-1, 'Warning! lazy_loading modal_import_media fails');
       });
+      */
     }
 
     $scope.elem1_html5.onloadeddata = function () {

@@ -2556,15 +2556,40 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.importHtml5 = function() {
       //joinnetTranscoding.import_html5_media('http://www.homemeeting.com/html5/tree.mp4', 80, 0, true, true); return;
+      var myinput = hmtgHelper.file_reset('fileInput');
 
-      if($scope.partialTranscoding) {
-        _import();
-        return;
+      myinput.addEventListener("change", handleFile, false);
+      if(window.navigator.msSaveOrOpenBlob) {
+        setTimeout(function() {
+          myinput.click();  // use timeout, otherwise, IE will complain error
+        }, 0);
+      } else {
+        // it is necessary to exempt error here
+        // when there is an active dropdown menu, a direct click will cause "$apply already in progress" error
+        window.g_exempted_error++;
+        myinput.click();
+        window.g_exempted_error--;
       }
-      $scope.lazyLoadTranscoding(_import);
 
-      function _import() {
-        $rootScope.$broadcast(hmtgHelper.WM_IMPORT_TRANSCODING);
+      function handleFile() {
+        myinput.removeEventListener("change", handleFile, false);
+        var file = myinput.files[0];
+
+        if(!file) {
+          return;
+        }
+
+        if($scope.partialTranscoding) {
+          _import();
+          return;
+        }
+        $scope.lazyLoadTranscoding(_import);
+
+        function _import() {
+          //$rootScope.$broadcast(hmtgHelper.WM_IMPORT_TRANSCODING);
+          $rootScope.$broadcast(hmtgHelper.WM_IMPORT_TRANSCODING, window.URL.createObjectURL(file), 100, 100, false, false);
+        }
+        //$modalInstance.close({ src: window.URL.createObjectURL(file), auto_play: $scope.w.auto_play, audio_only: $scope.w.audio_only });
       }
     }
 
