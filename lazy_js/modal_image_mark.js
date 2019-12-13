@@ -159,7 +159,7 @@ angular.module('joinnet')
       }
     }
 
-    this.open_mark = function () {
+    this.open_mark = function (orig_file) {
       if(_imageMark.adding) return;
 
       if(this.mark_size1 >= this.max_mark_data) {
@@ -167,24 +167,36 @@ angular.module('joinnet')
         return;
       }
 
-      _imageMark.file_input = hmtgHelper.file_reset('files', 'image/*');
+      var myfiles;
 
-      _imageMark.file_input.addEventListener("change", _open, false);
-      if(window.navigator.msSaveOrOpenBlob) {
-        setTimeout(function () {
-          _imageMark.file_input.click();  // use timeout, otherwise, IE will complain error
-        }, 0);
+      if(orig_file) {
+        myfiles = [orig_file];
+        myopen();
       } else {
-        // it is necessary to exempt error here
-        // when there is an active dropdown menu, a direct click will cause "$apply already in progress" error
-        window.g_exempted_error++;
-        _imageMark.file_input.click();
-        window.g_exempted_error--;
+
+        _imageMark.file_input = hmtgHelper.file_reset('files', 'image/*');
+
+        _imageMark.file_input.addEventListener("change", _open, false);
+        if(window.navigator.msSaveOrOpenBlob) {
+          setTimeout(function() {
+            _imageMark.file_input.click();  // use timeout, otherwise, IE will complain error
+          }, 0);
+        } else {
+          // it is necessary to exempt error here
+          // when there is an active dropdown menu, a direct click will cause "$apply already in progress" error
+          window.g_exempted_error++;
+          _imageMark.file_input.click();
+          window.g_exempted_error--;
+        }
       }
       function _open() {
         _imageMark.file_input.removeEventListener("change", _open, false);
+        myfiles = _imageMark.file_input.files;
+        myopen();
+      }
+      function myopen() {
         var i = 0;
-        var orig_total = _imageMark.file_input.files.length;
+        var orig_total = myfiles.length;
         if(orig_total == 0) return;
 
         if(orig_total != 1) {
@@ -200,7 +212,7 @@ angular.module('joinnet')
         read_file(i);
 
         function read_file(i) {
-          var file = _imageMark.file_input.files[i];
+          var file = myfiles[i];
           i++;
           if(!file || _imageMark.mark_size1 >= _imageMark.max_mark_data) {
             _imageMark.adding = false;
@@ -708,22 +720,22 @@ angular.module('joinnet')
       }
     }
 
-    if(!imageMark.mark_loaded) {
-      if(!imageMark.mark_loaded) {
-        if(!imageMark.is_mark_loading) {
-          hmtgHelper.inside_angular++;
-          imageMark.load_mark();
-          hmtgHelper.inside_angular--;
-        }
-      }
-      $scope.loading_intervalID = setInterval(function () {
-        $scope.$digest();
-        if(imageMark.mark_loaded) {
-          clearInterval($scope.loading_intervalID);
-          $scope.loading_intervalID = null;
-        }
-      }, 1000);
-    }
+    // if(!imageMark.mark_loaded) {
+    //   if(!imageMark.mark_loaded) {
+    //     if(!imageMark.is_mark_loading) {
+    //       hmtgHelper.inside_angular++;
+    //       imageMark.load_mark();
+    //       hmtgHelper.inside_angular--;
+    //     }
+    //   }
+    //   $scope.loading_intervalID = setInterval(function () {
+    //     $scope.$digest();
+    //     if(imageMark.mark_loaded) {
+    //       clearInterval($scope.loading_intervalID);
+    //       $scope.loading_intervalID = null;
+    //     }
+    //   }, 1000);
+    // }
 
     function stop_loading_interval() {
       if($scope.loading_intervalID) {
@@ -802,6 +814,19 @@ angular.module('joinnet')
       stop_loading_interval();
       $modalInstance.dismiss('cancel');
     };
+
+    // if file is passed from parent, open it and dismiss the dialog box immediately
+    if($scope.orig_file) {
+      // delete the old added marks
+      if(board.selected_mark) {
+        imageMark.delete_mark(board.selected_mark);
+      }
+
+      imageMark.open_mark($scope.orig_file);
+      setTimeout(function() {
+        $modalInstance.dismiss('cancel');
+      }, 0)
+    }
   }
 ])
 
@@ -829,22 +854,22 @@ angular.module('joinnet')
     }
     update_image_bar_item_size();
 
-    if(!imageMark.mark_loaded) {
-      if(!imageMark.mark_loaded) {
-        if(!imageMark.is_mark_loading) {
-          hmtgHelper.inside_angular++;
-          imageMark.load_mark();
-          hmtgHelper.inside_angular--;
-        }
-      }
-      $scope.loading_intervalID = setInterval(function () {
-        $scope.$digest();
-        if(imageMark.mark_loaded) {
-          clearInterval($scope.loading_intervalID);
-          $scope.loading_intervalID = null;
-        }
-      }, 1000);
-    }
+    // if(!imageMark.mark_loaded) {
+    //   if(!imageMark.mark_loaded) {
+    //     if(!imageMark.is_mark_loading) {
+    //       hmtgHelper.inside_angular++;
+    //       imageMark.load_mark();
+    //       hmtgHelper.inside_angular--;
+    //     }
+    //   }
+    //   $scope.loading_intervalID = setInterval(function () {
+    //     $scope.$digest();
+    //     if(imageMark.mark_loaded) {
+    //       clearInterval($scope.loading_intervalID);
+    //       $scope.loading_intervalID = null;
+    //     }
+    //   }, 1000);
+    // }
 
     function stop_loading_interval() {
       if($scope.loading_intervalID) {

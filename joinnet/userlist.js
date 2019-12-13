@@ -2818,8 +2818,9 @@ angular.module('joinnet')
 ])
 
 .controller('PollResultModalCtrl', ['$scope', '$modalInstance', '$modal', '$translate', '$rootScope', 'hmtgHelper', '$ocLazyLoad',
-  'appSetting',
-  function ($scope, $modalInstance, $modal, $translate, $rootScope, hmtgHelper, $ocLazyLoad, appSetting) {
+  'appSetting', 'board', 'hmtgSound',
+  function($scope, $modalInstance, $modal, $translate, $rootScope, hmtgHelper, $ocLazyLoad, appSetting,
+    board, hmtgSound) {
     $scope.w = {};
     $scope.as = appSetting;
     $scope.w.show_text = false;
@@ -2833,16 +2834,61 @@ angular.module('joinnet')
       }
     }
     $scope.toggle_text($scope.w.show_text);
-    $scope.snapshot = function () {
+    $scope.can_upload = function()
+    {
+      if(!board.can_upload()) return false;
+      if(!board.upload_finished) return false;
+      if(!board.is_local_slide && hmtg.jnkernel._jn_conversion_count()) return false;
+      return true;
+    }
+
+    $scope.upload = function () {
       if($rootScope.snapshot_busy) {
         return;
       }
       $ocLazyLoad.load('lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/_html2canvas' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param).then(function () {
         $rootScope.snapshot_busy = true;
-        html2canvas(document.getElementById('poll_result'), { onrendered: hmtgHelper.process_snapshot });
+        html2canvas(document.getElementById('poll_result'), { onrendered: mysnapshot });
       }, function (e) {
         hmtg.util.log(-1, 'Warning! lazy_loading _html2canvas fails');
       });
+    }
+
+    function mysnapshot(canvas) {
+      // hmtgHelper.process_snapshot(canvas);
+      $rootScope.snapshot_busy = false;
+      if(!$scope.can_upload()) return;
+
+      var c = canvas;
+      try {
+        if(c.toBlob) {
+          c.toBlob(function(blob) {
+            $scope.upload_file = blob;
+            upload_slide();
+          });
+        } else {
+          var url = c.toDataURL();
+          $scope.upload_file = hmtgHelper.url2blob(url);
+          upload_slide();
+        }
+      } catch(e) {
+        hmtgHelper.inside_angular++;
+        hmtgSound.ShowErrorPrompt(function() { return $translate.instant(e.code == 18 ? 'ID_ERROR_TAINTED_CANVAS' : 'ID_ERROR_EXPORT_CANVAS_DATA') }, 20);
+        hmtgHelper.inside_angular--;
+        return;
+      }
+      $modalInstance.dismiss();
+    }
+
+    function upload_slide() {
+      var name = $translate.instant('ID_SNAPSHOT') + hmtgHelper.snapshot_count + '.png';
+      hmtgHelper.snapshot_count++;
+      $scope.upload_file.name = name;
+
+      board.upload_finished = false;
+
+      board.upload_slide(2, '', name, $scope.upload_file);
+      $modalInstance.dismiss('cancel');
     }
 
     $scope.ok = function () {

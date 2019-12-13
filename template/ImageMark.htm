@@ -2,7 +2,7 @@
       <h3 class="modal-title">{{'ID_IMAGE_MARK' | translate}}</h3>
     </div>
     <div class="modal-body">
-      <span ng-show="!w.importing">
+      <span ng-show="0 && !w.importing">
         <button type="button" class="btn btn-default"
           tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_MARK' | translate)}}" 
           ng-click="import_mark()"><span class="glyphicon glyphicon-import"></span>
@@ -14,19 +14,19 @@
           ng-click="open()"><span class="glyphicon glyphicon-paste"></span>
           <span ng-show="as.show_text" translate="ID_FILE_MARK"></span></button>
       </span>
-      <div class="checkbox">
+      <div class="checkbox" ng-if="0">
         <label>
           <input type="checkbox" ng-model="as.can_show_image_bar"> <span translate="ID_SHOW_IMAGE_BAR"></span>
         </label>
       </div>
-      <div>
+      <div ng-if="0">
         <span>{{'ID_IMAGE_BAR_ITEM_SIZE' | translate}}</span>
           <select tooltip="{{as.no_tip ? '' : ('IDS_PENWIDTH_TOOLTIP' | translate)}}" 
             ng-model="as.image_bar_item_size" ng-init="isizes=[12,16,24,32];" 
             ng-options="isize for isize in isizes">
           </select>
       </div>
-      <div class="checkbox">
+      <div class="checkbox" ng-if="0">
         <label>
           <input type="checkbox" ng-model="as.can_show_bottom_image_bar"> <span translate="ID_SHOW_BOTTOM_IMAGE_BAR"></span>
         </label>
@@ -36,7 +36,7 @@
           <input type="checkbox" ng-model="as.use_png_mark"> <span translate="ID_USE_PNG_MARK"></span>
         </label>
       </div>
-      <div>
+      <div ng-if="0">
         <span>
           <div class="inline-block">
             <input type="range" class="vertical-middle" style="width: 153px;display: inline;" min="32" max="640" step="4" 
@@ -49,7 +49,7 @@
         <div class="form-group" ng-if="bd.selected_mark.size_descr">
           <label for="selected1">{{'ID_SELECTED_MARK' | translate}} [{{bd.selected_mark.datasize}}B]</label>
           <div id="selected1" class="vertical-top">
-            <div>
+            <div ng-if="0">
             <span><button type="button" class="btn btn-default" 
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SAVE_FILE' | translate)}}" ng-click="save()">
               <span class="glyphicon glyphicon-floppy-save"></span> 
@@ -100,8 +100,8 @@
       </form>
     </div>
     <div class="modal-footer">
-      <span ng-show="can_paste_mark" translate="ID_PASTE_MARK"></span>
-      <span ng-show="!w.importing">
+      <span ng-show="0 && can_paste_mark" translate="ID_PASTE_MARK"></span>
+      <span ng-show="0 && !w.importing">
         <button type="button" class="btn btn-default"
           tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_MARK' | translate)}}" 
           ng-click="import_mark()"><span class="glyphicon glyphicon-import"></span>

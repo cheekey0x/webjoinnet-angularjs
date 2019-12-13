@@ -36,8 +36,9 @@
         ng-show="!w.show_text"> <span class="glyphicon glyphicon-plus"></span> 
         <span ng-show="as.show_text" translate="ID_SHOW_NAME_LIST"></span></button></span>
       <span><button type="button" class="btn btn-default" 
-        tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" ng-click="snapshot()"> 
-        <span class="glyphicon glyphicon-picture"></span> 
+        tooltip="{{as.no_tip || as.show_text ? '' : ('ID_UPLOAD_WHITEBOARD' | translate)}}" ng-click="upload()"
+        ng-show="can_upload()"> 
+        <span class="glyphicon glyphicon-list-alt"></span> 
         <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span></button></span>
       <span><button type="button" class="btn btn-primary" ng-click="ok()" translate="ID_OK"></button></span>
     </div>

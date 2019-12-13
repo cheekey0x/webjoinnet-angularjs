@@ -254,6 +254,9 @@ angular.module('hmtgs')
 
         board.upload_finished = false;
 
+        board.upload_slide(2, '', name, $scope.upload_file);
+        $modalInstance.dismiss('cancel');
+        /*
         $ocLazyLoad.load({
           name: 'joinnet',
           files: ['lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/modal_upload_slide' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param]
@@ -276,6 +279,7 @@ angular.module('hmtgs')
         }, function (e) {
           hmtg.util.log(-1, 'Warning! lazy_loading modal_upload_slide fails');
         });
+        */
       }
     }
 
@@ -334,6 +338,10 @@ angular.module('hmtgs')
         }
         $scope.upload_file.name = name;
 
+        read_file(file);
+        $modalInstance.dismiss('cancel');
+
+        /*
         $ocLazyLoad.load({
           name: 'joinnet',
           files: ['lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/modal_upload_slide' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param]
@@ -361,6 +369,7 @@ angular.module('hmtgs')
         }, function (e) {
           hmtg.util.log(-1, 'Warning! lazy_loading modal_upload_slide fails');
         });
+        */
 
         function read_file(file) {
           var name = file.name.toLowerCase();

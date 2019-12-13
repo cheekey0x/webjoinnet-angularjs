@@ -722,20 +722,20 @@ angular.module('hmtgs')
           }
           try {
             // to avoid minor shifting at boundary, do not round the parameters
-            //var dst_x = Math.floor(dx + i * dWidth / cx);
-            //var dst_y = Math.floor(dy + j * dHeight / cy);
-            var dst_x = (dx + i * dWidth / cx);
-            var dst_y = (dy + j * dHeight / cy);
+            var dst_x = Math.floor(dx + i * dWidth / cx);
+            var dst_y = Math.floor(dy + j * dHeight / cy);
+            // var dst_x = (dx + i * dWidth / cx);
+            // var dst_y = (dy + j * dHeight / cy);
             if(typeof max_canvas_size === 'undefined' || (dst_x < max_canvas_size && dst_y < max_canvas_size)) {
               ctx.drawImage(img,
-                //Math.floor(sx + i * sWidth / cx), Math.floor(sy + j * sHeight / cy),
-                //Math.ceil(sWidth / cx), Math.ceil(sHeight / cy),
-                //dst_x, dst_y,
-                //Math.ceil(dWidth / cx), Math.ceil(dHeight / cy)
-                (sx + i * sWidth / cx), (sy + j * sHeight / cy),
-                (sWidth / cx), (sHeight / cy),
+                Math.floor(sx + i * sWidth / cx), Math.floor(sy + j * sHeight / cy),
+                Math.ceil(sWidth / cx), Math.ceil(sHeight / cy),
                 dst_x, dst_y,
-                (dWidth / cx), (dHeight / cy)
+                Math.ceil(dWidth / cx), Math.ceil(dHeight / cy)
+                // (sx + i * sWidth / cx), (sy + j * sHeight / cy),
+                // (sWidth / cx), (sHeight / cy),
+                // dst_x, dst_y,
+                // (dWidth / cx), (dHeight / cy)
                 );
             }
           } catch(e) {

@@ -13,11 +13,6 @@
           <span ng-show="as.show_text" translate="ID_UPLOAD_WHITEBOARD"></span></button></span>
         <span><button type="button" class="btn btn-default" ng-click="set_mypicture()" 
           ng-show="w.can_save" translate="ID_SET_MYPICTURE"></span></button></span>
-        <div>
-          <label for="filename">{{'ID_FILE_NAME' | translate}}</label>
-          <input type="text" class="form-control" id="filename" ng-model="w.filename">
-        </div>
-        {{w.descr}}
         <div class="checkbox" ng-show="w.can_crop">
           <label>
             <input type="checkbox" ng-model="w.cropping"> {{'ID_CROPPING' | translate}}
@@ -45,6 +40,10 @@
         </div>
         <div>
           <canvas id="snapshot" width="0"></canvas>
+        </div>
+        <div>
+          <label for="filename">{{'ID_FILE_NAME' | translate}}</label>
+          <input type="text" class="form-control" id="filename" ng-model="w.filename">
         </div>
       </form>
     </div>

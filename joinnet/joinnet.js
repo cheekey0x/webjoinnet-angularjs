@@ -87,7 +87,19 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     jnkernel['jn_callback_UpdateStatus_MessageBox'] = function(error_code) {
       hmtgAlert.update_status_item({});
-      hmtgHelper.MessageBox('(' + error_code + ') ' + $translate.instant(joinnetHelper.errorcode2id(error_code)), 0);
+      hmtgHelper.MessageBox('(' + error_code + ') ' + $translate.instant(joinnetHelper.errorcode2id(error_code)), 0,
+        (error_code == hmtg.config.JN_MEETING_OVER ? switch_to_msgr : dummy));
+      function switch_to_msgr()
+      {
+        if($rootScope.hmtg_show_msgr) {
+          $rootScope.nav_item = 'msgr';
+          $rootScope.tabs[0].active = true;
+        }
+      }
+      function dummy()
+      {
+
+      }
     }
 
     jnkernel['jn_callback_ErrorWrongVersion'] = function(error_code, majorversion, minorversion) {
@@ -287,11 +299,6 @@ angular.module('joinnet', ['pascalprecht.translate'])
         hmtg.util.log('stat, audio playback mute status is ' + (hmtgSound.playback_muted ? 'Muted' : 'Unmuted'));
         hmtg.util.log('stat, video sending status is ' + (video_bitrate.is_send_video ? 'ON' : 'OFF'));
         hmtg.util.log('stat, video recving status is ' + (video_recving.is_recv_video ? 'ON' : 'OFF'));
-      } else if($rootScope.gui_mode == 'concise') {
-        $rootScope.gui_mode = ''; // do not use concise layout for playback
-        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_LAYOUT_MODE);
-        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
-        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
       }
       _JoinNet.is_owner = hmtg.jnkernel._jn_ssrc_index() == 0;
       //hmtg.util.log(-2, '******debug, net init finish');
@@ -1231,7 +1238,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.vr = video_recving;
 
     // concise layout related code
-    $scope.show_concise_full_toolbar = false;
+    $scope.show_concise_full_toolbar = true;
     $scope.toggle_concise_mode = function() {
       $rootScope.gui_mode = $rootScope.gui_mode == 'concise' ? '' : 'concise';
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_LAYOUT_MODE);
@@ -1390,7 +1397,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.onConciseShow = function() {
       if(!layout.is_navbar_visible) {
-        $scope.show_concise_full_toolbar = false;
+        $scope.show_concise_full_toolbar = true;
         setTimeout(function() { 
           $scope.$digest(); // force style_concise_toolbar()
         }, 100);
@@ -2159,6 +2166,13 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(appSetting.remote_monitor_mode) {
         update_area_name();
       }
+
+      if($rootScope.gui_mode == 'concise') {
+        if($rootScope.hmtg_show_msgr) {
+          $rootScope.nav_item = 'msgr';
+          $rootScope.tabs[0].active = true;
+        }
+      }
     }
 
     $scope.can_show_playback_button = function() {
@@ -2355,8 +2369,11 @@ angular.module('joinnet', ['pascalprecht.translate'])
             }
           }
         }
-        if(joinnetTranscoding.can_show_transcoding_control()) {
+        if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL && joinnetTranscoding.can_show_transcoding_control()) {
           menu.push({ "text": $translate.instant('ID_IMPORT_HTML5'), "onclick": $scope.importHtml5 });
+        }
+        if(joinnetTranscoding.transcoding) {
+          menu.push({ "text": $translate.instant('ID_STOP_IMPORTING'), "onclick": $scope.stopImporting });
         }
         /*
         // need audio element to use setSindId
@@ -2416,7 +2433,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
             }
           }
           if(!$scope.playing) {
-            menu.push({ "text": $translate.instant('ID_PLAY_SOUND_FILE'), "onclick": $scope.play_sound_file });
+            if($rootScope.gui_mode != 'concise') {
+              menu.push({ "text": $translate.instant('ID_PLAY_SOUND_FILE'), "onclick": $scope.play_sound_file });
+            }
           } else if($scope.src) {
             menu.push({ "text": $translate.instant('ID_STOP_SOUND_FILE'), "onclick": $scope.stop_sound_file });
           }
@@ -2591,6 +2610,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
         }
         //$modalInstance.close({ src: window.URL.createObjectURL(file), auto_play: $scope.w.auto_play, audio_only: $scope.w.audio_only });
       }
+    }
+
+    $scope.stopImporting = function() {
+      hmtgHelper.inside_angular++;
+      joinnetTranscoding.reset_html5_media();
+      hmtgHelper.inside_angular--;
     }
 
     $scope.$on(hmtgHelper.WM_IMPORT_TRANSCODING, function(event, src, audio_broadcast_volume, audio_local_volume, audio_only, loop) {
@@ -2782,20 +2807,20 @@ angular.module('joinnet', ['pascalprecht.translate'])
   }
 ])
 
-  .service('layout', ['$rootScope', 'video_recving',
-    function($rootScope, video_recving) {
-      var _layout = this;
-      this.is_navbar_visible = false;
-      this.is_board_visible = false;
-      this.is_userlist_visible = false;
-      this.is_textchat_visible = false;
-      this.is_video_visible = false;
-      this.is_gallery_visible = false;
+.service('layout', ['$rootScope', 'video_recving',
+  function($rootScope, video_recving) {
+    var _layout = this;
+    this.is_navbar_visible = false;
+    this.is_board_visible = false;
+    this.is_userlist_visible = false;
+    this.is_textchat_visible = false;
+    this.is_video_visible = false;
+    this.is_gallery_visible = false;
 
-      this.set_fixed_video_display_size = function() {
-        video_recving.display_size = 100 - 3;
-      }
+    this.set_fixed_video_display_size = function() {
+      video_recving.display_size = 100 - 3;
     }
-  ])
+  }
+])
 
 ;

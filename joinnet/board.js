@@ -48,6 +48,7 @@ angular.module('joinnet')
     this.ctx_temp = this.canvas_temp.getContext('2d');
     this.canvas2.width = this.canvas2.height = 0; // means no text
     this.canvas3.width = this.canvas3.height = this.MAX_SIZE;
+    this.two_touch_last_tick = hmtg.util.GetTickCount();
 
     // pdf.js related
     this.pdf_stopped = false;  // whether the pdf rendering is stopped
@@ -137,8 +138,9 @@ angular.module('joinnet')
       20: 150
     };
     this.max_single_mark_size = 100000;  // single mark upper limit, 100kB
-    this.HANDLE_WIDTH = 8;
-    this.HANDLE_HALF_WIDTH = 4;
+    this.HANDLE_WIDTH = hmtgHelper.isMobile ? 20 : 8;
+    this.HANDLE_HALF_WIDTH = this.HANDLE_WIDTH >> 1;
+    this.HANDLE_CLOSE_SIZE = 25;
 
     // private note
     this.privateNote = [];  // include private marks, per-slide zoom level per-slide auto-zoom
@@ -170,7 +172,7 @@ angular.module('joinnet')
     // _board.redownload_count should be reset when 
     // slide downloaded
     this.redownload_count = 0;
-    
+
     // slide entry
     /**
      * @constructor
@@ -325,9 +327,23 @@ angular.module('joinnet')
       }
       var _mark_array = this.is_local_slide ? this.localSlideArray[index].mark_array : this.privateNote[index].mark_array;
       _mark_array.push(mark);
-      if(_mark_array.length == 1) {
-        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
-      }
+
+      // change to select mode and select this mark
+      this.shape = 'select';
+      setTimeout(function() {
+        _board.local_mark.select_mode = false;
+        _board.local_mark.select_toggle_mode = false;
+        _board.local_mark.hit_type = 8;
+        _board.local_mark.id_array0 = [];
+        _board.local_mark.id_array = [mark.m_iID];
+      }, 0);
+
+      // change shape to select, need to update the board
+      $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
+
+      // if(_mark_array.length == 1) {
+      //   $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
+      // }
     }
 
     this.create_SendNewText = function(index, color, width, x, y, cx, cy, textEx) {
@@ -2003,6 +2019,10 @@ angular.module('joinnet')
         defaultHeight = Math.max(_board.MIN_SIZE, defaultHeight);
         _board.img_width = defaultWidth >> 1 << 1;
         _board.img_height = defaultHeight >> 1 << 1;
+
+        // max 1024
+        _board.img_width = Math.min(_board.img_width, _board.DEFAULT_SIZE);
+        _board.img_height = Math.min(_board.img_height, _board.DEFAULT_SIZE);
         startDraw();
       }
 
@@ -2326,14 +2346,12 @@ angular.module('joinnet')
             //console.log('fast forward pdf in error handling');
             _board.pdf_pending_data = null;
             _board.draw_thread = null;
-            _board.draw_slide();
-          } else {
-            // render an empty image
-            _board.img_width = 0; // _board.MIN_SIZE;
-            _board.img_height = 0; // _board.MIN_SIZE;
-            _board.img_ready = true;
-            startDraw();
           }
+          // render an empty image
+          _board.img_width = 0; // _board.MIN_SIZE;
+          _board.img_height = 0; // _board.MIN_SIZE;
+          _board.img_ready = true;
+          startDraw();
         }
       }
 
@@ -2915,6 +2933,11 @@ angular.module('joinnet')
               }
             }
           }
+
+          // at most grow to 1024x1024
+          _board.mywidth = Math.max(_board.img_width, Math.min(_board.mywidth, _board.DEFAULT_SIZE));
+          _board.myheight = Math.max(_board.img_height, Math.min(_board.myheight, _board.DEFAULT_SIZE));
+
           // calc temp_ratio
           _board.actual_width = Math.max(_board.actual_width, _board.mywidth, _board.img_width);
           _board.actual_height = Math.max(_board.actual_height, _board.myheight, _board.img_height);
@@ -3647,7 +3670,8 @@ angular.module('joinnet')
           if(_board.is_fit_page && _board.scale != _board.ratio && !_board.is_local_slide) {
             if(!slide._is_blank_page() && slide._downloaded() == 1 && !hmtg.util.endsWith(slide._m_szName(), '.jzf')) {
               var name = slide._m_szName().toLowerCase();
-              if(hmtg.util.endsWith(name, '.pdf')) {
+              // if the img_width is 0, the pdf loading fails; do not redraw
+              if(hmtg.util.endsWith(name, '.pdf') && _board.img_width) {
                 setTimeout(function() {
                   _board.draw_slide();
                 }, 0);
@@ -3918,6 +3942,7 @@ angular.module('joinnet')
           else if(hit_type == 1 || hit_type == 3) cursor = 'nesw-resize';
           else if(hit_type == 5 || hit_type == 7) cursor = 'ew-resize';
           else if(hit_type == 4 || hit_type == 6) cursor = 'ns-resize';
+          else if(hit_type == 9) cursor = 'pointer';
           else cursor = 'move';
           return { hit_type: hit_type, cursor: cursor, mark: mark };
         }
@@ -4100,6 +4125,14 @@ angular.module('joinnet')
       if(hitTestHandle(r.x + r.w / 2, r.y, x, y)) return 4;
       if(hitTestHandle(r.x, r.y + r.h / 2, x, y)) return 7;
       if(hitTestHandle(r.x, r.y, x, y)) return 0;
+
+      // test delete button (9)
+      var bw = _board.HANDLE_CLOSE_SIZE / _board.ratio;
+      var dis = _board.HANDLE_HALF_WIDTH / _board.ratio;
+      var hx = r.x - dis - bw;
+      var hy = r.y - dis - bw;
+      if(x >= hx && x <= hx + bw && y >= hy && y <= hy + bw) return 9;
+
       r2 = normalizeRegion(r);
       if(x >= r2.x1 && y >= r2.y1 && x <= r2.x2 && y <= r2.y2) return 8;
 
@@ -4670,6 +4703,7 @@ angular.module('joinnet')
         ctx.strokeRect(x, y, w, h);
         var R = _board.HANDLE_HALF_WIDTH;
         var D = _board.HANDLE_WIDTH;
+        var C = _board.HANDLE_CLOSE_SIZE;
         ctx.fillRect(x + w - R, y + h - R, D, D);
         ctx.fillRect(x + w - R, y + h / 2 - R, D, D);
         ctx.fillRect(x + w / 2 - R, y + h - R, D, D);
@@ -4678,6 +4712,23 @@ angular.module('joinnet')
         ctx.fillRect(x + w / 2 - R, y - R, D, D);
         ctx.fillRect(x - R, y + h / 2 - R, D, D);
         ctx.fillRect(x - R, y - R, D, D);
+
+        // delete button
+        ctx.save();
+        ctx.fillRect(x - R - C, y - R - C, C, C);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.fillStyle = ctx.strokeStyle = 'rgb(255,255,255)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x - R - C + ctx.lineWidth, y - R - C + ctx.lineWidth);
+        ctx.lineTo(x - R - ctx.lineWidth, y - R - ctx.lineWidth);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x - R - C + ctx.lineWidth, y - R - ctx.lineWidth);
+        ctx.lineTo(x - R - ctx.lineWidth, y - R - C + ctx.lineWidth);
+        ctx.stroke();
+        ctx.restore();
       }
     }
 
@@ -6215,6 +6266,26 @@ angular.module('joinnet')
             if(wait_mark) {
               _board.remove_wait_list_mark(wait_mark);
             }
+            // if this is an image mark and it is from self, and we are at image or text shape, select it
+            if((_board.shape == 'image' || _board.shape == 'text')
+              && mark._m_byMarkType() == hmtg.config.MARK_CUSTOMIZED
+            ) {
+              var type2 = mark._m_iCustomizedMarkType();
+              if(type2 == 1 || type2 == 4 || type2 == 5) {
+                // change to select mode and select this mark
+                this.shape = 'select';
+                setTimeout(function() {
+                  _board.local_mark.select_mode = false;
+                  _board.local_mark.select_toggle_mode = false;
+                  _board.local_mark.hit_type = 8;
+                  _board.local_mark.id_array0 = [];
+                  _board.local_mark.id_array = [mark._m_iID()];
+                }, 0);
+
+                // change shape to select, need to update the board
+                $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
+              }
+            }
           }
         }
         if(event == 1) { // clear
@@ -7121,8 +7192,9 @@ angular.module('joinnet')
 ])
 
 .controller('BoardCtrl', ['$scope', 'board', 'hmtgHelper', '$rootScope', '$modal', '$translate', 'hmtgAlert', 'joinnetHelper',
-  '$ocLazyLoad', 'appSetting',
-  function($scope, board, hmtgHelper, $rootScope, $modal, $translate, hmtgAlert, joinnetHelper, $ocLazyLoad, appSetting) {
+  '$ocLazyLoad', 'appSetting', 'layout',
+  function($scope, board, hmtgHelper, $rootScope, $modal, $translate, hmtgAlert, joinnetHelper, $ocLazyLoad, appSetting,
+    layout) {
     $scope.w = board;
     $scope.hh = hmtgHelper;
     $scope.as = appSetting;
@@ -7130,6 +7202,31 @@ angular.module('joinnet')
     // mark-related stuff
     board.shape = 'pointer';
     board.drag_idx = -1;  // which slide index the drag occurs
+
+    window.addEventListener("paste", pasteHandler);
+    function pasteHandler(e) {
+      // if white board is visible and shape is image and can add image mark
+      if(board.to_block_paste_image_mark) return;
+      if($rootScope.nav_item != 'joinnet') return;
+      if(board.shape != 'image') return;
+      if($rootScope.gui_mode == 'concise') {
+        if(!layout.is_board_visible) return;
+      } else {
+        if(!$scope.is_area_visible('white_board')) return;
+      }
+      if(e.clipboardData) {
+        var items = e.clipboardData.items;
+        if(items) {
+          for(var i = 0; i < items.length; i++) {
+            if(items[i].type.indexOf("image") !== -1) {
+              var blob = items[i].getAsFile();
+              open_manage_mark_dialog(blob);  // pass the file to the dialog box
+              break;
+            }
+          }
+        }
+      }
+    }
 
     $scope.$on(hmtgHelper.WM_UPDATE_BOARD, function() {
       if(!hmtgHelper.inside_angular) $scope.$digest();
@@ -7188,36 +7285,12 @@ angular.module('joinnet')
       }
     }
 
-    var auto_hide_toolbar_timerID = null;
-    function turn_off_auto_hide_toolbar_timer() {
-      if(auto_hide_toolbar_timerID) {
-        clearTimeout(auto_hide_toolbar_timerID);
-        auto_hide_toolbar_timerID = null;
-      }
-    }
-    $scope.turn_on_auto_hide_toolbar_timer = function() {
-      turn_off_auto_hide_toolbar_timer();
-      auto_hide_toolbar_timerID = setTimeout(function() {
-        auto_hide_toolbar_timerID = null;
-        if(!appSetting.board_hide_toolbar) {
-          $scope.toggle_toolbar();
-          $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
-        }
-      }, 15000);
-    }
-    // do this when the board ctrl is created
-    if(!appSetting.board_hide_toolbar) {
-      $scope.turn_on_auto_hide_toolbar_timer();
-    }
     $scope.toggle_toolbar = function() {
       appSetting.board_hide_toolbar = !appSetting.board_hide_toolbar;
       hmtg.util.localStorage['hmtg_board_hide_toolbar'] = JSON.stringify(appSetting.board_hide_toolbar);
       setTimeout(function() { 
         adjust_size();
       }, 0);
-      if(!appSetting.board_hide_toolbar) {
-        $scope.turn_on_auto_hide_toolbar_timer();
-      }
     }
 
     //$scope.$on(hmtgHelper.WM_UPDATE_LAYOUT_MODE, function() {
@@ -7386,6 +7459,8 @@ angular.module('joinnet')
         name: 'joinnet',
         files: ['lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/modal_upload_slide' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param]
       }).then(function() {
+        // when upload slide dialog is on, should paste image slide instead of image mark
+        board.to_block_paste_image_mark = true;
         var modalInstance = $modal.open({
           templateUrl: 'template/UploadSlide.htm' + hmtgHelper.cache_param,
           scope: $scope,
@@ -7396,8 +7471,10 @@ angular.module('joinnet')
         });
 
         modalInstance.result.then(function(result) {
+          board.to_block_paste_image_mark = false;
           board.upload_slide(result.upload_type, result.groupname, result.title, result.file, result.png_blob);
         }, function() {
+          board.to_block_paste_image_mark = false;
           board.upload_finished = true;
         });
       }, function(e) {
@@ -7489,6 +7566,26 @@ angular.module('joinnet')
     }
     */
 
+    function setup_two_touch_zoom(is_two_touch, abs_x, abs_y, abs_x2, abs_y2) {
+      var last_tick = board.two_touch_last_tick;
+      var now = hmtg.util.GetTickCount();
+      board.two_touch_last_tick = now;
+      if(is_two_touch) {
+        board.two_touch_vertical_zoom_mode = false;
+        board.two_touch_is_active = true;
+        board.two_touch_dis_base = Math.sqrt((abs_x2 - abs_x) * (abs_x2 - abs_x) + (abs_y2 - abs_y) * (abs_y2 - abs_y));
+        board.two_touch_dis_base = Math.max(1, board.two_touch_dis_base);
+      } else {
+        board.two_touch_vertical_zoom_mode = now - last_tick < 1000;
+        if(board.two_touch_vertical_zoom_mode) {
+          board.two_touch_is_active = true;
+          board.two_touch_pos_base = abs_y;
+        } else {
+          board.two_touch_is_active = false;
+        }
+      }
+      board.two_touch_zoom_base = board.ratio_pos;
+    }
     var onMouseDown = function(e) {
       board.board0.style.cursor = 'not-allowed';
       document.addEventListener('mousemove', onMouseMove, true);
@@ -7563,6 +7660,7 @@ angular.module('joinnet')
         || board.shape == 'image'
         || board.shape == 'text'
         || board.shape == 'select'
+        || board.shape == 'scroll'
         ) {
         if(board.shape == 'pointer' && board.is_private) return;
         if(board.shape == 'image' && !board.selected_mark) return;
@@ -7590,12 +7688,25 @@ angular.module('joinnet')
               return;
             }
           }
-          e.preventDefault();
+          if(board.shape != 'scroll') {
+            // scroll has its own rule
+            e.preventDefault();
+          }
           if(e.touches.length > 1) {
             var x = board.transformX(abs_x);
             var y = board.transformY(abs_y);
-            var x2 = board.transformX(e.touches[1].pageX - offset.x);
-            var y2 = board.transformY(e.touches[1].pageY - offset.y);
+            var abs_x2 = e.touches[1].pageX - offset.x;
+            var abs_y2 = e.touches[1].pageY - offset.y;
+            var x2 = board.transformX(abs_x2);
+            var y2 = board.transformY(abs_y2);
+            if(board.shape == 'scroll') {
+              setup_two_touch_zoom(true, abs_x, abs_y, abs_x2, abs_y2);
+              if(board.two_touch_is_active) {
+                // once become active, use zoom rule
+                e.preventDefault();
+                return;
+              }
+            }
             mark.ax.push(x, x2);
             mark.ay.push(y, y2);
             board.multi_touch = true;
@@ -7608,6 +7719,14 @@ angular.module('joinnet')
           } else {
             var x = board.transformX(abs_x);
             var y = board.transformY(abs_y);
+            if(board.shape == 'scroll') {
+              setup_two_touch_zoom(false, abs_x, abs_y);
+              if(board.two_touch_is_active) {
+                // once become active, use zoom rule
+                e.preventDefault();
+                return;
+              }
+            }
             mark.ax.push(x, x);
             mark.ay.push(y, y);
             select_single_touch(e.ctrlKey);
@@ -7623,6 +7742,14 @@ angular.module('joinnet')
           }
           var x = board.transformX(abs_x);
           var y = board.transformY(abs_y);
+          if(board.shape == 'scroll') {
+            setup_two_touch_zoom(false, abs_x, abs_y);
+            if(board.two_touch_is_active) {
+              // once become active, use zoom rule
+              e.preventDefault();
+              return;
+            }
+          }
           mark.ax.push(x, x);
           mark.ay.push(y, y);
           select_single_touch(e.ctrlKey);
@@ -7695,9 +7822,14 @@ angular.module('joinnet')
               hit = board.hitTest(x, y);
             }
             if(hit) {
-              mark.hit_type = hit.hit_type;
-              if(!mark.id_array.length) {
-                mark.id_array.push(hit.mark.link._m_iID());
+              if(hit.hit_type == 9) {
+                board.drag_idx = -1;
+                $scope.hide_mark();
+              } else {
+                mark.hit_type = hit.hit_type;
+                if(!mark.id_array.length) {
+                  mark.id_array.push(hit.mark.link._m_iID());
+                }
               }
             } else {
               mark.select_mode = true;
@@ -7774,26 +7906,68 @@ angular.module('joinnet')
         || board.shape == 'ellipse2'
         || board.shape == 'image'
         || board.shape == 'text'
+        || board.shape == 'scroll'
         || (board.shape == 'select' && mark.select_mode)
         ) {
         board.board0.style.cursor = 'crosshair';
         if(e.type == 'touchmove') {
-          e.preventDefault();
+          if(board.shape != 'scroll') {
+            // scroll has its own rule
+            e.preventDefault();
+          }
           if(e.touches.length > 1) {
-            var x = board.transformX(e.touches[0].pageX - offset.x);
-            var y = board.transformY(e.touches[0].pageY - offset.y);
-            var x2 = board.transformX(e.touches[1].pageX - offset.x);
-            var y2 = board.transformY(e.touches[1].pageY - offset.y);
+            var abs_x = e.touches[0].pageX - offset.x;
+            var abs_y = e.touches[0].pageY - offset.y;
+            var abs_x2 = e.touches[1].pageX - offset.x;
+            var abs_y2 = e.touches[1].pageY - offset.y;
+            var x = board.transformX(abs_x);
+            var y = board.transformY(abs_y);
+            var x2 = board.transformX(abs_x2);
+            var y2 = board.transformY(abs_y2);
+            if(board.shape == 'scroll') {
+              if(board.two_touch_is_active) {
+                if(board.two_touch_vertical_zoom_mode) {
+                  // vertial zoom
+                  two_touch_zoom(abs_x, abs_y);
+                } else {
+                  // if two touch zoom is active, execute it
+                  two_touch_zoom(abs_x, abs_y, abs_x2, abs_y2);
+                }
+              } else {
+                // if not in active zooming yet, setup two touch zoom
+                setup_two_touch_zoom(true, abs_x, abs_y, abs_x2, abs_y2);
+              }
+              if(board.two_touch_is_active) {
+                // once become active, use zoom rule
+                e.preventDefault();
+                return;
+              }
+            }
             mark.ax[0] = x;
             mark.ay[0] = y;
             mark.ax[1] = x2;
             mark.ay[1] = y2;
             board.multi_touch = true;
           } else if(board.multi_touch && e.changedTouches.length > 0) {
-            var x = board.transformX(e.changedTouches[0].pageX - offset.x);
-            var y = board.transformY(e.changedTouches[0].pageY - offset.y);
-            var x2 = board.transformX(e.touches[0].pageX - offset.x);
-            var y2 = board.transformY(e.touches[0].pageY - offset.y);
+            var abs_x = e.changedTouches[0].pageX - offset.x;
+            var abs_y = e.changedTouches[0].pageY - offset.y;
+            var abs_x2 = e.touches[0].pageX - offset.x;
+            var abs_y2 = e.touches[0].pageY - offset.y;
+            var x = board.transformX(abs_x);
+            var y = board.transformY(abs_y);
+            var x2 = board.transformX(abs_x2);
+            var y2 = board.transformY(abs_y2);
+            if(board.shape == 'scroll' && board.two_touch_is_active) {
+              if(board.two_touch_vertical_zoom_mode) {
+                // vertical zoom
+                two_touch_zoom(abs_x, abs_y);
+              } else {
+                // two touch zoom
+                two_touch_zoom(abs_x, abs_y, abs_x2, abs_y2);
+              }
+              e.preventDefault();
+              return;
+            }
             if(board.shape == 'image') {
               mark.ax[0] = (x + x2) >> 1;
               mark.ay[0] = (y + y2) >> 1;
@@ -7805,15 +7979,35 @@ angular.module('joinnet')
             mark.ay[1] = y2;
             board.multi_touch = false;
           } else {
-            var x = board.transformX(e.touches[0].pageX - offset.x);
-            var y = board.transformY(e.touches[0].pageY - offset.y);
+            var abs_x = e.touches[0].pageX - offset.x;
+            var abs_y = e.touches[0].pageY - offset.y;
+            var x = board.transformX(abs_x);
+            var y = board.transformY(abs_y);
+            if(board.shape == 'scroll' && board.two_touch_is_active) {
+              if(board.two_touch_vertical_zoom_mode) {
+                // vertical zoom
+                two_touch_zoom(abs_x, abs_y);
+              }
+              e.preventDefault();
+              return;
+            }
             mark.ax[1] = x;
             mark.ay[1] = y;
             board.multi_touch = false;
           }
         } else {
-          var x = board.transformX(e.pageX - offset.x);
-          var y = board.transformY(e.pageY - offset.y);
+          var abs_x = e.pageX - offset.x;
+          var abs_y = e.pageY - offset.y;
+          var x = board.transformX(abs_x);
+          var y = board.transformY(abs_y);
+          if(board.shape == 'scroll' && board.two_touch_is_active) {
+            if(board.two_touch_vertical_zoom_mode) {
+              // vertical zoom
+              two_touch_zoom(abs_x, abs_y);
+            }
+            e.preventDefault();
+            return;
+          }
           mark.ax[1] = x;
           mark.ay[1] = y;
         }
@@ -7863,9 +8057,35 @@ angular.module('joinnet')
           board.draw_slide(board.shape != 'eraser'); // quick draw
         }
       }
+
+      function two_touch_zoom(abs_x, abs_y, abs_x2, abs_y2) {
+        if(board.is_fit_page) {
+          board.is_fit_page = false;
+          $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
+        }
+        if(board.two_touch_vertical_zoom_mode) {
+          // vertical zoom
+          var dis = abs_y - board.two_touch_pos_base
+          var zoom_speed_base = 50;
+          if(dis > 0) {
+            board.ratio_pos = (zoom_speed_base + dis) / zoom_speed_base * board.two_touch_zoom_base;
+          } else {
+            board.ratio_pos = zoom_speed_base / (zoom_speed_base - dis) * board.two_touch_zoom_base;
+          }
+        } else {
+          // two touch zoom
+          var dis = Math.sqrt((abs_x2 - abs_x) * (abs_x2 - abs_x) + (abs_y2 - abs_y) * (abs_y2 - abs_y));
+          dis = Math.max(1, dis);
+          board.ratio_pos = dis / board.two_touch_dis_base * board.two_touch_zoom_base;
+        }
+        board.ratio_pos = Math.min(800, board.ratio_pos);
+        board.ratio_pos = Math.max(1, board.ratio_pos);
+        board.change_ratio();
+      }
     }
     var onMouseUp = function(e) {
       board.board0.style.cursor = 'auto';
+      board.two_touch_is_active = false;
       if(board.drag_idx == -1) {
         document.removeEventListener('mouseup', onMouseUp, true);
         document.removeEventListener('touchend', onMouseUp, true);
@@ -8073,6 +8293,9 @@ angular.module('joinnet')
         }
         board.drag_idx = -1;
         board.draw_slide();
+      } else if(board.shape == 'scroll') {
+        board.drag_idx = -1;
+        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
       }
     }
 
@@ -8128,7 +8351,7 @@ angular.module('joinnet')
         if(new_mark) {
           board.wait_list_mark_array.push(new_mark);
           if(board.wait_list_mark_array.length == 1) {
-            $rootScope.$broadcast(hmtgHelper.WM_UPDATEboard);
+            $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
           }
           new_mark.timeout_id = setTimeout(function() {
             board.remove_wait_list_mark(new_mark);
@@ -8204,7 +8427,7 @@ angular.module('joinnet')
       if(shape == 'image') {
         // if shape is already 'image', always show the manage mark dialog
         //$scope.manage_mark(board.shape == shape);
-        $scope.manage_mark(false);  // do not show the manage mark dialog from this button. force the user to use the toolbar button.
+        $scope.manage_mark(true);  // do not show the manage mark dialog from this button. force the user to use the toolbar button.
       }
       if(board.shape == shape) return;
       var can_quick_draw = !board.local_mark.id_array.length;
@@ -8213,6 +8436,43 @@ angular.module('joinnet')
       board.draw_slide(can_quick_draw);
     }
     $scope.manage_mark = function(show_dialog) {
+      if(show_dialog) {
+        // open a file, and pass it to the manage mark dialog box
+        hmtgHelper.inside_angular++;
+        board.turnoff_fullscreen();
+        hmtgHelper.inside_angular--;
+
+        var myinput = hmtgHelper.file_reset('fileInput', 'image/*');
+
+        myinput.addEventListener("change", handleFile, false);
+        if(window.navigator.msSaveOrOpenBlob) {
+          setTimeout(function() {
+            myinput.click();  // use timeout, otherwise, IE will complain error
+          }, 0);
+        } else {
+          // it is necessary to exempt error here
+          // when there is an active dropdown menu, a direct click will cause "$apply already in progress" error
+          window.g_exempted_error++;
+          myinput.click();
+          window.g_exempted_error--;
+        }
+        return;
+
+        function handleFile() {
+          myinput.removeEventListener("change", handleFile, false);
+          var file = myinput.files[0];
+
+          if(!file) {
+            return;
+          }
+          open_manage_mark_dialog(file);  // pass the file to the dialog box
+        }
+      } else {
+        open_manage_mark_dialog();
+      }
+
+    }
+    function open_manage_mark_dialog(orig_file) {
       $ocLazyLoad.load({
         name: 'joinnet',
         files: ['lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/modal_image_mark' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param]
@@ -8236,8 +8496,8 @@ angular.module('joinnet')
           }
         }
         //if(typeof appSetting.use_png_mark == 'undefined') {
-          //var parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_use_png_mark']);
-          //appSetting.use_png_mark = parsed === 'undefined' ? false : !!parsed;
+        //var parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_use_png_mark']);
+        //appSetting.use_png_mark = parsed === 'undefined' ? false : !!parsed;
         //}
 
         if(!$scope.partialImageBar) {
@@ -8245,23 +8505,36 @@ angular.module('joinnet')
           hmtgHelper.fast_apply();
         }
 
-        if(show_dialog || (!appSetting.can_show_image_bar && !appSetting.can_show_bottom_image_bar)) {
-          hmtgHelper.inside_angular++;
-          board.turnoff_fullscreen();
-          hmtgHelper.inside_angular--;
-          var modalInstance = $modal.open({
-            templateUrl: 'template/ImageMark.htm' + hmtgHelper.cache_param,
-            scope: $scope,
-            controller: 'ImageMarkCtrl',
-            size: 'lg',
-            backdrop: 'static',
-            resolve: {}
-          });
+        hmtgHelper.inside_angular++;
+        board.turnoff_fullscreen();
+        hmtgHelper.inside_angular--;
 
-          modalInstance.result.then(function(result) {
-          }, function() {
-          });
-        }
+        // $modalInstance.close({ src: window.URL.createObjectURL(file), auto_play: $scope.w.auto_play, audio_only: $scope.w.audio_only });
+        $scope.orig_file = orig_file;  // pass the file to the dialog box
+        var modalInstance = $modal.open({
+          templateUrl: 'template/ImageMark.htm' + hmtgHelper.cache_param,
+          scope: $scope,
+          controller: 'ImageMarkCtrl',
+          size: 'lg',
+          backdrop: 'static',
+          resolve: {}
+        });
+
+        modalInstance.result.then(function(result) {
+        }, function() {
+          setTimeout(function() {
+            // if(board.selected_mark) {
+            //   var mark = board.local_mark;
+            //   mark.ax = [0, 0];
+            //   mark.ay = [0, 0];
+            //   board.drag_idx = board.slide_index >> 0;
+            //   if(board.drag_idx != -1) {
+            //     board.send_image_mark();
+            //   }
+            // }
+            board.draw_slide();
+          }, 0)
+        });
       }, function(e) {
         hmtg.util.log(-1, 'Warning! lazy_loading modal_image_mark fails');
       });
@@ -8274,10 +8547,8 @@ angular.module('joinnet')
 
       if(!open) {
         if(board.has_action_menu == 'note') board.has_action_menu = '';
-        $scope.turn_on_auto_hide_toolbar_timer();
         return;
       }
-      turn_off_auto_hide_toolbar_timer();
 
       board.has_action_menu = 'note';
       var menu = $scope.note_menu;
@@ -8340,10 +8611,8 @@ angular.module('joinnet')
 
       if(!open) {
         if(board.has_action_menu == 'fit') board.has_action_menu = '';
-        $scope.turn_on_auto_hide_toolbar_timer();
         return;
       }
-      turn_off_auto_hide_toolbar_timer();
 
       board.has_action_menu = 'fit';
       var menu = $scope.fit_menu;
