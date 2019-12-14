@@ -7210,7 +7210,7 @@ angular.module('joinnet')
       if($rootScope.nav_item != 'joinnet') return;
       if(board.shape != 'image') return;
       if($rootScope.gui_mode == 'concise') {
-        if(!layout.is_board_visible) return;
+        if(layout.visible_area != 'white_board') return;
       } else {
         if(!$scope.is_area_visible('white_board')) return;
       }

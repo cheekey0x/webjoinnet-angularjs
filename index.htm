@@ -350,7 +350,7 @@
       </span>
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
-          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.is_board_visible]"
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.visible_area=='whiteboard']"
           ng-click="turn_on_auto_hide_navbar_timer();onConciseBoard()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_WHITE_BOARD' | translate)}}">
           <span class="glyphicon glyphicon-blackboard"></span>

@@ -1247,9 +1247,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
         $scope.track_mouse_move();
 
         // when float video is used concise layout, set display size to ~100
-        if(layout.is_video_visible) {
-          layout.set_fixed_video_display_size();
-        }
+        // if(layout.is_video_visible) {
+        //   layout.set_fixed_video_display_size();
+        // }
       } else {
         $scope.untrack_mouse_move();
         // when changing to non-concise mode, the video window display size may need
@@ -1389,7 +1389,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.is_video_container_visible = function() {
       if($rootScope.gui_mode == 'concise') {
-        return layout.is_video_visible || layout.is_gallery_visible;
+        return layout.is_gallery_visible;
+        // return layout.is_video_visible || layout.is_gallery_visible;
       } else {
         return $scope.is_area_visible('video');
       }
@@ -1423,52 +1424,79 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.onConciseBoard = function() {
-      layout.is_board_visible = !layout.is_board_visible;
+      layout.visible_area = layout.visible_area == 'white_board' ? 'userlist' : 'white_board';
       layout.is_gallery_visible = false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
-      update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+      update_tab_mode(layout.visible_area);
+    }
+
+    $scope.onConciseSDT = function() {
+      $scope.loadSDT();
+      layout.visible_area = layout.visible_area == 'sdt' ? 'userlist' : 'sdt';
+      layout.is_gallery_visible = false;
+      layout.is_userlist_visible = false;
+      layout.is_textchat_visible = false;
+      update_tab_mode(layout.visible_area);
+    }
+
+    $scope.onConciseRDC = function() {
+      $scope.loadRDC();
+      layout.visible_area = layout.visible_area == 'rdc' ? 'userlist' : 'rdc';
+      layout.is_gallery_visible = false;
+      layout.is_userlist_visible = false;
+      layout.is_textchat_visible = false;
+      update_tab_mode(layout.visible_area);
+    }
+
+    $scope.onConciseBrowser = function() {
+      $scope.loadBrowser();
+      layout.visible_area = layout.visible_area == 'browser' ? 'userlist' : 'browser';
+      layout.is_gallery_visible = false;
+      layout.is_userlist_visible = false;
+      layout.is_textchat_visible = false;
+      update_tab_mode(layout.visible_area);
     }
 
     $scope.onConciseUserList = function() {
       layout.is_userlist_visible = !layout.is_userlist_visible;
       if(layout.is_userlist_visible) {
-        layout.is_board_visible = false;
+        layout.visible_area = 'userlist';
         layout.is_gallery_visible = false;
-        update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+        update_tab_mode(layout.visible_area);
       }
       layout.is_textchat_visible = false;
-      layout.is_video_visible = false;
+      // layout.is_video_visible = false;
     }
 
     $scope.onConciseTextChat = function() {
       layout.is_textchat_visible = !layout.is_textchat_visible;
       if(layout.is_textchat_visible) {
-        layout.is_board_visible = false;
+        layout.visible_area = 'userlist';
         layout.is_gallery_visible = false;
-        update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+        update_tab_mode(layout.visible_area);
       }
       layout.is_userlist_visible = false;
-      layout.is_video_visible = false;
+      // layout.is_video_visible = false;
     }
 
     $scope.onConciseVideo = function() {
-      layout.is_video_visible = !layout.is_video_visible;
-      if(layout.is_video_visible) {
-        layout.is_gallery_visible = false;
-      }
-      layout.is_userlist_visible = false;
-      layout.is_textchat_visible = false;
+      // layout.is_video_visible = !layout.is_video_visible;
+      // if(layout.is_video_visible) {
+      //   layout.is_gallery_visible = false;
+      // }
+      // layout.is_userlist_visible = false;
+      // layout.is_textchat_visible = false;
 
-      if(layout.is_video_visible) {
-        layout.set_fixed_video_display_size();
-      }
+      // if(layout.is_video_visible) {
+      //   layout.set_fixed_video_display_size();
+      // }
     }
 
     $scope.onConciseGallery = function() {
       layout.is_gallery_visible = !layout.is_gallery_visible;
-      layout.is_board_visible = false;
-      layout.is_video_visible = false;
+      layout.visible_area = 'userlist';
+      // layout.is_video_visible = false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
 
@@ -1476,11 +1504,11 @@ angular.module('joinnet', ['pascalprecht.translate'])
         // change display size from 100 to gallery value
         video_recving.display_size = hmtgHelper.calcGalleryDisplaySize(video_recving.ssrc_array.length);
       }
-      update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+      update_tab_mode(layout.visible_area);
     }
 
     $scope.$on(hmtgHelper.WM_CONCISE_TAB_CHANGED, function() {
-      update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+      update_tab_mode(layout.visible_area);
     });
 
     //hmtgSound.refresh_device_list();
@@ -1692,10 +1720,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if($rootScope.gui_mode == 'concise') {
         if(layout.is_gallery_visible) {
           return false;
-        } else if(layout.is_board_visible) {
-          return target == 'white_board';
         } else {
-          return target == 'userlist';
+          return target == layout.visible_area;
         }
       }
       return $scope.w.area1 == target || ($scope.w.show_check_show_area2 && $scope.w.show_area2 && $scope.w.area2 == target);
@@ -1822,11 +1848,11 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if($rootScope.gui_mode == 'concise') {
         if(!layout.is_textchat_visible) {
           layout.is_textchat_visible = true;
-          layout.is_board_visible = false;
+          layout.visible_area = 'userlist';
           layout.is_gallery_visible = false;
           layout.is_userlist_visible = false;
-          layout.is_video_visible = false;
-          update_tab_mode(layout.is_board_visible ? 'white_board' : 'userlist');
+          // layout.is_video_visible = false;
+          update_tab_mode(layout.visible_area);
         }
       }
       if(!hmtgHelper.inside_angular) $scope.$digest();
@@ -1938,23 +1964,24 @@ angular.module('joinnet', ['pascalprecht.translate'])
         hmtgHelper.exitFullScreen();
       }
       if($rootScope.gui_mode == 'concise') {
-        if(target == 'white_board') {
-          if(!layout.is_board_visible) {
-            layout.is_board_visible = true;
-            if(!hmtgHelper.isMobile) {
-              layout.is_video_visible = true; // when switching to board from other mode, turn on video automatically
-              layout.set_fixed_video_display_size();
-            } else {
-              layout.is_video_visible = false;
-            }
+        if((target == 'browser' && !hmtg.customization.support_joint_browsing)
+          || target == 'chat'
+          ) {
+          layout.visible_area = 'userlist';
+          layout.is_textchat_visible = true;
+          layout.is_gallery_visible = false;
+          layout.is_userlist_visible = false;
+        } else if(target == 'userlist'
+          || target == 'white_board'
+          || target == 'sdt'
+          || target == 'rdc'
+          || target == 'browser'
+          ) {
+          layout.visible_area = target;
+          if(target != 'userlist') {
             layout.is_gallery_visible = false;
             layout.is_userlist_visible = false;
             layout.is_textchat_visible = false;
-          }
-        }
-        else if(target == 'userlist') {
-          if(layout.is_board_visible) {
-            layout.is_board_visible = false;
           }
         }
       }
@@ -2443,8 +2470,17 @@ angular.module('joinnet', ['pascalprecht.translate'])
           if($rootScope.gui_mode != 'concise' && hmtg.jnkernel._jn_bConnected()) {
             menu.push({ "text": $translate.instant('ID_RESET_AUDIO_PLAYBACK'), "onclick": $scope.reset_audio_playback });
           }
-          menu.push({ "text": $translate.instant('ID_TOGGLE_CONCISE_LAYOUT'), "onclick": $scope.toggle_concise_mode });
         }
+
+        if($rootScope.gui_mode == 'concise') {
+          menu.push({ "text": (layout.visible_area == 'sdt' ? '* ' : '') + $translate.instant('ID_DESKTOP_SHARING'), "onclick": $scope.onConciseSDT });
+          menu.push({ "text": (layout.visible_area == 'rdc' ? '* ' : '') + $translate.instant('ID_REMOTE_CONTROL'), "onclick": $scope.onConciseRDC });
+          if(hmtg.customization.support_joint_browsing) {
+            menu.push({ "text": (layout.visible_area == 'browser' ? '* ' : '') + $translate.instant('IDS_JOINT_WEB_BROWSING'), "onclick": $scope.onConciseBrowser });
+          }
+        }
+
+        menu.push({ "text": $translate.instant('ID_TOGGLE_CONCISE_LAYOUT'), "onclick": $scope.toggle_concise_mode });
 
         if(!menu.length) {
           $scope.w.is_menu_open = 0;
@@ -2811,7 +2847,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
   function($rootScope, video_recving) {
     var _layout = this;
     this.is_navbar_visible = false;
-    this.is_board_visible = false;
+    this.visible_area = 'userlist';
     this.is_userlist_visible = false;
     this.is_textchat_visible = false;
     this.is_video_visible = false;

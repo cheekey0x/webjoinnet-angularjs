@@ -54,7 +54,9 @@ angular.module('joinnet')
         var offset = {};
         hmtg.util.calcOffset(container2, offset);
         if(offset.y) {
-          myheight = Math.max(((hmtgHelper.view_port_height >> 1) + (hmtgHelper.view_port_height >> 3)), hmtgHelper.view_port_height - offset.y - 1);
+          // -1 would induce scrollbar in concise mode at firefox
+          // -6 would be just good (-5 not good)
+          myheight = Math.max(((hmtgHelper.view_port_height >> 1) + (hmtgHelper.view_port_height >> 3)), hmtgHelper.view_port_height - offset.y - 6);
         }
       }
 

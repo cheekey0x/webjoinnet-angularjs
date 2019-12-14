@@ -27,7 +27,7 @@ angular.module('joinnet')
       if(ssrc != video_recving.main_video_ssrc) {
         video_recving.main_video_ssrc = ssrc;
         if($rootScope.gui_mode == 'concise') {
-          layout.is_board_visible = false;
+          layout.visible_area = 'userlist';
           $rootScope.$broadcast(hmtgHelper.WM_CONCISE_TAB_CHANGED);
         }
       }

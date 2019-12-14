@@ -1095,6 +1095,10 @@ angular.module('joinnet')
       }
     }
 
+    dt.clear_decoder = function() {
+      if(dt_decoder) dt_decoder.postMessage({ command: 'clear' });
+    }
+
     function set_snapshot_tail() {
       $scope.snapshot_tail = (appSetting.snapshot_delay ? '(' : '') + (appSetting.snapshot_delay ? appSetting.snapshot_delay : '') + (appSetting.snapshot_delay ? ')' : '');
     }
@@ -1532,6 +1536,16 @@ angular.module('joinnet')
       hmtgHelper.inside_angular--;
     }
 
+    $scope.$on(hmtgHelper.WM_ADD_USER, function(event, ssrc) {
+      // in case the add_user (via control channel) is arrived later than the first plugin packet
+      // we need to update the user's name
+      if(dt.descr_ssrc != -1 && ssrc == dt.descr_ssrc) {
+        var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
+        dt.descr = '[' + hmtg.util.decodeUtf8(a[dt.descr_ssrc] ? a[dt.descr_ssrc]._szRealName() : ('ssrc' + dt.descr_ssrc)) + ']';
+        if(!hmtgHelper.inside_angular) $scope.$digest();
+      }
+    });
+
     $scope.$on(hmtgHelper.WM_NEW_PLUGIN, function(e, error_code, request_id, channel) {
       $scope.on_new_plugin(hmtgHelper.GUID_DESKTOP_SHARING, error_code, request_id, channel);
     });
@@ -1551,6 +1565,7 @@ angular.module('joinnet')
       dt.descr_ssrc = -1;
       dt.bmp = null;
       dt.draw();
+      dt.clear_decoder();
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
 
@@ -1562,6 +1577,7 @@ angular.module('joinnet')
       dt.descr_ssrc = -1;
       dt.bmp = null;
       dt.draw();
+      dt.clear_decoder();
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
 
@@ -2234,6 +2250,7 @@ angular.module('joinnet')
       dt.stop_control();
       dt.bmp = null;
       dt.draw();
+      dt.clear_decoder();
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
 
@@ -2246,6 +2263,7 @@ angular.module('joinnet')
       dt.stop_control();
       dt.bmp = null;
       dt.draw();
+      dt.clear_decoder();
       cancel_wait_response_timer();
       cancel_wait_permission_timer();
       if(!hmtgHelper.inside_angular) $scope.$digest();
@@ -2265,6 +2283,14 @@ angular.module('joinnet')
     });
 
     $scope.$on(hmtgHelper.WM_ADD_USER, function(event, ssrc) {
+      // in case the add_user (via control channel) is arrived later than the first plugin packet
+      // we need to update the user's name
+      if(dt.descr_ssrc != -1 && ssrc == dt.descr_ssrc) {
+        var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
+        dt.descr = '[' + hmtg.util.decodeUtf8(a[dt.descr_ssrc] ? a[dt.descr_ssrc]._szRealName() : ('ssrc' + dt.descr_ssrc)) + ']';
+        if(!hmtgHelper.inside_angular) $scope.$digest();
+      }
+
       if(hmtg.jnkernel._jn_iWorkMode() != hmtg.config.NORMAL) return;
       if(dt.channel == -1) return;
       if(!dt.is_sync_tab_controller) return;

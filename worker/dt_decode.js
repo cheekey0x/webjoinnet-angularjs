@@ -229,6 +229,7 @@ this.onmessage = function (e) {
       break;
     case 'clear':
       pkt_array = [];
+      dt.bmp = null;
       if(decode_intervalID) {
         clearInterval(decode_intervalID);
         decode_intervalID = null;

@@ -12,7 +12,7 @@
           <select class="vertical-middle" style="max-width: 160px;" ng-model="dt.color_id" tooltip-placement="bottom" 
             tooltip="{{as.no_tip || as.show_text ? '' : ('ID_COLOR_DEPTH' | translate)}}" 
             ng-options="color.id as color.name for color in dt.color_list"></select></span>
-          <span ng-show="as.show_advanced_function" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_SENDING_RATE' | translate)}}">
+          <span ng-show="as.show_advanced_function && dt.is_meeting_mode()" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_SENDING_RATE' | translate)}}">
             <span ng-show="dt.can_change_bitrate">
               <input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="0" max="100" ng-model="dt.bitrate_pos">
             </span>{{dt.bitrate_str}}
