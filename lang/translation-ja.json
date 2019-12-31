@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "JoinNet Webアプリケーション",
+"ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "Set Video Capture Dimension(not all browsers support this)",
 "ID_ROTATE90": "Rotate Clockwise",
 "ID_ROTATE270": "Rotate Counterclockwise",
 "ID_TOGGLE_CONCISE_LAYOUT": "Toggle Concise Layout",
@@ -194,8 +195,7 @@
 "ID_CLEAR_MARK_PROMPT": "マークをクリアしてもよろしいですか？?",
 "ID_CLEAR_MARK": "マークのクリア",
 "ID_UNDO_MARK": "マークをUndoする",
-"ID_FRAME_RATE": "映像送信のターゲット品質（元映像の品質からパーセントで指定）またはフレームレート（単位：fps）を選択してください。",
-"ID_CANCEL_MY_QUESTION": "質問要求をキャンセルする",
+"ID_FRAME_RATE": "Please choose frame rate(in fps) for video sending.",
 "ID_SWITCH_SCREEN_SOURCE": "画面を切り換える",
 "ID_NO_AUDIO_DATA": "音声データの入力がありません",
 "ID_NO_VIDEO_DATA": "映像データの入力がありません",

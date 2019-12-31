@@ -289,8 +289,8 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
         return $translate.instant('ID_MSGR_CONVERSATION');
       } else if(jnagentDlg.CheckConnection()) {
         return $translate.instant('ID_MSGR_SESSION');
-      } else if(jnjContent.valid_jnj) {
-        return $translate.instant('ID_JOINNET_IDLE_SESSION');
+      // } else if(jnjContent.valid_jnj) {
+      //   return $translate.instant('ID_JOINNET_IDLE_SESSION');
       }
     }
 
@@ -617,7 +617,8 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     this.max_audio_decoding = Math.min(17, Math.max(0, this.max_audio_decoding));
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_video_fps']);
     var fps = parsed === 'undefined' ? -1 : parsed;
-    if(fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 25 && !(fps <= 0 && fps >= -5)) fps = -1;
+    // if(fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 25 && !(fps <= 0 && fps >= -5)) fps = -1;
+    if(fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 15 && fps != 20 && fps != 25) fps = 15;
     this.video_fps = fps;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_private_note']);
     this.show_private_note = parsed === 'undefined' ? false : !!parsed;
@@ -641,9 +642,15 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       this.text_font = this.font_list[0];
     }
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_webrtc_bandwidth_profile']);
-    this.webrtc_bandwidth_profile = parsed === 'undefined' ? (hmtgHelper.isMobile ? 'low' : 'high') : parsed;
+    this.webrtc_bandwidth_profile = parsed === 'undefined' ? 'high' : parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_board_hide_toolbar']);
     this.board_hide_toolbar = parsed === 'undefined' ? ($rootScope.gui_mode = 'concise' ? true : false) : !!parsed;
+
+    parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_use_ideal_video_capture_dimension']);
+    this.use_ideal_video_capture_dimension = parsed === 'undefined' ? false : !!parsed;
+    parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_ideal_video_capture_dimension']);
+    this.ideal_video_capture_dimension = parsed === 'undefined' ? 1600 : parsed;
+    this.ideal_video_capture_dimension = 16 * Math.min(100, Math.max(10, (this.ideal_video_capture_dimension>>4)));
   }
 ])
 

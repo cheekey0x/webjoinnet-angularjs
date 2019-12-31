@@ -45,7 +45,7 @@
               <div class="inline-block">
                 <input type="range" class="vertical-middle" style="width: 100px;display: inline;" 
                   min="10" max="1000" step="10" 
-                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }"
+                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }"
                   ng-model="w.max_video_bitrate">{{w.max_video_bitrate}}kbps
               </div>
             </span>
@@ -58,7 +58,7 @@
               <div class="inline-block">
                 <input type="range" class="vertical-middle" style="width: 100px;display: inline;" 
                   min="20" max="2000" step="20" 
-                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }"
+                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }"
                   ng-model="w.max_appdata_bitrate">{{w.max_appdata_bitrate}}kbps
               </div>
             </span>
@@ -67,6 +67,19 @@
             <label>
               <input type="checkbox" ng-model="w.meeting_capture_video"> <span translate="ID_MEETING_CAPTURE_VIDEO"></span>
             </label>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="w.use_ideal_video_capture_dimension"> <span translate="ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION"></span>
+            </label>
+            <span ng-show="w.use_ideal_video_capture_dimension">
+              <div class="inline-block">
+                <input type="range" class="vertical-middle" style="width: 91px;display: inline;" 
+                  min="160" max="1600" step="16" 
+                  ng-model-options="{ updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }"
+                  ng-model="w.ideal_video_capture_dimension">{{w.ideal_video_capture_dimension}}
+              </div>
+            </span>
           </div>
           <div class="checkbox">
             <label>

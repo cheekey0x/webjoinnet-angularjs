@@ -87,8 +87,14 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     jnkernel['jn_callback_UpdateStatus_MessageBox'] = function(error_code) {
       hmtgAlert.update_status_item({});
-      hmtgHelper.MessageBox('(' + error_code + ') ' + $translate.instant(joinnetHelper.errorcode2id(error_code)), 0,
-        (error_code == hmtg.config.JN_MEETING_OVER ? switch_to_msgr : dummy));
+      // hmtgHelper.MessageBox('(' + error_code + ') ' + $translate.instant(joinnetHelper.errorcode2id(error_code)), 0);
+      var msg_func = dummy;
+      if(error_code == hmtg.config.JN_MEETING_OVER
+        || (error_code > hmtg.config.JN_ERROR_BASE - 256 && error_code < hmtg.config.JN_ERROR_BASE)
+      ) {
+        msg_func = switch_to_msgr;
+      }
+      hmtgHelper.MessageBox('(' + error_code + ') ' + $translate.instant(joinnetHelper.errorcode2id(error_code)), 0, msg_func);
       function switch_to_msgr()
       {
         if($rootScope.hmtg_show_msgr) {
@@ -98,7 +104,6 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
       function dummy()
       {
-
       }
     }
 
@@ -279,8 +284,6 @@ angular.module('joinnet', ['pascalprecht.translate'])
       chat.reset();
       //browser.reset();  // dont reset history here, only reset history for a new jnj, or playback restart, or joinnet.reset()
       playback.reset();
-      hmtg.jnkernel._jn_iMaxVideoBitrate(appSetting.use_max_video_bitrate ? appSetting.max_video_bitrate * 1000 : 10000000);
-      hmtg.jnkernel._jn_iMaxAppdataBitrate(appSetting.use_max_appdata_bitrate ? appSetting.max_appdata_bitrate * 1000 : 0);
       $rootScope.$broadcast(hmtgHelper.WM_START_SESSION);
     }
 
@@ -295,6 +298,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
     jnkernel['jn_callback_NetInitFinish'] = function() {
       _JoinNet.net_init_finished = true;
       if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
+        hmtg.jnkernel._jn_iMaxVideoBitrate(appSetting.use_max_video_bitrate ? appSetting.max_video_bitrate * 1000 : 10000000);
+        hmtg.jnkernel._jn_iMaxAppdataBitrate(appSetting.use_max_appdata_bitrate ? appSetting.max_appdata_bitrate * 1000 : 0);
+        
         hmtg.util.log('stat, audio record mute status is ' + (hmtgSound.record_muted ? 'Muted' : 'Unmuted'));
         hmtg.util.log('stat, audio playback mute status is ' + (hmtgSound.playback_muted ? 'Muted' : 'Unmuted'));
         hmtg.util.log('stat, video sending status is ' + (video_bitrate.is_send_video ? 'ON' : 'OFF'));
@@ -497,6 +503,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     jnkernel['jn_callback_ForceIFrame'] = function() {
+      if(video_codec.video_codec != hmtg.config.VIDEO_MJPG) {
+        video_capture.force_key_frame_flag = true;
+      }
     }
 
     jnkernel['jn_callback_PlaybackJNRPropertyReady'] = function(doc) {
@@ -1866,6 +1875,14 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
+    $scope.$on(hmtgHelper.WM_SHOW_WHITE_BOARD, function() {
+      $rootScope.nav_item = 'joinnet';
+      $rootScope.tabs[2].active = true;
+      if(!$scope.is_area_visible('white_board')) {
+        show_area('white_board');
+      }
+      if(!hmtgHelper.inside_angular) $scope.$digest();
+    });
     $scope.$on(hmtgHelper.WM_REMOTE_MONITOR, function() {
       $rootScope.nav_item = 'joinnet';
       $rootScope.tabs[2].active = true;
@@ -2194,11 +2211,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
         update_area_name();
       }
 
-      if($rootScope.gui_mode == 'concise') {
-        if($rootScope.hmtg_show_msgr) {
-          $rootScope.nav_item = 'msgr';
-          $rootScope.tabs[0].active = true;
-        }
+      if($rootScope.hmtg_show_msgr) {
+        $rootScope.nav_item = 'msgr';
+        $rootScope.tabs[0].active = true;
       }
     }
 
@@ -2363,7 +2378,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
             if(hmtgSound.audio_device_array.length > 1 && !navigator.mozGetUserMedia) {
               var i;
               for(i = 0; i < hmtgSound.audio_device_array.length && i < 20; i++) {
-                menu.push({ "text": $translate.instant('ID_START_RECORD') + ' @ ' + hmtgSound.audio_device_array[i].name, "onclick": $scope.startAudioRecording, "value": hmtgSound.audio_device_array[i].id, "flag": hmtgSound.is_source_id });
+                menu.push({ "text": $translate.instant('ID_START_RECORD') + ' @ ' + hmtgSound.audio_device_array[i].name, "onclick": $scope.startAudioRecording, "value": hmtgSound.audio_device_array[i].id });
               }
             } else {
               menu.push({ "text": $translate.instant('ID_START_RECORD'), "onclick": $scope.startAudioRecording });
@@ -2378,7 +2393,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
             if(hmtgSound.video_device_array.length > 1 && !navigator.mozGetUserMedia) {
               var i;
               for(i = 0; i < hmtgSound.video_device_array.length && i < 20; i++) {
-                menu.push({ "text": $translate.instant('ID_START_VIDEO_CAPTURE') + ' @ ' + hmtgSound.video_device_array[i].name, "onclick": $scope.startVideoRecording, "value": hmtgSound.video_device_array[i].id, "flag": hmtgSound.is_source_id });
+                menu.push({ "text": $translate.instant('ID_START_VIDEO_CAPTURE') + ' @ ' + hmtgSound.video_device_array[i].name, "onclick": $scope.startVideoRecording, "value": hmtgSound.video_device_array[i].id });
               }
             } else {
               menu.push({ "text": $translate.instant('ID_START_VIDEO_CAPTURE'), "onclick": $scope.startVideoRecording });
@@ -2437,17 +2452,17 @@ angular.module('joinnet', ['pascalprecht.translate'])
           && hmtg.jnkernel._jn_bTokenOwner()) {
           menu.push({ "text": $translate.instant('ID_SET_JNR_PASSWORD'), "onclick": $scope.change_jnr_password });
         }
-        if($rootScope.gui_mode != 'concise' && $scope.can_disconnect()) {
-          menu.push({ "text": $translate.instant('ID_SIGNOUT'), "onclick": $scope.disconnect });
-        }
-        if($rootScope.gui_mode != 'concise' && $scope.can_reconnect()) {
-          menu.push({ "text": $translate.instant('ID_RECONNECT'), "onclick": $scope.reconnect });
-          menu.push({ "text": $translate.instant('ID_RESET'), "onclick": $scope.reset });
-        }
-        if($rootScope.gui_mode != 'concise' && appSetting.show_advanced_function && $scope.can_disconnect()) {
-          menu.push({ "text": $translate.instant('ID_SIMULATE_DISCONNECT'), "onclick": $scope.simulate_disconnect });
-          menu.push({ "text": $translate.instant('ID_SIMULATE_RECONNECT'), "onclick": $scope.simulate_reconnect_overwrite });
-        }
+        // if($rootScope.gui_mode != 'concise' && $scope.can_disconnect()) {
+        //   menu.push({ "text": $translate.instant('ID_SIGNOUT'), "onclick": $scope.disconnect });
+        // }
+        // if($rootScope.gui_mode != 'concise' && $scope.can_reconnect()) {
+        //   menu.push({ "text": $translate.instant('ID_RECONNECT'), "onclick": $scope.reconnect });
+        //   menu.push({ "text": $translate.instant('ID_RESET'), "onclick": $scope.reset });
+        // }
+        // if($rootScope.gui_mode != 'concise' && appSetting.show_advanced_function && $scope.can_disconnect()) {
+        //   menu.push({ "text": $translate.instant('ID_SIMULATE_DISCONNECT'), "onclick": $scope.simulate_disconnect });
+        //   menu.push({ "text": $translate.instant('ID_SIMULATE_RECONNECT'), "onclick": $scope.simulate_reconnect_overwrite });
+        // }
 
         if(joinnetAudio.can_show_playback_control()) {
           if($rootScope.gui_mode != 'concise' && joinnetAudio.recording
@@ -2513,7 +2528,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.startAudioRecording = function(menu) {
       hmtgHelper.inside_angular++;
-      joinnetAudio.start(menu.value, menu.flag);
+      joinnetAudio.start(menu.value);
       hmtgHelper.inside_angular--;
     }
     $scope.stopAudioRecording = function() {
@@ -2524,7 +2539,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.startVideoRecording = function(menu) {
       hmtgHelper.inside_angular++;
-      joinnetVideo.start(menu.value, menu.flag);
+      joinnetVideo.start(menu.value);
       hmtgHelper.inside_angular--;
     }
     $scope.stopVideoRecording = function() {

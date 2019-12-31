@@ -81,6 +81,12 @@ angular.module('hmtgs')
         hmtgHelper.inside_angular--;
       }
     });
+    $scope.$watch('w.use_ideal_video_capture_dimension', function() {
+      hmtg.util.localStorage['hmtg_use_ideal_video_capture_dimension'] = JSON.stringify($scope.w.use_ideal_video_capture_dimension);
+    });
+    $scope.$watch('w.ideal_video_capture_dimension', function() {
+      hmtg.util.localStorage['hmtg_ideal_video_capture_dimension'] = JSON.stringify($scope.w.ideal_video_capture_dimension);
+    });
     $scope.$watch('w.auto_send_video', function() {
       hmtg.util.localStorage['hmtg_auto_send_video'] = JSON.stringify($scope.w.auto_send_video);
     });

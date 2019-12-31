@@ -67,7 +67,7 @@
           <div class="inline-block video-window" ng-repeat="ssrc in vr.ssrc_array">
             <span>
               <span class="vertical-middle">{{username_trimmed(name_hash[ssrc])}}</span>
-              <span ng-show="gui_mode != 'concise' && show_snapshot(ssrc)">
+              <span ng-show="show_snapshot(ssrc)">
                 <span><button type="button" class="btn btn-default"
                 tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
                   ng-click="snapshot(ssrc)"> <span class="glyphicon glyphicon-picture"></span>

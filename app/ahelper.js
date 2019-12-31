@@ -14,6 +14,7 @@ angular.module('hmtgs')
     this.WM_WIDTH_CHANGED = 'app_width_changed';
     this.WM_SHOW_CHAT_AREA = 'show_chat_area';
     this.WM_SHOW_CONTROL_PANEL = 'show_user_list';
+    this.WM_SHOW_WHITE_BOARD = 'show_white_board';
     this.WM_BROWSER_URL = 'browser_url';
     this.WM_UPDATE_DURATION = 'update_duration';
     this.WM_PLAYBACK_INIT_STAT = 'playback_init_stat';

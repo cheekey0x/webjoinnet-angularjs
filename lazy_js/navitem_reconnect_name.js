@@ -11,14 +11,16 @@ angular.module('joinnet')
     }
 
     $scope.connect = function (item) {
-      var jnj = item.jnj;
+      // var jnj = item.jnj;
 
-      if(jnjContent.valid_jnj || hmtg.jnkernel._jn_bConnected() || hmtg.jnkernel._jn_bConnecting()) {
+      if(
+        // jnjContent.valid_jnj ||
+        hmtg.jnkernel._jn_bConnected() || hmtg.jnkernel._jn_bConnecting()) {
         var text;
-        if(hmtg.jnkernel._jn_bConnecting() || hmtg.jnkernel._jn_bConnected())
+        // if(hmtg.jnkernel._jn_bConnecting() || hmtg.jnkernel._jn_bConnected())
           text = $translate.instant('ID_JOINNET_ACTIVE_SESSION') + ' ' + $translate.instant('ID_CONTINUE_PROMPT');
-        else
-          text = $translate.instant('ID_JOINNET_IDLE_SESSION') + ' ' + $translate.instant('ID_CONTINUE_PROMPT');
+        // else
+        //   text = $translate.instant('ID_JOINNET_IDLE_SESSION') + ' ' + $translate.instant('ID_CONTINUE_PROMPT');
         hmtgHelper.OKCancelMessageBox(text, 20, action);
       } else {
         action();

@@ -87,12 +87,14 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
         hmtgHelper.save_file(new Blob([hmtg.util.decodeUtf8(jnj)], { type: 'application/joinnet' }), 'joinnet-' + msgrHelper.get_timestring_filename() + '.jnj');
         return;
       }
-      if(jnjContent.valid_jnj || hmtg.jnkernel._jn_bConnected() || hmtg.jnkernel._jn_bConnecting()) {
+      if(
+        // jnjContent.valid_jnj ||
+        hmtg.jnkernel._jn_bConnected() || hmtg.jnkernel._jn_bConnecting()) {
         var text;
-        if(hmtg.jnkernel._jn_bConnecting() || hmtg.jnkernel._jn_bConnected())
+        // if(hmtg.jnkernel._jn_bConnecting() || hmtg.jnkernel._jn_bConnected())
           text = $translate.instant('ID_JOINNET_ACTIVE_SESSION') + ' ' + $translate.instant('ID_CONTINUE_PROMPT');
-        else
-          text = $translate.instant('ID_JOINNET_IDLE_SESSION') + ' ' + $translate.instant('ID_CONTINUE_PROMPT');
+        // else
+        //   text = $translate.instant('ID_JOINNET_IDLE_SESSION') + ' ' + $translate.instant('ID_CONTINUE_PROMPT');
         hmtgHelper.OKCancelMessageBox(text, 20, ok);
       } else {
         if(JoinNet.connect(jnj, try_saved_visitor_name)) {

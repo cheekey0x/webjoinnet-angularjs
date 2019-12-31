@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "JoinNet 網頁版",
+"ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "Set Video Capture Dimension(not all browsers support this)",
 "ID_ROTATE90": "Rotate Clockwise",
 "ID_ROTATE270": "Rotate Counterclockwise",
 "ID_TOGGLE_CONCISE_LAYOUT": "切換極簡版面",
@@ -194,7 +195,7 @@
 "ID_CLEAR_MARK_PROMPT": "您確定要清除標記嗎？",
 "ID_CLEAR_MARK": "清除標記",
 "ID_UNDO_MARK": "復原標記",
-"ID_FRAME_RATE": "請選擇畫面品質 (來源品質的百分比) 或畫面更新率 (fps) 來傳送視訊。",
+"ID_FRAME_RATE": "請選擇畫面更新率 (fps)",
 "ID_CANCEL_MY_QUESTION": "取消發言請求",
 "ID_SWITCH_SCREEN_SOURCE": "選擇螢幕視窗",
 "ID_NO_AUDIO_DATA": "沒有語音資料來源",

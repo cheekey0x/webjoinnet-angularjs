@@ -138,7 +138,7 @@ angular.module('joinnet')
       20: 150
     };
     this.max_single_mark_size = 100000;  // single mark upper limit, 100kB
-    this.HANDLE_WIDTH = hmtgHelper.isMobile ? 20 : 8;
+    this.HANDLE_WIDTH = hmtgHelper.isMobile ? 16 : 8;
     this.HANDLE_HALF_WIDTH = this.HANDLE_WIDTH >> 1;
     this.HANDLE_CLOSE_SIZE = 25;
 
@@ -491,10 +491,10 @@ angular.module('joinnet')
     // is_auto_fit is reset when the user toggle fitting, change fitting, change ratio
     this.is_auto_fit = true;  // whether current slide is using auto fit
     this.auto_fit_page = true;  // whether auto select turns on fit page
-    this.auto_fit_mode = 1; // when fit page, what fit mode is used by auto select
+    this.auto_fit_mode = 0; // when fit page, what fit mode is used by auto select
     this.auto_ratio_pos = 100;  // when not fit page, what ratio pos is used by auto select
     this.is_fit_page = true;  // whether is fitting for current slide
-    this.fit_mode = 1;  // 0: fit width; 1: fit page, which fit mode for current slide
+    this.fit_mode = 0;  // 0: fit width; 1: fit page, which fit mode for current slide
     this.ratio_pos = 100; // current ratio pos for current slide
     this.ratio_percent = 100;
     this.min_ratio = 0.01;
@@ -1085,10 +1085,10 @@ angular.module('joinnet')
 
         _board.is_auto_fit = true;
         _board.auto_fit_page = true;
-        _board.auto_fit_mode = 1;
+        _board.auto_fit_mode = 0;
         _board.auto_ratio_pos = 100;
         _board.is_fit_page = true;
-        _board.fit_mode = 1;
+        _board.fit_mode = 0;
         _board.ratio_pos = 100;
       } else {
         var i;
@@ -4118,12 +4118,12 @@ angular.module('joinnet')
       // 3 6 2
       // 825613470
       if(hitTestHandle(r.x + r.w, r.y + r.h, x, y)) return 2;
-      if(hitTestHandle(r.x + r.w, r.y + r.h / 2, x, y)) return 5;
-      if(hitTestHandle(r.x + r.w / 2, r.y + r.h, x, y)) return 6;
+      // if(hitTestHandle(r.x + r.w, r.y + r.h / 2, x, y)) return 5;
+      // if(hitTestHandle(r.x + r.w / 2, r.y + r.h, x, y)) return 6;
       if(hitTestHandle(r.x + r.w, r.y, x, y)) return 1;
       if(hitTestHandle(r.x, r.y + r.h, x, y)) return 3;
-      if(hitTestHandle(r.x + r.w / 2, r.y, x, y)) return 4;
-      if(hitTestHandle(r.x, r.y + r.h / 2, x, y)) return 7;
+      // if(hitTestHandle(r.x + r.w / 2, r.y, x, y)) return 4;
+      // if(hitTestHandle(r.x, r.y + r.h / 2, x, y)) return 7;
       if(hitTestHandle(r.x, r.y, x, y)) return 0;
 
       // test delete button (9)
@@ -4664,7 +4664,7 @@ angular.module('joinnet')
     function drawHoverSelect(ratio, ctx) {
       var local_mark = _board.local_mark;
       ctx.save();
-      ctx.globalAlpha = 0.8;
+      ctx.globalAlpha = 0.5;
       ctx.lineWidth = 1;
       ctx.strokeStyle = ctx.fillStyle = '#000000';
 
@@ -4705,12 +4705,12 @@ angular.module('joinnet')
         var D = _board.HANDLE_WIDTH;
         var C = _board.HANDLE_CLOSE_SIZE;
         ctx.fillRect(x + w - R, y + h - R, D, D);
-        ctx.fillRect(x + w - R, y + h / 2 - R, D, D);
-        ctx.fillRect(x + w / 2 - R, y + h - R, D, D);
+        // ctx.fillRect(x + w - R, y + h / 2 - R, D, D);
+        // ctx.fillRect(x + w / 2 - R, y + h - R, D, D);
         ctx.fillRect(x + w - R, y - R, D, D);
         ctx.fillRect(x - R, y + h - R, D, D);
-        ctx.fillRect(x + w / 2 - R, y - R, D, D);
-        ctx.fillRect(x - R, y + h / 2 - R, D, D);
+        // ctx.fillRect(x + w / 2 - R, y - R, D, D);
+        // ctx.fillRect(x - R, y + h / 2 - R, D, D);
         ctx.fillRect(x - R, y - R, D, D);
 
         // delete button
@@ -4835,6 +4835,7 @@ angular.module('joinnet')
       var default_h = mark.m_rect_bottom;
       var w = default_w, h = default_h;
       if(_board.drag_idx == -1) {
+        if(!_board.mousemove_detected) return;
         var pos = getMouseMovePos();
         x = pos.x;
         y = pos.y;
@@ -4914,7 +4915,8 @@ angular.module('joinnet')
       if(_board.shape == 'eraser') { // eraser
         //ctx3.save();
         ctx3.lineWidth = 1;
-        ctx3.fillStyle = "#333333";
+        ctx3.globalAlpha = 0.2;
+        ctx3.fillStyle = "#ffffff";
         var r = _board.text_width * 4;
         var r2 = r * 2;
 
@@ -5267,6 +5269,7 @@ angular.module('joinnet')
       var scale = get_image_mark_scale();
       var x, y;
       if(_board.drag_idx == -1) {
+        if(!_board.mousemove_detected) return;
         var pos = getMouseMovePos();
         x = pos.x;
         y = pos.y;
@@ -5529,8 +5532,10 @@ angular.module('joinnet')
     }
 
     function drawHoverEraser() {
+      // this is to draw the eraser when the user is not pressing the mouse but is move the mouse around
       var x, y;
       if(_board.drag_idx != -1) return;
+      if(!_board.mousemove_detected) return;
       var pos = getMouseMovePos();
       x = pos.x;
       y = pos.y;
@@ -5540,7 +5545,7 @@ angular.module('joinnet')
       ctx.save();
       ctx.globalAlpha = 0.5;
       ctx.lineWidth = 1;
-      ctx.fillStyle = "#333333";
+      ctx.fillStyle = "#666600";
       ctx.beginPath();
       var r = _board.text_width * 4;
       var r2 = _board.text_width * 8;
@@ -5552,6 +5557,7 @@ angular.module('joinnet')
     }
 
     function drawLocalEraser() {
+      // this is to draw the eraser at the last position while the user is pressing the mouse and dragging the eraser
       if(!(_board.drag_idx != -1 && _board.drag_idx == _board.slide_index)) return;
       if(_board.shape != 'eraser') return;
       if(!_board.local_mark.ax) return;
@@ -5559,7 +5565,9 @@ angular.module('joinnet')
       var ctx = _board.ctx;
       var ratio = _board.draw_ratio;
       ctx.lineWidth = 1;
-      ctx.fillStyle = "#333333";
+      ctx.fillStyle = "#666600";
+      ctx.save();
+      ctx.globalAlpha = 0.5;
       ctx.beginPath();
       var r = _board.text_width * 4;
       var r2 = _board.text_width * 8;
@@ -5567,6 +5575,7 @@ angular.module('joinnet')
         (_board.local_mark.ay[_board.local_mark.ay.length - 1] - r) * ratio,
         r2 * ratio, r2 * ratio);
       ctx.fill();
+      ctx.restore();
     }
 
     function drawLocalFocusPointer() {
@@ -5963,6 +5972,8 @@ angular.module('joinnet')
         }
 
         _board.new_upload = true;
+        // make sure that white board is visible
+        $rootScope.$broadcast(hmtgHelper.WM_SHOW_WHITE_BOARD);
         hmtg.jnkernel.jn_command_UploadSlide(upload_type, groupname, title, data, function() {
           _board.show_upload_progress = false;
           _board.upload_finished = true;

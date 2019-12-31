@@ -350,7 +350,7 @@
       </span>
       <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" 
-          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.visible_area=='whiteboard']"
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[lo.visible_area=='white_board']"
           ng-click="turn_on_auto_hide_navbar_timer();onConciseBoard()"
           tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_WHITE_BOARD' | translate)}}">
           <span class="glyphicon glyphicon-blackboard"></span>
@@ -400,6 +400,13 @@
     <div ng-class="row_fluid()">
       <div class="auto-overflow" ng-class="col_area('userlist')" ng-show="is_area_visible('userlist')">
       <div ng-controller="UserListCtrl">
+        <div class="concise_float_top_right" 
+          ng-show="gui_mode == 'concise' && lo.visible_area == 'userlist' && !lo.is_userlist_visible && !lo.is_textchat_visible && !lo.is_gallery_visible && m.show_snapshot()">
+          <button type="button" class="btn btn-default" tooltip-placement="left" 
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
+            ng-click="snapshot()"> <span class="glyphicon glyphicon-picture"></span>
+            <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span>{{snapshot_tail}} </button>
+        </div>
         <div ng-show="!is_concise_mode()"><ng-include src="partialTranscoding" onload="jt.transcoding_loaded()"></ng-include></div>
         <div ng-if="jn.bookmark.length && !is_concise_mode()">
           <span class="user-pointer btn-link" ng-show="hide_bm" ng-click="toggle_bookmark()" translate="ID_BOOKMARK"></span>
@@ -457,7 +464,7 @@
               <span class="glyphicon glyphicon-upload"></span>
               <span ng-show="as.show_text">{{(v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate}}</span>
               </button></span>
-          <span ng-show="v.video_codec && v2.is_send_video && as.show_advanced_function && !is_concise_mode()">
+          <span ng-show="v.video_codec && v2.is_send_video && !is_concise_mode()">
             <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="v.fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
           </span>
           <span ng-show="!is_concise_mode()"><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
@@ -578,9 +585,9 @@
         <div ng-hide="to_hide_textchat()" ng-class="class_concise_float()">
           <div ng-include="partialChat1"></div>
         </div>
-        <div ng-show="show_userlist_title()" ng-if="0">
-          <h4>{{get_cipher_info()}}</h4>
-          <h4 ng-show="show_codec_info()">
+        <div ng-show="show_userlist_title() && show_codec_info() && gui_mode != 'concise'" ng-if="1">
+          <h4 ng-if="0">{{get_cipher_info()}}</h4>
+          <h4 ng-show="0 && show_codec_info()">
           <span translate="ID_AUDIO_CODEC_PROMPT"></span>: <select class="vertical-middle" ng-model="a.audio_codec" 
             ng-options="codec.value as codec.name for codec in a.audio_codecs" 
             ng-model-options="{ updateOn: 'default blur', debounce: {'default': 2000, 'blur': 0} }">

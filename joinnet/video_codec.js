@@ -55,16 +55,18 @@ angular.module('joinnet')
     this.video_codecs = [];
     this.video_codec = 0;
     this.afps = [
-      { name: '100%', value: 0 },
-      { name: '25%', value: -1 },
-      { name: '6%', value: -2 },
-      { name: '1.5%', value: -3 },
-      { name: '0.4%', value: -4 },
-      { name: '0.1%', value: -5 },
+      // { name: '100%', value: 0 },
+      // { name: '25%', value: -1 },
+      // { name: '6%', value: -2 },
+      // { name: '1.5%', value: -3 },
+      // { name: '0.4%', value: -4 },
+      // { name: '0.1%', value: -5 },
       { name: '1fps', value: 1 },
       { name: '2fps', value: 2 },
       { name: '5fps', value: 5 },
       { name: '10fps', value: 10 },
+      { name: '15fps', value: 15 },
+      { name: '20fps', value: 20 },
       { name: '25fps', value: 25 }
     ];
     this.fps = appSetting.video_fps;
@@ -95,7 +97,17 @@ angular.module('joinnet')
         var c = array[i];
         if(c == hmtg.config.VIDEO_MJPG) {
           this.video_codecs.push({ name: 'Mjpg', value: c });
+          if(!my_codec) my_codec = c;
+          if(this.video_codec == c) is_current_codec_valid = true;
+        }
+        else if(c == hmtg.config.VIDEO_H264) {
+          this.video_codecs.push({ name: 'H264', value: c });
           my_codec = c;
+          if(this.video_codec == c) is_current_codec_valid = true;
+        }
+        else if(c == hmtg.config.VIDEO_VPX) {
+          this.video_codecs.push({ name: 'VPX', value: c });
+          if(!my_codec || my_codec == hmtg.config.VIDEO_MJPG) my_codec = c;
           if(this.video_codec == c) is_current_codec_valid = true;
         }
       }

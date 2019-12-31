@@ -863,6 +863,15 @@ a.emoticon
   opacity:0.5;
 }
 
+.concise_float_top_right {
+  position:fixed;
+  background:transparent;
+  z-index: 20;
+  right:0px;
+  top:0px;
+  opacity:0.5;
+}
+
 .concise_float_bottom_bar {
   position:fixed;
   background:transparent;

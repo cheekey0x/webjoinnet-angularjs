@@ -1383,55 +1383,22 @@ angular.module('msgr')
 
       im.prototype.start_microphone_with_id = function($scope, target, menu) {
         if(!target) target = this;
-        target.start_microphone(menu.value, menu.flag);
+        target.start_microphone(menu.value);
       }
 
-      im.prototype.start_microphone = function(device_id, is_source_id) {
+      im.prototype.start_microphone = function(device_id) {
         var target = this;
-        if(!is_source_id  // if is_source_id is true, must use navigator.getUserMedia
-          && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           if(!device_id) {
-            hmtg.util.log(2, 'try to capture audio via navigator.mediaDevices.getUserMedia, without deviceId');
+            hmtg.util.log(2, 'try to capture audio without deviceId');
             navigator.mediaDevices.getUserMedia({
               audio: true
             }).then(gotMicrophoneStream, audioStreamError).catch(audioStreamException);
           } else {
-            hmtg.util.log(2, 'try to capture audio via navigator.mediaDevices.getUserMedia, with deviceId ' + device_id);
+            hmtg.util.log(2, 'try to capture audio with deviceId ' + device_id);
             navigator.mediaDevices.getUserMedia({
               audio: { deviceId: { exact: device_id } }
             }).then(gotMicrophoneStream, audioStreamError).catch(audioStreamException);
-          }
-        } else {
-          var aparam = [
-            { googDucking: false },
-            { googEchoCancellation: true },
-            { googEchoCancellation2: true },
-            { googAutoGainControl: true },
-            { googAutoGainControl2: true },
-            { googNoiseSuppression: true },
-            { googNoiseSuppression2: true },
-            { googHighpassFilter: true }
-          ];
-          if(device_id && is_source_id) {
-            aparam.push({ sourceId: device_id });
-          }
-          if(!device_id) {
-            hmtg.util.log(2, 'try to capture audio via navigator.getUserMedia, without deviceId');
-            navigator.getUserMedia({
-              audio: true,
-              toString: function() { return "audio"; }
-            }, gotMicrophoneStream, audioStreamError).catch(audioStreamException);
-          } else if(is_source_id) {
-            hmtg.util.log(2, 'try to capture audio via navigator.getUserMedia, with sourceId ' + device_id);
-            navigator.getUserMedia({
-              audio: { optional: aparam },
-              toString: function() { return "audio"; }
-            }, gotMicrophoneStream, audioStreamError).catch(audioStreamException);
-          } else {
-            hmtg.util.log(2, 'try to capture audio via navigator.getUserMedia, with deviceId ' + device_id);
-            navigator.getUserMedia({
-              audio: { deviceId: device_id }
-            }, gotMicrophoneStream, audioStreamError).catch(audioStreamException);
           }
         }
 
@@ -1466,10 +1433,10 @@ angular.module('msgr')
 
       im.prototype.start_camera_with_id = function($scope, target, menu) {
         if(!target) target = this;
-        target.start_camera(menu.value, menu.flag);
+        target.start_camera(menu.value);
       }
       
-      im.prototype.start_camera = function(device_id, is_source_id) {
+      im.prototype.start_camera = function(device_id) {
         if(this.is_webrtc_audio_only) return;
         var target = this;
 
@@ -1479,42 +1446,17 @@ angular.module('msgr')
         })
           .then(gotCameraStream, videoStreamError).catch(videoStreamException);
         */
-        if(!is_source_id  // if is_source_id is true, must use navigator.getUserMedia
-          && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           if(!device_id) {
-            hmtg.util.log(2, 'try to capture video via navigator.mediaDevices.getUserMedia, without deviceId');
+            hmtg.util.log(2, 'try to capture video without deviceId');
             navigator.mediaDevices.getUserMedia({
               video: true
             }).then(gotCameraStream, videoStreamError).catch(videoStreamException);
           } else {
-            hmtg.util.log(2, 'try to capture video via navigator.mediaDevices.getUserMedia, with deviceId ' + device_id);
+            hmtg.util.log(2, 'try to capture video with deviceId ' + device_id);
             navigator.mediaDevices.getUserMedia({
               video: { deviceId: { exact: device_id } }
             }).then(gotCameraStream, videoStreamError).catch(videoStreamException);
-          }
-        } else {
-          var aparam = [];
-          if(device_id && is_source_id) {
-            aparam.push({ sourceId: device_id });
-          }
-          if(!device_id) {
-            hmtg.util.log(2, 'try to capture video via navigator.getUserMedia, without deviceId');
-            navigator.getUserMedia({
-              video: true,
-              toString: function() { return "video"; }
-            }, gotCameraStream, videoStreamError).catch(videoStreamException);
-          } else if(is_source_id) {
-            hmtg.util.log(2, 'try to capture video via navigator.getUserMedia, with sourceId ' + device_id);
-            navigator.getUserMedia({
-              //video: true,
-              video: { optional: aparam },
-              toString: function() { return "video"; }
-            }, gotCameraStream, videoStreamError).catch(videoStreamException);
-          } else {
-            hmtg.util.log(2, 'try to capture video via navigator.getUserMedia, with deviceId ' + device_id);
-            navigator.getUserMedia({
-              video: { deviceId: device_id }
-            }, gotCameraStream, videoStreamError).catch(videoStreamException);
           }
         }
 
@@ -4127,7 +4069,7 @@ angular.module('msgr')
               for(i = 0; i < hmtgSound.audio_device_array.length && i < 20; i++) {
                 menu.push({
                   "text": $translate.instant('ID_START_RECORD') + ' @ ' + hmtgSound.audio_device_array[i].name,
-                  "onclick": _im.start_microphone_with_id, "value": hmtgSound.audio_device_array[i].id, "flag": hmtgSound.is_source_id
+                  "onclick": _im.start_microphone_with_id, "value": hmtgSound.audio_device_array[i].id
                 });
               }
             }
@@ -4136,7 +4078,7 @@ angular.module('msgr')
               for(i = 0; i < hmtgSound.video_device_array.length && i < 20; i++) {
                 menu.push({
                   "text": $translate.instant('ID_START_VIDEO_CAPTURE') + ' @ ' + hmtgSound.video_device_array[i].name,
-                  "onclick": _im.start_camera_with_id, "value": hmtgSound.video_device_array[i].id, "flag": hmtgSound.is_source_id
+                  "onclick": _im.start_camera_with_id, "value": hmtgSound.video_device_array[i].id
                 });
               }
             }

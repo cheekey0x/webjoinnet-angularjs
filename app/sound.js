@@ -266,10 +266,6 @@ angular.module('hmtgs')
     } else {
     }
 
-    // whether source id or device id is used.
-    // when this variable is true, it means that navigator.mediaDevices is not avaiable, but MediaStreamTrack.getSources can be used
-    // when this variable is false, it means that navigator.mediaDevices is available, or neither is available
-    this.is_source_id = false;
     this.audio_output_array = [];
     this.audio_device_array = [];
     this.video_device_array = [];
@@ -314,53 +310,7 @@ angular.module('hmtgs')
           _hmtgSound.video_device_array = video_array;
           _hmtgSound.audio_device_hash = audio_hash;
           _hmtgSound.video_device_hash = video_hash;
-          _hmtgSound.is_source_id = false;
-          //hmtg.util.localStorage.removeItem('hmtg_audio_capture_source_id');
-          //hmtg.util.localStorage.removeItem('hmtg_video_capture_source_id');
         });
-      } else if(typeof MediaStreamTrack !== 'undefined' && typeof MediaStreamTrack.getSources === 'function') {
-        try {
-          MediaStreamTrack.getSources(function(sourceInfos) {
-            var name;
-            var audio_array = [];
-            var video_array = [];
-            var audio_hash = {};
-            var video_hash = {};
-            for(var i = 0; i < sourceInfos.length; ++i) {
-              var sourceInfo = sourceInfos[i];
-              if(sourceInfo.kind === 'audio') {
-                if(audio_hash.hasOwnProperty(sourceInfo.id)) continue;
-                if(sourceInfo.label || _hmtgSound.audio_device_hash[sourceInfo.id]) {
-                  name = sourceInfo.label || _hmtgSound.audio_device_hash[sourceInfo.id];
-                  audio_hash[sourceInfo.id] = name;
-                } else {
-                  name = $translate.instant('ID_MICROPHONE_DESCR') + ' - ' + sourceInfo.id.slice(0, 4);
-                  audio_hash[sourceInfo.id] = '';
-                }
-                audio_array.push({ id: sourceInfo.id, name: name });
-              } else if(sourceInfo.kind === 'video') {
-                if(video_hash.hasOwnProperty(sourceInfo.id)) continue;
-                if(sourceInfo.label || _hmtgSound.video_device_hash[sourceInfo.id]) {
-                  name = sourceInfo.label || _hmtgSound.video_device_hash[sourceInfo.id];
-                  video_hash[sourceInfo.id] = name;
-                } else {
-                  if(sourceInfo.facing) name = sourceInfo.facing;
-                  else name = $translate.instant('ID_CAMERA_DESCR') + ' - ' + sourceInfo.id.slice(0, 4);
-                  video_hash[sourceInfo.id] = '';
-                }
-                video_array.push({ id: sourceInfo.id, name: name });
-              }
-            }
-            _hmtgSound.audio_device_array = audio_array;
-            _hmtgSound.video_device_array = video_array;
-            _hmtgSound.audio_device_hash = audio_hash;
-            _hmtgSound.video_device_hash = video_hash;
-            _hmtgSound.is_source_id = true;
-            //hmtg.util.localStorage.removeItem('hmtg_audio_capture_device_id');
-            //hmtg.util.localStorage.removeItem('hmtg_video_capture_device_id');
-          });
-        } catch(e) {
-        }
       }
       // output
       // setSindId now only support from an element yet.

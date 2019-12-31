@@ -35,7 +35,7 @@ angular.module('joinnet')
       return true;
     }
 
-    this.start = function(device_id, is_source_id) {
+    this.start = function(device_id) {
       this.remove_alert_item();
       if(!navigator.getUserMedia) return;
       if(!hmtgSound.ac) return;
@@ -44,7 +44,7 @@ angular.module('joinnet')
 
       var capture_tick = hmtg.util.GetTickCount();      
       if(capture_tick - hmtgSound.audio_video_capture_tick < 100) {
-        setTimeout(function() { _joinnetAudio.start(device_id, is_source_id) }, 100);
+        setTimeout(function() { _joinnetAudio.start(device_id) }, 100);
         return;
       }
       hmtgSound.audio_video_capture_tick = capture_tick;
@@ -75,53 +75,18 @@ angular.module('joinnet')
       mediasoupWebRTC.updateAudioSending();
 
       var ac = hmtgSound.ac;
-      var sampleRate = ac ? ac.sampleRate : 8000;
 
-      if(!is_source_id  // if is_source_id is true, must use navigator.getUserMedia
-        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         if(!device_id) {
-          hmtg.util.log(2, 'try to capture audio via navigator.mediaDevices.getUserMedia, without deviceId');
+          hmtg.util.log(2, 'try to capture audio without deviceId');
           navigator.mediaDevices.getUserMedia({
             audio: true
           }).then(gotAudioStream, audioStreamError);
         } else {
-          hmtg.util.log(2, 'try to capture audio via navigator.mediaDevices.getUserMedia, with deviceId ' + device_id);
+          hmtg.util.log(2, 'try to capture audio with deviceId ' + device_id);
           navigator.mediaDevices.getUserMedia({
             audio: { deviceId: { exact: device_id } }
           }).then(gotAudioStream, audioStreamError);
-        }
-      } else {
-        var aparam = [
-          { googDucking: false },
-          { googEchoCancellation: true },
-          { googEchoCancellation2: true },
-          { googAutoGainControl: true },
-          { googAutoGainControl2: true },
-          { googNoiseSuppression: true },
-          { googNoiseSuppression2: true },
-          { googHighpassFilter: true }
-        ];
-        if(device_id && is_source_id) {
-          aparam.push({ sourceId: device_id });
-        }
-        if(!device_id) {
-          hmtg.util.log(2, 'try to capture audio via navigator.getUserMedia, without deviceId');
-          navigator.getUserMedia({
-            audio: true,
-            toString: function() { return "audio"; }
-          }, gotAudioStream, audioStreamError);
-        } else if(is_source_id) {
-          hmtg.util.log(2, 'try to capture audio via navigator.getUserMedia, with sourceId ' + device_id);
-          navigator.getUserMedia({
-            //audio: true,
-            audio: { optional: aparam },
-            toString: function() { return "audio"; }
-          }, gotAudioStream, audioStreamError);
-        } else {
-          hmtg.util.log(2, 'try to capture audio via navigator.getUserMedia, with deviceId ' + device_id);
-          navigator.getUserMedia({
-            audio: { deviceId: device_id }
-          }, gotAudioStream, audioStreamError);
         }
       }
 
@@ -396,10 +361,10 @@ angular.module('joinnet')
 
 .service('joinnetVideo', ['hmtgSound', '$rootScope', 'video_codec', 'hmtgHelper', 'video_capture', 'main_video_canvas',
   'video_recving', 'main_video', '$translate', 'video_playback', 'joinnetTranscoding', 'hmtgAlert', '$ocLazyLoad',
-  'mediasoupWebRTC',
+  'mediasoupWebRTC', 'appSetting',
   function(hmtgSound, $rootScope, video_codec, hmtgHelper, video_capture, main_video_canvas, video_recving, main_video,
     $translate, video_playback, joinnetTranscoding, hmtgAlert, $ocLazyLoad,
-    mediasoupWebRTC) {
+    mediasoupWebRTC, appSetting) {
     var _joinnetVideo = this;
     this.recording = false;
     this.video_record_support = navigator.getUserMedia;
@@ -456,7 +421,7 @@ angular.module('joinnet')
       return true;
     }
 
-    this.start = function(device_id, is_source_id) {
+    this.start = function(device_id) {
       this.remove_alert_item();
       if(!navigator.getUserMedia) return;
       if(this.recording) return;
@@ -464,7 +429,7 @@ angular.module('joinnet')
 
       var capture_tick = hmtg.util.GetTickCount();
       if(capture_tick - hmtgSound.audio_video_capture_tick < 100) {
-        setTimeout(function() { _joinnetVideo.start(device_id, is_source_id) }, 100);
+        setTimeout(function() { _joinnetVideo.start(device_id) }, 100);
         return;
       }
       hmtgSound.audio_video_capture_tick = capture_tick;
@@ -473,104 +438,73 @@ angular.module('joinnet')
       hmtg.util.log('stat, local video capture is ON');
       var elem_video = this.elem_video;
 
-      /*
-      var size_w = hmtg.jnkernel._jn_iSize_w();
-      var size_h = hmtg.jnkernel._jn_iSize_h();
-      // testing
-      //size_w = 276; size_h = 144;
-      //size_w = 126; size_h = 244;
-
-      var video_constrains = {
-      "mandatory": {
-      "minWidth": size_w,
-      "maxWidth": size_w,
-      "minHeight": size_h,
-      "maxHeight": size_h
-      },
-      "optional": []
+      var constraints;
+      var large;
+      var small;
+      if(appSetting.use_ideal_video_capture_dimension) {
+        large = appSetting.ideal_video_capture_dimension >> 4 << 4;
+        small = (large / 1.54 + 8) >> 4 << 4;
       }
-      var video_constrains2 = {
-      "mandatory": {
-      "minWidth": size_w >> 1,
-      "maxWidth": size_w << 1,
-      "minHeight": size_h >> 1,
-      "maxHeight": size_h << 1
-      },
-      "optional": []
-      }
-      var video_constrains3 = {
-      "mandatory": {
-      "minWidth": size_w >> 2,
-      "maxWidth": size_w << 2,
-      "minHeight": size_h >> 2,
-      "maxHeight": size_h << 2
-      },
-      "optional": []
-      }
-      var screen_ratio = Math.max(window.screen.width, window.screen.height) / Math.min(window.screen.width, window.screen.height);
-      var max_ratio = Math.min(16 / 9 + 0.0001, screen_ratio * 1.1);
-      var min_ratio = Math.max(4 / 3 - 0.0001, screen_ratio / 1.1);
-      var video_constrains4 = {
-      "mandatory": {
-      "minAspectRatio": '' + min_ratio,
-      "maxAspectRatio": '' + max_ratio
-      },
-      "optional": []
-      }
-      navigator.getUserMedia({ video: video_constrains, toString: function () { return "video"; } }, getUserMediaOK, function (e) {
-      navigator.getUserMedia({ video: video_constrains2, toString: function () { return "video"; } }, getUserMediaOK, function (e) {
-      navigator.getUserMedia({ video: video_constrains3, toString: function () { return "video"; } }, getUserMediaOK, function (e) {
-      navigator.getUserMedia({ video: true, toString: function () { return "video"; } }, getUserMediaOK, function (e) {
-      hmtgSound.ShowErrorPrompt(function () { return $translate.instant('ID_CANNOT_CAPTURE_VIDEO') + hmtgSound.getUserMediaError(e) }, 20);
-      _joinnetVideo.error_occurred = true;
-      _joinnetVideo.recording = false;
-      $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
-      $rootScope.$broadcast(hmtgHelper.WM_UPDATE_USERLIST);
-      });
-      });
-      });
-      });
-      */
-
-      if(!is_source_id  // if is_source_id is true, must use navigator.getUserMedia
-        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        if(!device_id) {
-          hmtg.util.log(2, 'try to capture video via navigator.mediaDevices.getUserMedia, without deviceId');
-          navigator.mediaDevices.getUserMedia({
-            video: true
-          }).then(getUserMediaOK, videoStreamError);
+      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if(appSetting.use_ideal_video_capture_dimension) {
+          captureVideo1stAttempt();
         } else {
-          hmtg.util.log(2, 'try to capture video via navigator.mediaDevices.getUserMedia, with deviceId ' + device_id);
-          navigator.mediaDevices.getUserMedia({
-            video: { deviceId: { exact: device_id } }
-          }).then(getUserMediaOK, videoStreamError);
-        }
-      } else {
-        var aparam = [];
-        if(device_id && is_source_id) {
-          aparam.push({ sourceId: device_id });
-        }
-        if(!device_id) {
-          hmtg.util.log(2, 'try to capture video via navigator.getUserMedia, without deviceId');
-          navigator.getUserMedia({
-            video: true,
-            toString: function() { return "video"; }
-          }, getUserMediaOK, videoStreamError);
-        } else if(is_source_id) {
-          hmtg.util.log(2, 'try to capture video via navigator.getUserMedia, with sourceId ' + device_id);
-          navigator.getUserMedia({
-            //video: true,
-            video: { optional: aparam },
-            toString: function() { return "video"; }
-          }, getUserMediaOK, videoStreamError);
-        } else {
-          hmtg.util.log(2, 'try to capture video via navigator.getUserMedia, with deviceId ' + device_id);
-          navigator.getUserMedia({
-            video: { deviceId: device_id }
-          }, getUserMediaOK, videoStreamError);
+          captureVideoLastAttempt();
         }
       }
 
+      function captureVideo1stAttempt() {
+        if(device_id) {
+          constraints = {
+            deviceId: { exact: device_id },
+            width: { ideal: large },
+            height: { ideal: small }
+          }
+          hmtg.util.log(2, 'try to capture video with deviceId ' + device_id + ' @ ' + large + ' x ' + small);
+        } else {
+          constraints = {
+            width: { ideal: large },
+            height: { ideal: small }
+          }
+          hmtg.util.log(2, 'try to capture video without deviceId @ ' + large + ' x ' + small);
+        }
+        navigator.mediaDevices.getUserMedia({
+          video: constraints
+        }).then(getUserMediaOK, captureVideo2ndAttempt);
+      }
+      function captureVideo2ndAttempt() {
+        if(device_id) {
+          constraints = {
+            deviceId: { exact: device_id },
+            width: { ideal: small },
+            height: { ideal: large }
+          }
+          hmtg.util.log(2, 'try to capture video with deviceId ' + device_id + ' @ ' + small + ' x ' + large);
+        } else {
+          constraints = {
+            width: { ideal: small },
+            height: { ideal: large }
+          }
+          hmtg.util.log(2, 'try to capture video without deviceId @ ' + small + ' x ' + large);
+        }
+        navigator.mediaDevices.getUserMedia({
+          video: constraints
+        }).then(getUserMediaOK, captureVideoLastAttempt);
+      }
+      function captureVideoLastAttempt() {
+        if(device_id) {
+          constraints = {
+            deviceId: { exact: device_id }
+          }
+          hmtg.util.log(2, 'try to capture video with deviceId ' + device_id);
+        } else {
+          constraints = true;
+          hmtg.util.log(2, 'try to capture video without deviceId');
+        }
+        navigator.mediaDevices.getUserMedia({
+          video: constraints
+        }).then(getUserMediaOK, videoStreamError);
+      }
       function videoStreamError(e) {
         hmtg.util.log(5, 'capture video fails, error: ' + hmtgSound.getUserMediaError(e));
         hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_VIDEO') + ' Error: ' + hmtgSound.getUserMediaError(e) }, 20);
