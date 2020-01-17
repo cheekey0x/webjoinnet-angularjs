@@ -1246,6 +1246,10 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.v2 = video_bitrate;
     $scope.vr = video_recving;
 
+    $scope.can_show_badge = function() {
+      return hmtg.jnkernel._jn_bConnected() || (typeof hmtg.jnkernel._jn_iWorkMode() != 'undefined' && (hmtg.jnkernel._jn_bConnecting() || jnjContent.valid_jnj));
+    }
+
     // concise layout related code
     $scope.show_concise_full_toolbar = true;
     $scope.toggle_concise_mode = function() {
@@ -1253,83 +1257,83 @@ angular.module('joinnet', ['pascalprecht.translate'])
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_LAYOUT_MODE);
       if($rootScope.gui_mode == 'concise') {
         $scope.loadVideoWindow();
-        $scope.track_mouse_move();
+        // $scope.track_mouse_move();
 
         // when float video is used concise layout, set display size to ~100
         // if(layout.is_video_visible) {
         //   layout.set_fixed_video_display_size();
         // }
       } else {
-        $scope.untrack_mouse_move();
+        // $scope.untrack_mouse_move();
         // when changing to non-concise mode, the video window display size may need
         // be adjusted from 100 to auto-calculated value
         video_recving.display_size = Math.min(640, hmtgHelper.calcGalleryDisplaySize(video_recving.ssrc_array.length));
       }
     }
 
-    var auto_hide_navbar_timerID = null;
-    function turn_off_auto_hide_navbar_timer() {
-      if(auto_hide_navbar_timerID) {
-        clearTimeout(auto_hide_navbar_timerID);
-        auto_hide_navbar_timerID = null;
-      }
-    }
+    // var auto_hide_navbar_timerID = null;
+    // function turn_off_auto_hide_navbar_timer() {
+    //   if(auto_hide_navbar_timerID) {
+    //     clearTimeout(auto_hide_navbar_timerID);
+    //     auto_hide_navbar_timerID = null;
+    //   }
+    // }
     $scope.turn_on_auto_hide_navbar_timer = function() {
-      turn_off_auto_hide_navbar_timer();
-      auto_hide_navbar_timerID = setTimeout(function() {
-        auto_hide_navbar_timerID = null;
-        if($rootScope.gui_mode == 'concise') {
-          if(layout.is_navbar_visible) {
-            layout.is_navbar_visible = false;
-            $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
-          }
-        }
-      }, 15000);
+      // turn_off_auto_hide_navbar_timer();
+      // auto_hide_navbar_timerID = setTimeout(function() {
+      //   auto_hide_navbar_timerID = null;
+      //   if($rootScope.gui_mode == 'concise') {
+      //     if(layout.is_navbar_visible) {
+      //       layout.is_navbar_visible = false;
+      //       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
+      //     }
+      //   }
+      // }, 15000);
     }
-    var delayedShowupTimerID = null;
-    var onMouseMove = function(e) {
-      if($rootScope.gui_mode != 'concise') {
-        $scope.untrack_mouse_move();
-        return;
-      }
+    // var delayedShowupTimerID = null;
+    // var onMouseMove = function(e) {
+    //   if($rootScope.gui_mode != 'concise') {
+    //     $scope.untrack_mouse_move();
+    //     return;
+    //   }
 
-      // when in concise mode
-      // if the navbar is visible and the auto hide timer is on
-      // refresh the timer when the mouse is moving
-      if(auto_hide_navbar_timerID && layout.is_navbar_visible) {
-        $scope.turn_on_auto_hide_navbar_timer(); // refresh the auto hide timer
-        return;
-      }
+    //   // when in concise mode
+    //   // if the navbar is visible and the auto hide timer is on
+    //   // refresh the timer when the mouse is moving
+    //   if(auto_hide_navbar_timerID && layout.is_navbar_visible) {
+    //     $scope.turn_on_auto_hide_navbar_timer(); // refresh the auto hide timer
+    //     return;
+    //   }
 
-      //console.log('pageX=' + e.pageX + '; pageY=' + e.pageY + '; width=' + hmtgHelper.view_port_width + '; height=' + hmtgHelper.view_port_height);
-      if(e.pageX < 40 && e.pageY > hmtgHelper.view_port_height - 35) {
-        // the reason to use 100ms timeout here:
-        // on mobile browser, when the user clicks the area near the bottom
-        // a mousemove may be triggered first, and then a mousedown.
-        // the combined effect is:
-        // the toolbar show up, and then the button underneath is immediately clicked
-        // using a timeout avoid this unwanted click
-        if(delayedShowupTimerID) {
-          clearTimeout(delayedShowupTimerID);
-        }
-        delayedShowupTimerID = setTimeout(function() {
-          delayedShowupTimerID = null;
-          if($rootScope.gui_mode == 'concise' && !layout.is_navbar_visible) {
-            layout.is_navbar_visible = true;
-            $scope.turn_on_auto_hide_navbar_timer();
-            $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
-          }
-        }, 100)
-      }
-    }
-    $scope.track_mouse_move = function() {
-      //$scope.untrack_mouse_move();
-      //document.addEventListener('mousemove', onMouseMove, true);
-    }
+    //   //console.log('pageX=' + e.pageX + '; pageY=' + e.pageY + '; width=' + hmtgHelper.view_port_width + '; height=' + hmtgHelper.view_port_height);
+    //   if(e.pageX < 40 && e.pageY > hmtgHelper.view_port_height - 35) {
+    //     // the reason to use 100ms timeout here:
+    //     // on mobile browser, when the user clicks the area near the bottom
+    //     // a mousemove may be triggered first, and then a mousedown.
+    //     // the combined effect is:
+    //     // the toolbar show up, and then the button underneath is immediately clicked
+    //     // using a timeout avoid this unwanted click
+    //     if(delayedShowupTimerID) {
+    //       clearTimeout(delayedShowupTimerID);
+    //     }
+    //     delayedShowupTimerID = setTimeout(function() {
+    //       delayedShowupTimerID = null;
+    //       if($rootScope.gui_mode == 'concise' && !layout.is_navbar_visible) {
+    //         layout.is_navbar_visible = true;
+    //         $scope.turn_on_auto_hide_navbar_timer();
+    //         $rootScope.$broadcast(hmtgHelper.WM_UPDATE_JOINNET);
+    //       }
+    //     }, 100)
+    //   }
+    // }
+    // $scope.track_mouse_move = function() {
+    //   //$scope.untrack_mouse_move();
+    //   //document.addEventListener('mousemove', onMouseMove, true);
+    // }
 
-    $scope.untrack_mouse_move = function() {
-      //document.removeEventListener('mousemove', onMouseMove, true);
-    }
+    // $scope.untrack_mouse_move = function() {
+    //   //document.removeEventListener('mousemove', onMouseMove, true);
+    // }
 
     $scope.is_concise_toolbar_tall = function() {
       var elem1 = document.getElementById('concise_tool_first');
@@ -1412,16 +1416,16 @@ angular.module('joinnet', ['pascalprecht.translate'])
           $scope.$digest(); // force style_concise_toolbar()
         }, 100);
         layout.is_navbar_visible = true;
-        $scope.turn_on_auto_hide_navbar_timer();
+        // $scope.turn_on_auto_hide_navbar_timer();
       }
     }
 
     $scope.onConciseHide = function() {
       layout.is_navbar_visible = false;
-      if(delayedShowupTimerID) {
-        clearTimeout(delayedShowupTimerID);
-        delayedShowupTimerID = null;
-      }
+      // if(delayedShowupTimerID) {
+      //   clearTimeout(delayedShowupTimerID);
+      //   delayedShowupTimerID = null;
+      // }
       /*
       $scope.untrack_mouse_move();
       setTimeout(function() {
@@ -1891,6 +1895,14 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
+    $scope.$on(hmtgHelper.WM_START_SESSION, function() {
+      show_area('userlist');
+      layout.is_userlist_visible = false;
+      layout.is_textchat_visible = false;
+      layout.is_video_visible = false;
+      layout.is_gallery_visible = false;
+      if(!hmtgHelper.inside_angular) $scope.$digest();
+    });
     $scope.$on(hmtgHelper.WM_TAB_MODE, function(event, mode) {
       var target_area = '';
       switch(mode) {
@@ -1922,6 +1934,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
           if($rootScope.gui_mode == 'concise'
             && target_area != 'white_board'
             && target_area != 'userlist'
+            && target_area != 'sdt'
+            && target_area != 'rdc'
+            && target_area != 'browser'
           ) return;
 
           var item = {};
@@ -2363,7 +2378,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       $scope.menu = [];
 
       if(open) {
-        turn_off_auto_hide_navbar_timer();
+        // turn_off_auto_hide_navbar_timer();
         if(hmtg.util.test_error & 1) {
           $scope.$digest();  // trigger an angular error
         }
@@ -2407,7 +2422,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
           if(!joinnetVideo.screen_recording) {
             menu.push({ "text": $translate.instant('ID_START_SCREEN_CAPTURE'), "onclick": $scope.startScreenRecording });
             if(!!navigator.mozGetUserMedia) { // Firefox use different api for screen and window
-              menu.push({ "text": $translate.instant('ID_START_SCREEN_CAPTURE2'), "onclick": $scope.startScreenRecording2 });
+              if(!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
+                menu.push({ "text": $translate.instant('ID_START_SCREEN_CAPTURE2'), "onclick": $scope.startScreenRecording2 });
+              }
             }
           }
         }
@@ -2501,9 +2518,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
           $scope.w.is_menu_open = 0;
         }
       } else {
-        if($rootScope.gui_mode == 'concise' && layout.is_navbar_visible) {
-          $scope.turn_on_auto_hide_navbar_timer();
-        }
+        // if($rootScope.gui_mode == 'concise' && layout.is_navbar_visible) {
+        //   $scope.turn_on_auto_hide_navbar_timer();
+        // }
       }
     }
 
@@ -2861,7 +2878,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 .service('layout', ['$rootScope', 'video_recving',
   function($rootScope, video_recving) {
     var _layout = this;
-    this.is_navbar_visible = false;
+    this.is_navbar_visible = true;
     this.visible_area = 'userlist';
     this.is_userlist_visible = false;
     this.is_textchat_visible = false;

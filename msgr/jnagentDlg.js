@@ -591,8 +591,13 @@ angular.module('msgr')
         $scope.initial_status = param._us_status();
       } else {
         $scope.reconnect_flag = false;
-        $scope.m_homepage = '';
-        $scope.m_userid = '';
+        if(param) {
+          $scope.m_homepage = param._homepage();
+          $scope.m_userid = param._userid();
+        } else {
+          $scope.m_homepage = '';
+          $scope.m_userid = '';
+        }
       }
       $ocLazyLoad.load({
         name: 'msgr',
@@ -688,6 +693,20 @@ angular.module('msgr')
       }, function(e) {
         hmtg.util.log(-1, 'Warning! lazy_loading modal_msgr_signin fails');
       });
+    }
+
+    this.UrlSignin = function(userid, homepage) {
+      // check whether url signin already in the system
+      var param = hmtg.jmkernel.jm_command_CreateDummyOffice(userid, homepage);
+      var wb = hmtg.jmkernel.jm_command_FindWebOffice(param);
+      if(wb) {
+        // if found
+        // do nothing
+        return;
+      }
+      setTimeout(function() {
+        $rootScope.$broadcast(hmtgHelper.WM_URL_SIGNIN, param);
+      }, 0);
     }
 
     // folder level

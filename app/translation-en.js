@@ -8,6 +8,8 @@ angular.module('hmtgs')
 .config(['$translateProvider', function ($translateProvider) {
   $translateProvider.translations('en', {
 "IDS_APP_NAME": "Web JoinNet",
+"ID_SIGN_UP": "Sign Up",
+"ID_TARGET_VIDEO_CAPTURE": "Video Target Frame Rate",
 "ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "Set Video Capture Dimension(not all browsers support this)",
 "ID_ROTATE90": "Rotate Clockwise",
 "ID_ROTATE270": "Rotate Counterclockwise",
@@ -203,7 +205,7 @@ angular.module('hmtgs')
 "ID_CLEAR_MARK_PROMPT": "Are you sure to clear mark?",
 "ID_CLEAR_MARK": "Clear Mark",
 "ID_UNDO_MARK": "Undo Mark",
-"ID_FRAME_RATE": "Please choose frame rate(in fps) for video sending.",
+"ID_FRAME_RATE": "Please choose target frame rate(in fps) for video encoding",
 "ID_CANCEL_MY_QUESTION": "Cancel Question Request",
 "ID_SWITCH_SCREEN_SOURCE": "Choose screen window",
 "ID_NO_AUDIO_DATA": "No audio data source",
@@ -551,7 +553,7 @@ angular.module('hmtgs')
 "ID_BROWSER_NOT_SUPPORT": "This browser doesn't support #feature#",
 "ID_FEATURE_AUDIO_RECORD": "Audio Capture",
 "ID_FEATURE_AUDIO_PLAYBACK": "Audio Playback",
-"ID_FEATURE_VIDEO_CAPTURE": "Video Capture",
+"ID_FEATURE_VIDEO_CAPTURE": "Video Sending Frame Rate",
 "ID_FEATURE_SCREEN_CAPTURE": "Screen Capture",
 "ID_ALLOW_CAPTURE_AUDIO_PROMPT": "The browser may ask your permission to use the microphone, please choose 'Allow'. Moreover, Earphone is preferred to avoid echo.",
 "ID_AUDIO_LOOP_PROMPT": "Captured audio will be played back immediately so that you will hear yourself.",

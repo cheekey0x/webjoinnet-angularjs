@@ -84,6 +84,7 @@ angular.module('hmtgs')
     this.WM_UPDATE_ACTIVE_SPEAKER = 'update_active_speaker';
     this.WM_UPDATE_LAYOUT_MODE = 'update_layout_mode';
     this.WM_CONCISE_TAB_CHANGED = 'concise_tab_changed';
+    this.WM_URL_SIGNIN = 'url_signin';
 
     this.GUID_DESKTOP_SHARING = 'E5AF1A56-E29C-4BA6-839A-24C2F30EED02';
     this.GUID_REMOTE_CONTROL = '4FC0606A-DA4A-423F-A830-AC5D9853C201';

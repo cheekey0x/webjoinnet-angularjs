@@ -126,7 +126,9 @@ angular.module('joinnet')
             } else if(mediasoupWebRTC.audioStats && mediasoupWebRTC.audioStats.length
               && (now - mediasoupWebRTC.audioStatsTick) < 5000) {
               var rtcStat = mediasoupWebRTC.audioStats[0];
-              html += '<div class="text-success"><b>WebRTC ' + $translate.instant('ID_AUDIO_SENDING_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps</div>';
+              if(rtcStat.bitrate) {
+                html += '<div class="text-success"><b>WebRTC ' + $translate.instant('ID_AUDIO_SENDING_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps</div>';
+              }
             }  
             html += '</div>';
           }  
@@ -140,6 +142,7 @@ angular.module('joinnet')
 
             stat = video_capture.stat;
             if(stat && (now - stat.tick) < 5000) {
+              html += '<div><i>' + $translate.instant('ID_TARGET_VIDEO_CAPTURE') + '</i>: ' + video_codec.fps + 'fps</div>';
               html += '<div><i>' + $translate.instant('ID_FEATURE_VIDEO_CAPTURE') + '</i>: ' + hmtgHelper.float2fmt(stat.rate) + 'fps</div>';
               html += '<div>' + $translate.instant('ID_VIDEO_CAPTURE_SIZE') + ': ' + stat.capture_width + ' x ' + stat.capture_height + '</div>';
               html += '<div>' + $translate.instant('ID_VIDEO_SENDING_SIZE') + ': ' + stat.sending_width + ' x ' + stat.sending_height + '</div>';
@@ -166,7 +169,9 @@ angular.module('joinnet')
             } else if(mediasoupWebRTC.videoStats && mediasoupWebRTC.videoStats.length
               && (now - mediasoupWebRTC.videoStatsTick) < 5000) {
               var rtcStat = mediasoupWebRTC.videoStats[0];
-              html += '<div class="text-success"><b>WebRTC ' + $translate.instant('ID_VIDEO_SENDING_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps</div>';
+              if(rtcStat.bitrate) {
+                html += '<div class="text-success"><b>WebRTC ' + $translate.instant('ID_VIDEO_SENDING_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps</div>';
+              }
             }
             html += '</div>';
           }  
@@ -321,8 +326,10 @@ angular.module('joinnet')
                 && mediasoupWebRTC.remoteAudioStats[ssrc]
                 && (now - mediasoupWebRTC.remoteAudioStatsTick[ssrc]) < 5000) {
                 var rtcStat = mediasoupWebRTC.remoteAudioStats[ssrc][0];
-                html += '<li class="text-success"><b>WebRTC ' + $translate.instant('ID_AUDIO_RECVING_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps';
-                has_audio_stat = true;
+                if(rtcStat.bitrate) {
+                  html += '<li class="text-success"><b>WebRTC ' + $translate.instant('ID_AUDIO_RECVING_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps';
+                  has_audio_stat = true;
+                }
               }
             }
           } else {
@@ -384,15 +391,19 @@ angular.module('joinnet')
                 && mediasoupWebRTC.remoteVideoStats[ssrc]
                 && (now - mediasoupWebRTC.remoteVideoStatsTick[ssrc]) < 5000) {
                 var rtcStat = mediasoupWebRTC.remoteVideoStats[ssrc][0];
-                html += '<li class="text-success"><b>WebRTC ' + $translate.instant('ID_VIDEO_RECV_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps';
-                has_video_stat = true;
+                if(rtcStat.bitrate) {
+                  html += '<li class="text-success"><b>WebRTC ' + $translate.instant('ID_VIDEO_RECV_RATE') + '</b>: ' + hmtgHelper.number2gmk(rtcStat.bitrate) + 'bps';
+                  has_video_stat = true;
+                }
 
                 var elem = document.getElementById('webrtc-video-' + ssrc);
                 if(elem) {
-                  html += '<li class="text-success">WebRTC ' + $translate.instant('ID_VIDEO_RECVING_SIZE') + ': ' + elem.videoWidth + ' x ' + elem.videoHeight;
+                  if(elem.videoWidth && elem.videoHeight) {
+                    html += '<li class="text-success">WebRTC ' + $translate.instant('ID_VIDEO_RECVING_SIZE') + ': ' + elem.videoWidth + ' x ' + elem.videoHeight;
+                  }
                 } else if(ssrc == video_recving.main_video_ssrc) {
                   elem = document.getElementById('webrtc_main_video');
-                  if(elem) {
+                  if(elem && elem.videoWidth && elem.videoHeight) {
                     html += '<li class="text-success">WebRTC ' + $translate.instant('ID_VIDEO_RECVING_SIZE') + ': ' + elem.videoWidth + ' x ' + elem.videoHeight;
                   }
                 }

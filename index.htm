@@ -167,7 +167,7 @@
   <!-- ==== joinnet -->
   <div ng-class="container_fluid()" ng-show="nav_item=='joinnet'" ng-controller="JoinnetCtrl" ng-cloak>
     <div ng-show="gui_mode == 'concise' && !lo.is_navbar_visible" class="concise_float_bottom_left">
-      <span>
+      <span ng-if="can_show_badge()">
         <p class="navbar-brand" ng-controller="DurationCtrl">
           <span class="badge" ng-show="can_show_badge()">
             <span ng-show="can_show_mode(0)" class="glyphicon glyphicon-user" tooltip-placement="right" 
@@ -193,6 +193,20 @@
     <div id="concise_tool_container" ng-style="style_concise_toolbar()"
       ng-class="gui_mode == 'concise' ? 'concise_float_bottom_bar' : ''"
       ng-show="gui_mode != 'concise' || lo.is_navbar_visible">
+      <span ng-if="gui_mode == 'concise' && can_show_badge()">
+        <p class="navbar-brand" ng-controller="DurationCtrl">
+          <span class="badge" ng-show="can_show_badge()">
+            <span ng-show="can_show_mode(0)" class="glyphicon glyphicon-user" tooltip-placement="right" 
+              tooltip="{{'ID_MEETNG_MODE' | translate}}"></span>
+            <span ng-show="can_show_mode(1)" class="glyphicon glyphicon-play" tooltip-placement="right" 
+              tooltip="{{'ID_PLAYBACK_MODE' | translate}}"></span>
+            <span ng-show="can_show_duration()" tooltip-placement="top" 
+              tooltip="{{'ID_DURATION' | translate}}">{{duration_str()}}</span>
+            <span ng-show="can_show_tick_str()" tooltip-placement="top" 
+              tooltip="{{'ID_TIME_POS' | translate}}">{{playback_tick_str()}}</span>
+          </span>
+        </p>
+      </span>
       <div class="btn-group" ng-class="gui_mode == 'concise' ? 'dropup' : ''" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_MENU' | translate)}}" 
         dropdown is-open="w.is_menu_open" on-toggle="ontoggle(open)">
         <button id="concise_tool_first" type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
@@ -1046,6 +1060,7 @@
           </li>
         </ul>
       </span>
+      <a ng-show="hmtg.customization.signup_link" href="{{hmtg.customization.signup_link}}" translate="ID_SIGN_UP"></a>
     </div>
     <div ng-class="row_fluid()">
       <div class="auto-overflow" ng-class="col_area()" ng-show="ic.is_main_visible">
@@ -1363,9 +1378,6 @@
             <span ng-if="!im.is_webrtc_audio_only"><button type="button" class="btn btn-default" ng-click="im.start_screen()"
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_SCREEN_CAPTURE' | translate)}}"><span class="glyphicon glyphicon-modal-window"></span>
               <span ng-show="as.show_text" translate="ID_START_SCREEN_CAPTURE"></span></button></span>
-            <span ng-if="!im.is_webrtc_audio_only && im.is_firefox"><button type="button" class="btn btn-default" ng-click="im.start_screen(1)"
-              tooltip="{{as.no_tip || as.show_text ? '' : ('ID_START_SCREEN_CAPTURE2' | translate)}}"><span class="glyphicon glyphicon-modal-window"></span>
-              <span ng-show="as.show_text" translate="ID_START_SCREEN_CAPTURE2"></span></button></span>
             <span ng-if="0 && has_canvas_stream && im.can_mix && !im.is_webrtc_audio_only"><button type="button" class="btn btn-default" ng-click="im.start_board()"
               tooltip="{{as.no_tip || as.show_text ? '' : ('ID_IMPORT_BOARD' | translate)}}"><span class="glyphicon glyphicon-list-alt"></span>
               <span ng-show="as.show_text" translate="ID_IMPORT_BOARD"></span></button></span>
@@ -1548,7 +1560,7 @@
         <div class="col-md-4"><span translate="IDS_APP_NAME"></span> 
           <span translate="ID_VERSION"></span> <span ng-bind="::app_version"></span></div>
         <div class="col-md-4"></div>
-        <div class="col-md-4">&copy; HomeMeeting Inc. 2019</div>
+        <div class="col-md-4">&copy; HomeMeeting Inc. 2020</div>
       </div>
       <br />
     </div>

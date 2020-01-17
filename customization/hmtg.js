@@ -25,6 +25,9 @@
     // whether to show native app under Options
     customization.show_native_app = false;
 
+    // sign up link, displayed at msgr page to allow a guest to sign up at this link
+    customization.signup_link = '';
+
     // whether to use concise layout for visiting guests
     customization.use_concise_layout_for_guest = true;
 

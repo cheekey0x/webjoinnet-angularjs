@@ -397,9 +397,17 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
         $rootScope.nav_item = 'msgr';
         $rootScope.tabs[0].active = true;
 
+        // check whether there is a signin id in the url
+        // if so, the app will add it (if not added yet)
+        var signin_id = hmtg.util.getQuery('signin_id');
+        var signin_office = hmtg.util.getQuery('signin_office');
+        if(signin_id && signin_office) {
+          jnagentDlg.UrlSignin(signin_id, signin_office);
+        }
         // if the initial page is msgr and there is no office yet
+        // and there is no url signin
         // prompt the user to add office
-        if(!hmtg.jmkernel.jm_info_GetOfficeCount()) {
+        else if(!hmtg.jmkernel.jm_info_GetOfficeCount()) {
           var item = {};
           item['timeout'] = 20;
           item['update'] = function() {

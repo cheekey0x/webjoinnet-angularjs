@@ -1422,6 +1422,10 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
 
+    $scope.$on(hmtgHelper.WM_URL_SIGNIN, function(event, param) {
+      jnagentDlg.SigninDlg($scope, $modal, false, param);
+    });
+
   }
 ])
 
@@ -1429,6 +1433,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
   'appSetting', 'imContainer', 'hmtgAlert',
   function($scope, $modal, jnagentDlg, $translate, msgrHelper, hmtgHelper, appSetting, imContainer, hmtgAlert) {
     $scope.as = appSetting;
+    $scope.hmtg = hmtg;
     $scope.OnSignin = function(size) {
       if(hmtg.util.test_error & 1) {
         $scope.$digest();  // trigger an angular error
