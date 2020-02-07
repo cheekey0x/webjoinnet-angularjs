@@ -1924,7 +1924,7 @@ angular.module('msgr')
           });
 
           return modalInstance.result.then(function(result) {
-            //board.upload_slide(result.upload_type, result.groupname, result.title, result.file, result.png_blob);
+            //board.upload_slide(result.upload_type, board.is_local_slide, result.groupname, result.title, result.file, result.png_blob);
             var file = result.png_blob || result.file;
             file.name = result.title;
             setTimeout(function() {

@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "조인넷 웹앱",
+"ID_ROTATION": "Rotation",
 "ID_SIGN_UP": "Sign Up",
 "ID_TARGET_VIDEO_CAPTURE": "Video Target Frame Rate",
 "ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "Set Video Capture Dimension(not all browsers support this)",
@@ -690,7 +691,7 @@
 "ID_SIGNOUT": "종료",
 "ID_MOVE_UP": "위로 이동",
 "ID_MOVE_DOWN": "아래로 이동",
-"ID_CHECK_MESSAGE": "메시지/녹화 보관함",
+"ID_CHECK_MESSAGE": "Check Recording Files",
 "ID_REFRESH": "새로고침",
 "ID_MARK_READ": "읽음으로 표시",
 "ID_MARK_UNREAD": "읽지 않음으로 표시",

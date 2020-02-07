@@ -254,7 +254,7 @@ angular.module('hmtgs')
 
         board.upload_finished = false;
 
-        board.upload_slide(2, '', name, $scope.upload_file);
+        board.upload_slide(2, board.is_local_slide, '', name, $scope.upload_file);
         $modalInstance.dismiss('cancel');
         /*
         $ocLazyLoad.load({
@@ -271,7 +271,7 @@ angular.module('hmtgs')
           });
 
           modalInstance.result.then(function (result) {
-            board.upload_slide(result.upload_type, result.groupname, result.title, result.file);
+            board.upload_slide(result.upload_type, board.is_local_slide, result.groupname, result.title, result.file);
             $modalInstance.dismiss('cancel');
           }, function () {
             board.upload_finished = true;
@@ -356,7 +356,7 @@ angular.module('hmtgs')
           });
 
           modalInstance.result.then(function (result) {
-            //board.upload_slide(result.upload_type, result.groupname, result.title, result.file, result.png_blob);
+            //board.upload_slide(result.upload_type, board.is_local_slide, result.groupname, result.title, result.file, result.png_blob);
             var file = result.png_blob;
             if(file) {
               file.name = 'a.png';

@@ -22,6 +22,8 @@ angular.module('joinnet')
     $scope.w.can_crop = false;
     $scope.w.left = $scope.w.right = $scope.w.top = $scope.w.bottom = 0;
     $scope.w.empty_image = false;
+    $scope.w.rotations = [0, 90, 180, 270];
+    $scope.w.rotation = 0;
     var png_blob_timerID;
 
     var intervalID = setInterval(function() {
@@ -85,6 +87,10 @@ angular.module('joinnet')
       );
     }
 
+    function filename2group(filename) {
+      return filename.slice(0, filename.lastIndexOf('.'));
+    }
+
     function pasteHandler(e) {
       if(e.clipboardData) {
         var items = e.clipboardData.items;
@@ -106,6 +112,7 @@ angular.module('joinnet')
               $scope.w.left = $scope.w.right = $scope.w.top = $scope.w.bottom = 0;
               $scope.w.as_file = false;
               $scope.w.need_conversion = false;
+              $scope.w.pdf_conversion = false;
               $scope.w.no_conversion = false;
               $scope.w.use_group = false;
               $scope.w.group = '';
@@ -166,10 +173,15 @@ angular.module('joinnet')
       $scope.w.empty_image = true;
       if(is_file_image($scope.upload_file.name)) return;
       $scope.w.use_group = true;
-      $scope.w.group = $scope.w.filename;
-      $scope.w.need_conversion = hmtg.jnkernel._jn_conversion_support() ? true : false;
-      if(board.is_local_slide) {
-        $scope.w.need_conversion = false;
+      $scope.w.group = filename2group($scope.w.filename);
+      if($scope.upload_file && is_file_pdf($scope.upload_file.name)) {
+        $scope.w.need_conversion = true;  // local pdf conversion
+        $scope.w.pdf_conversion = true;
+      } else {
+        $scope.w.need_conversion = hmtg.jnkernel._jn_conversion_support() ? true : false;
+        if(board.is_local_slide) {
+          $scope.w.need_conversion = false;
+        }
       }
       $scope.w.no_conversion = !$scope.w.need_conversion;
 
@@ -280,11 +292,11 @@ angular.module('joinnet')
 
     var ssrc = board.is_local_slide ? -1 : hmtg.jnkernel._jn_ssrc_index();
     $scope.w.group_titles = board.ssrc_get_group_title_list(ssrc);
-    var current_group = board.ssrc_get_current_groupname(ssrc);
-    if(current_group) {
-      $scope.w.use_group = true;
-      $scope.w.group = current_group;
-    }
+    // var current_group = board.ssrc_get_current_groupname(ssrc);
+    // if(current_group) {
+    //   $scope.w.use_group = true;
+    //   $scope.w.group = current_group;
+    // }
 
     function update_image() {
       if(!canvas) return;
@@ -399,6 +411,13 @@ angular.module('joinnet')
         if(title.length >= hmtg.config.MAX_SLIDENAME) return;
 
         if($scope.w.need_conversion) {
+          hmtg.util.localStorage['hmtg_conversion_type'] = JSON.stringify($scope.w.type);
+          if($scope.w.type == 0) {
+            hmtg.util.localStorage['hmtg_conversion_dpi'] = JSON.stringify($scope.w.dpi);
+          }
+        }
+
+        if($scope.w.need_conversion && !$scope.w.pdf_conversion) {
           if(!hmtg.util.getExt(title)) return;  // to convert to slides, the title must have an extension
 
           var page = $scope.w.page;
@@ -410,12 +429,17 @@ angular.module('joinnet')
           } else if((tmp = page.indexOf('-')) != -1) {
             start = page.slice(0, tmp) >> 0;
             end = page.slice(tmp + 1) >> 0;
-            if(start <= 0 || end <= 0) {
+            if(start <= 0) {
               start = end = 0;
-            } else if(end < start) {
-              tmp = start;
-              start = end;
-              end = tmp;
+            } else {
+              if(end <= 0) {
+                end = 65535;
+              }
+              if(end < start) {
+                tmp = start;
+                start = end;
+                end = tmp;
+              }
             }
           } else {
             start = page >> 0;
@@ -437,10 +461,6 @@ angular.module('joinnet')
           title += '.jzf';
           if(title.length >= hmtg.config.MAX_SLIDENAME) return;
 
-          hmtg.util.localStorage['hmtg_conversion_type'] = JSON.stringify($scope.w.type);
-          if($scope.w.type == 0) {
-            hmtg.util.localStorage['hmtg_conversion_dpi'] = JSON.stringify($scope.w.dpi);
-          }
           hmtg.util.localStorage['hmtg_need_trusted_server'] = JSON.stringify($scope.w.need_trusted_server);
           hmtg.util.localStorage['hmtg_convert_to_file_on_failure'] = JSON.stringify($scope.w.convert_to_file_on_failure);
           hmtg.util.localStorage['hmtg_convert_all_or_none'] = JSON.stringify($scope.w.convert_all_or_none);
@@ -450,7 +470,11 @@ angular.module('joinnet')
           groupname: groupname,
           title: title,
           file: $scope.upload_file,
-          png_blob: $scope.w.png_blob
+          png_blob: $scope.w.png_blob,
+          page_info: $scope.w.page,
+          slide_type: $scope.w.type,
+          dpi: $scope.w.dpi,
+          rotation: $scope.w.rotation
         };
       } else if($scope.w.upload_type == 4) {  // my picture
         if(!$scope.upload_file.size) return;

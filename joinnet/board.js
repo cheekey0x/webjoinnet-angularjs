@@ -522,6 +522,7 @@ angular.module('joinnet')
 
     this.net_init_finished = function() {
       this.upload_finished = true;
+      this.pdf_upload_active = false;
       this.dummy_conversion = false;
       this.stop_dummy_conversion_timer();
       this.new_upload = false;
@@ -545,7 +546,11 @@ angular.module('joinnet')
       // force the index as string will fix the problem
       target.index = '' + slide._index();
       target.name = _board.calc_slide_name(slide);
-      target.group_name = '    (' + hmtg.util.decodeUtf8(slide._m_szOwnerName()) + ')' + hmtg.util.decodeUtf8(slide._m_szGroup());
+      if(slide._m_iSource() == -1) {
+        target.group_name = '    ' + hmtg.util.decodeUtf8(slide._m_szGroup());
+      } else {
+        target.group_name = '    (' + hmtg.util.decodeUtf8(slide._m_szOwnerName()) + ')' + hmtg.util.decodeUtf8(slide._m_szGroup());
+      }
       target.width = target.height = this.DEFAULT_SIZE;
       if(!is_local_slide) {
         // for normal slide, try to pick up old per-slide zoom level and private marks
@@ -660,14 +665,32 @@ angular.module('joinnet')
         }
       }
 
+      function is_first_slide_of_pdf_upload() {
+        if(_board.pdf_upload_title) {
+          var expected_first_title;
+          if(_board.pdf_upload_slide_type == 0) {
+            expected_first_title = _board.pdf_upload_title + '.p' + (_board.pdf_upload_start ? _board.pdf_upload_start : 1) + '.png';
+          } else {
+            expected_first_title = _board.pdf_upload_title + '.p' + (_board.pdf_upload_start ? _board.pdf_upload_start : 1) + '.pdf';
+          }
+          var slide_title = slide._m_szName();
+          if(hmtg.util.endsWith(slide_title, expected_first_title)) {
+            return true;
+          }
+        }
+        return false;
+      }
+      
+      // for local slide, check whether to auto flip it
       if(is_local_slide) {
         if(!slide_type // only auto flip slide for slide, not for files
-          ) {
+        ) {
           // if this is slide of a group
           if(slide._m_szGroup()
-          && this.local_slide_index >= 0
-          && _board.isSlideSameGroup(this.local_slide_index, target.index, is_local_slide)
-          && !this.new_upload // if new upload, allow auto flip even for slide of same group
+            && this.local_slide_index >= 0
+            && _board.isSlideSameGroup(this.local_slide_index, target.index, is_local_slide)
+            && !this.new_upload // if new upload, allow auto flip even for slide of same group
+            && !is_first_slide_of_pdf_upload() // if first slide of a pdf upload, allow auto flip even for slide of same group
           ) {
             // do not auto flip if the new slide is of the same group of current slide
           } else {
@@ -687,6 +710,7 @@ angular.module('joinnet')
         }
       }
 
+      // for normal slide, check whether to auto flip it
       var my_ssrc = hmtg.jnkernel._jn_ssrc_index();
       if(!slide_type // only auto flip slide for slide, not for files
       && !this.is_local_slide
@@ -698,6 +722,7 @@ angular.module('joinnet')
             && this.jnkernel_slide_index >= 0
             && _board.isSlideSameGroup(this.slide_index, target.index)
             && !this.new_upload // if new upload, allow auto flip even for slide of same group
+            && !is_first_slide_of_pdf_upload() // if first slide of a pdf upload, allow auto flip even for slide of same group
             ) {
             // do not auto flip if the new slide is of the same group of current slide
           } else {
@@ -1897,15 +1922,14 @@ angular.module('joinnet')
       _board.mywidth = _board.myheight = 1;
       _board.actual_width = _board.actual_height = 1;
 
-      if(!_board.is_local_slide) {
-        if(!slide._is_blank_page() && slide._downloaded() == 1 && !hmtg.util.endsWith(slide._m_szName(), '.jzf')) {
-          var name = slide._m_szName().toLowerCase();
-          if(hmtg.util.endsWith(name, '.pdf')) {
-            if(_board.is_fit_page || _board.scale != _board.ratio) {
-              // if the pdf scale need to be changed, redraw the image
-              // or, if fitting page, always redraw
-              _board.img_ready = false;
-            }
+      // local slide also support pdf file now
+      if(_board.is_local_slide || (!slide._is_blank_page() && slide._downloaded() == 1 && !hmtg.util.endsWith(slide._m_szName(), '.jzf'))) {
+        var name = slide._m_szName().toLowerCase();
+        if(hmtg.util.endsWith(name, '.pdf')) {
+          if(_board.is_fit_page || _board.scale != _board.ratio) {
+            // if the pdf scale need to be changed, redraw the image
+            // or, if fitting page, always redraw
+            _board.img_ready = false;
           }
         }
       }
@@ -5830,15 +5854,15 @@ angular.module('joinnet')
       }
     }
 
-    this.upload_slide = function(upload_type, groupname, title, file, png_blob) {
+    this.upload_slide = function(upload_type, upload_is_local_slide, groupname, title, file, png_blob) {
       hmtgHelper.inside_angular++;
-      _board.upload_thread = new upload(upload_type, groupname, title, file, png_blob);
+      _board.upload_thread = new upload(upload_type, upload_is_local_slide, groupname, title, file, png_blob);
       hmtgHelper.inside_angular--;
     }
 
-    function upload(upload_type, groupname, title, file, png_blob) {
+    function upload(upload_type, upload_is_local_slide, groupname, title, file, png_blob) {
       var _upload = this;
-      _upload.is_local_slide = _board.is_local_slide;
+      _upload.is_local_slide = upload_is_local_slide;
       _upload.stop = function() { }
 
       var need_zip = false;
@@ -5933,6 +5957,15 @@ angular.module('joinnet')
       }
 
       function upload_data(upload_type, groupname, title, data) {
+        if(_board.pdf_upload_active) {
+          if(_board.pdf_upload_idx != 0 && _board.pdf_upload_idx + 1 != _board.pdf_upload_start) {
+            _board.new_upload = false;
+          } else {
+            _board.new_upload = true;
+          }
+        } else {
+          _board.new_upload = true;
+        }
         if(_upload.is_local_slide) {
           var slide = new SlideEntry();
           slide.m_iSource = -1;
@@ -5968,10 +6001,13 @@ angular.module('joinnet')
           _board.upload_finished = true;
           _board.show_upload_progress = false;
           _board.add_slide(slide, true);
+          if(_board.pdf_upload_active) {
+            // always be able to upload the next page for the local board
+            pdf_upload_next_page(true);
+          }
           return;
         }
 
-        _board.new_upload = true;
         // make sure that white board is visible
         $rootScope.$broadcast(hmtgHelper.WM_SHOW_WHITE_BOARD);
         hmtg.jnkernel.jn_command_UploadSlide(upload_type, groupname, title, data, function() {
@@ -5989,6 +6025,12 @@ angular.module('joinnet')
             }, 60000);
           }
           $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
+          if(_board.pdf_upload_active) {
+            // only upload the next page if having the right to upload
+            if(_board.can_upload(true)) {
+              pdf_upload_next_page(false);
+            }
+          }
         }, function(pos) {
           _board.show_upload_progress = true;
           var p = (pos * 1000) >>> 0;
@@ -5997,6 +6039,7 @@ angular.module('joinnet')
         }, function() {
           _board.show_upload_progress = false;
           _board.upload_finished = true;
+          _board.pdf_upload_active = false;
           _upload.stop = function() { }
           $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
         });
@@ -6005,11 +6048,81 @@ angular.module('joinnet')
         _upload.stop = function() {
           hmtg.jnkernel.jn_command_StopSlideUpload();
           _board.upload_finished = true;
+          _board.pdf_upload_active = false;
           _board.show_upload_progress = false;
           $rootScope.$broadcast(hmtgHelper.WM_UPDATE_BOARD);
           _upload.stop = function() { }
         }
       }
+
+      function pdf_upload_next_page(is_local_slide) {
+        if(_board.pdf_upload_end && _board.pdf_upload_idx + 1 >= _board.pdf_upload_end) {
+          _board.pdf_upload_active = false;
+          return;
+        }
+        _board.upload_finished = false;
+        _board.pdf_upload_idx++;
+        if(_board.pdf_upload_slide_type == 0) {
+          _board.pdf_upload_slide_as_png(is_local_slide);
+        } else {
+          _board.pdf_upload_slide_as_pdf(is_local_slide);
+        }
+      }
+    }
+
+    this.pdf_upload_slide_as_pdf = function(is_local_slide) {
+      function pdf_upload_handle_error() {
+        _board.upload_finished = true;
+        _board.pdf_upload_active = false;
+      }
+      var pdfDoc0 = _board.pdf_upload_pdfDoc0;
+      PDFLib.PDFDocument.create().then(function(pdfDoc) {
+        pdfDoc.copyPages(pdfDoc0, [_board.pdf_upload_idx]).then(function(pages) {
+          var p = pages[0];
+          if(_board.pdf_upload_rotation) {
+            p.setRotation(PDFLib.degrees(_board.pdf_upload_rotation));
+          }
+          pdfDoc.addPage(p);
+          pdfDoc.save().then(function(data) {
+            var blob = new Blob([data], { type: "application/pdf" });
+            _board.upload_slide(_board.pdf_upload_upload_type, is_local_slide, _board.pdf_upload_groupname, _board.pdf_upload_title + '.p' + (_board.pdf_upload_idx + 1) + '.pdf', _board.pdf_upload_file, blob);
+          }).catch(pdf_upload_handle_error);
+        }).catch(pdf_upload_handle_error);
+      }).catch(pdf_upload_handle_error);
+    }
+
+    this.pdf_upload_slide_as_png = function(is_local_slide) {
+      function pdf_upload_handle_error() {
+        _board.upload_finished = true;
+        _board.pdf_upload_active = false;
+      }
+      var pdf = _board.pdf_upload_pdf;
+      pdf.getPage(_board.pdf_upload_idx + 1).then(function(page) {
+        var viewport = page.getViewport(_board.pdf_upload_dpi / 100.0, _board.pdf_upload_rotation);
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext('2d');
+        canvas.height = viewport.height >>> 0;
+        canvas.width = viewport.width >>> 0;
+
+        // Render PDF page into canvas context
+        var renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        page.render(renderContext).then(function() {
+          if(canvas.toBlob) {
+            canvas.toBlob(function(blob) {
+              myupload(blob);
+            });
+          } else {
+            var url = canvas.toDataURL();
+            myupload(hmtgHelper.url2blob(url));
+          }
+          function myupload(blob) {
+            _board.upload_slide(_board.pdf_upload_upload_type, is_local_slide, _board.pdf_upload_groupname, _board.pdf_upload_title + '.p' + (_board.pdf_upload_idx + 1) + '.png', _board.pdf_upload_file, blob);
+          }
+        }).catch(pdf_upload_handle_error);
+      }).catch(pdf_upload_handle_error);
     }
 
     // blank page
@@ -7203,9 +7316,9 @@ angular.module('joinnet')
 ])
 
 .controller('BoardCtrl', ['$scope', 'board', 'hmtgHelper', '$rootScope', '$modal', '$translate', 'hmtgAlert', 'joinnetHelper',
-  '$ocLazyLoad', 'appSetting', 'layout',
+  '$ocLazyLoad', 'appSetting', 'layout', 'hmtgSound',
   function($scope, board, hmtgHelper, $rootScope, $modal, $translate, hmtgAlert, joinnetHelper, $ocLazyLoad, appSetting,
-    layout) {
+    layout, hmtgSound) {
     $scope.w = board;
     $scope.hh = hmtgHelper;
     $scope.as = appSetting;
@@ -7461,6 +7574,7 @@ angular.module('joinnet')
 
       if(!board.upload_finished) return;
       if(!board.is_local_slide && hmtg.jnkernel._jn_conversion_count()) return;
+      var board_is_local_slide = board.is_local_slide;
 
       board.upload_finished = false;
 
@@ -7483,7 +7597,34 @@ angular.module('joinnet')
 
         modalInstance.result.then(function(result) {
           board.to_block_paste_image_mark = false;
-          board.upload_slide(result.upload_type, result.groupname, result.title, result.file, result.png_blob);
+          if(file && hmtg.util.endsWith(file.name, '.pdf')) {
+            if(result.slide_type == 0) {
+              if(window.PDFJS && PDFJS.getDocument && typeof PDFJS.getDocument == 'function') {
+                upload_pdf(result);
+              } else {
+                $ocLazyLoad.load('lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/_pdf' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param).then(function() {
+                  PDFJS.workerSrc = 'worker/pdf.worker.js';
+                  upload_pdf(result);
+                }, function(e) {
+                  board.upload_finished = true;
+                  hmtg.util.log(-1, 'Warning! lazy_loading pdf fails');
+                });
+              }
+            } else {
+              if(window.PDFLib && PDFLib.PDFDocument) {
+                upload_pdf(result);
+              } else {
+                $ocLazyLoad.load('lazy_js' + (hmtg.lazy_min ? '_min' : '') + '/_pdf-lib' + (hmtg.lazy_min ? '.min' : '') + '.js' + hmtgHelper.cache_param).then(function() {
+                  upload_pdf(result);
+                }, function(e) {
+                  board.upload_finished = true;
+                  hmtg.util.log(-1, 'Warning! lazy_loading pdf-lib fails');
+                });
+              }
+            }
+          } else {
+            board.upload_slide(result.upload_type, board.is_local_slide, result.groupname, result.title, result.file, result.png_blob);
+          }
         }, function() {
           board.to_block_paste_image_mark = false;
           board.upload_finished = true;
@@ -7491,6 +7632,77 @@ angular.module('joinnet')
       }, function(e) {
         hmtg.util.log(-1, 'Warning! lazy_loading modal_upload_slide fails');
       });
+      
+      function upload_pdf(result) {
+        var page = result.page_info;
+        var start = 0;
+        var end = 0;
+        var tmp = 0;
+        if(!page) {
+          start = end = 0;
+        } else if((tmp = page.indexOf('-')) != -1) {
+          start = page.slice(0, tmp) >> 0;
+          end = page.slice(tmp + 1) >> 0;
+          if(start <= 0) {
+            start = end = 0;
+          } else {
+            if(end <= 0) {
+              end = 65535;
+            }
+            if(end < start) {
+              tmp = start;
+              start = end;
+              end = tmp;
+            }
+          }
+        } else {
+          start = page >> 0;
+          if(start <= 0) {
+            start = end = 0;
+          } else {
+            end = start;
+          }
+        }
+        var reader = new FileReader();
+        function pdf_upload_handle_error(e) {
+          board.upload_finished = true;
+          board.pdf_upload_active = false;
+          // console.log(e);
+        }
+        reader.onload = function() {
+          var pdf0 = new Uint8Array(reader.result);
+          board.pdf_upload_rotation = result.rotation;
+          board.pdf_upload_start = start;
+          board.pdf_upload_end = end;
+          board.pdf_upload_idx = start ? start - 1 : 0; // 0-based
+          board.pdf_upload_upload_type = result.upload_type;
+          board.pdf_upload_groupname = result.groupname;
+          board.pdf_upload_title = result.title;
+          board.pdf_upload_file = result.file;
+          if(result.slide_type == 0) {
+            PDFJS.getDocument({ data: pdf0 }).then(function(pdf) {
+              board.pdf_upload_active = true;
+              board.pdf_upload_slide_type = 0;  // png
+              board.pdf_upload_dpi = result.dpi;
+              board.pdf_upload_pdf = pdf;
+              board.pdf_upload_slide_as_png(board_is_local_slide);
+            }).catch(pdf_upload_handle_error);
+          } else {
+            PDFLib.PDFDocument.load(pdf0).then(function(pdfDoc0) {
+              board.pdf_upload_active = true;
+              board.pdf_upload_slide_type = 1;  // pdf
+              board.pdf_upload_pdfDoc0 = pdfDoc0;
+              board.pdf_upload_slide_as_pdf(board_is_local_slide);
+            }).catch(pdf_upload_handle_error);
+          }
+        }
+        reader.onerror = function() {
+          board.upload_finished = true;
+          board.pdf_upload_active = false;
+          hmtgSound.ShowErrorPrompt(function() { return $translate.instant('IDS_OPEN_FILE_ERROR') }, 30);
+        }
+        reader.readAsArrayBuffer(file);
+      }
     });
 
     $scope.$on(hmtgHelper.WM_DELETE_SLIDE, function(event, slide_index, array) {
@@ -8602,7 +8814,13 @@ angular.module('joinnet')
         }
         menu.push({ "text": $translate.instant('ID_RESET_LOCAL_BOARD'), "onclick": board.resetLocal });
         var slide = board.localSlideArray[board.slide_index >> 0];
-        if(!slide._is_blank_page() && !slide._m_bDeleted() && !hmtg.util.endsWith(slide._m_szName(), '.jzf') && !hmtg.util.endsWith(slide._m_szName(), '.txt.jcz')) {
+        var name = slide._m_szName().toLowerCase();
+        if(!slide._is_blank_page()
+          && !slide._m_bDeleted()
+          && !hmtg.util.endsWith(name, '.jzf')
+          && !hmtg.util.endsWith(name, '.pdf')
+          && !hmtg.util.endsWith(name, '.txt.jcz')
+        ) {
           menu.push({ "text": $translate.instant('ID_DUPLICATE_SLIDE'), "onclick": board.dupLocal });
         }
       }

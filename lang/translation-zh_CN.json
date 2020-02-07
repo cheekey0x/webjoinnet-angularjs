@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "网页版JoinNet",
+"ID_ROTATION": "旋转",
 "ID_SIGN_UP": "注册",
 "ID_TARGET_VIDEO_CAPTURE": "视频目标帧率（帧/秒）",
 "ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "设定视频采集大小（并非所有浏览器都支持）",
@@ -690,7 +691,7 @@
 "ID_SIGNOUT": "退出",
 "ID_MOVE_UP": "向上移动",
 "ID_MOVE_DOWN": "向下移动",
-"ID_CHECK_MESSAGE": "查看留言",
+"ID_CHECK_MESSAGE": "查看录影档",
 "ID_REFRESH": "刷新",
 "ID_MARK_READ": "标记为已读过",
 "ID_MARK_UNREAD": "标记为未读过",

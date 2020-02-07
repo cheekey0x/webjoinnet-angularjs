@@ -8,6 +8,7 @@ angular.module('hmtgs')
 .config(['$translateProvider', function ($translateProvider) {
   $translateProvider.translations('en', {
 "IDS_APP_NAME": "Web JoinNet",
+"ID_ROTATION": "Rotation",
 "ID_SIGN_UP": "Sign Up",
 "ID_TARGET_VIDEO_CAPTURE": "Video Target Frame Rate",
 "ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "Set Video Capture Dimension(not all browsers support this)",
@@ -698,7 +699,7 @@ angular.module('hmtgs')
 "ID_SIGNOUT": "Disconnect",
 "ID_MOVE_UP": "Move Up",
 "ID_MOVE_DOWN": "Move Down",
-"ID_CHECK_MESSAGE": "Check Message",
+"ID_CHECK_MESSAGE": "Check Recording Files",
 "ID_REFRESH": "Refresh Content",
 "ID_MARK_READ": "Mark as Read",
 "ID_MARK_UNREAD": "Mark as Unread",

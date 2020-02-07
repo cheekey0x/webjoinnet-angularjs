@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "JoinNet Webアプリケーション",
+"ID_ROTATION": "Rotation",
 "ID_SIGN_UP": "Sign Up",
 "ID_TARGET_VIDEO_CAPTURE": "Video Target Frame Rate",
 "ID_USE_IDEAL_VIDEO_CAPTURE_DIMENSION": "Set Video Capture Dimension(not all browsers support this)",
