@@ -1245,6 +1245,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.lo = layout;
     $scope.v2 = video_bitrate;
     $scope.vr = video_recving;
+    $scope.hmtg = hmtg;
 
     $scope.can_show_badge = function() {
       return hmtg.jnkernel._jn_bConnected() || (typeof hmtg.jnkernel._jn_iWorkMode() != 'undefined' && (hmtg.jnkernel._jn_bConnecting() || jnjContent.valid_jnj));
@@ -1924,8 +1925,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
         default:
           return;
       }
-      if(!JoinNet.net_init_finished && $rootScope.gui_mode == 'concise') {
-        // for concise mode, ignore the first mode update, which is white board or joint browsing, which is configured in configm.ini
+      if(!JoinNet.net_init_finished
+        && ($rootScope.gui_mode == 'concise' || !$scope.w.show_check_show_area2 || !$scope.w.show_area2)) {
+        // for concise mode or one area mode, ignore the first mode update, which is white board or joint browsing, which is configured in configm.ini
         return;
       }
       if(!$scope.is_area_visible(target_area)) {

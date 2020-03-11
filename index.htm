@@ -307,7 +307,7 @@
         ng-show="can_reconnect()"><span class="glyphicon glyphicon-log-in"></span>
         <span ng-show="as.show_text" translate="ID_RECONNECT"></span></button>
       <button type="button" class="btn btn-danger" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_RESET' | translate)}}" ng-click="reset()" 
-        ng-show="(gui_mode == 'concise' && !can_disconnect()) || can_reconnect()"><span class="glyphicon glyphicon-off"></span>
+        ng-show="(hmtg.customization.show_msgr && gui_mode == 'concise' && !can_disconnect()) || can_reconnect()"><span class="glyphicon glyphicon-off"></span>
         <span ng-show="as.show_text" translate="ID_RESET"></span></button>
       <span class="user-owner" ng-show="0 && gui_mode != 'concise' && jn.is_owner" tooltip-placement="bottom" 
         tooltip="{{'ID_OWNER_TIP' | translate}}">[{{'ID_LEGEND_OWNER' | translate}}]</span>

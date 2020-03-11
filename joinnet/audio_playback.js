@@ -187,9 +187,15 @@ angular.module('joinnet')
             var seq = (data.charCodeAt(2) & 0xf) << 8 | data.charCodeAt(3);
             if(this.prev_opus[ssrc] && this.prev_opus[ssrc].data) {
               if(seq - this.prev_opus[ssrc].seq == 1) {
+                // for the prev_seq and seq, they can only be in format of
+                // 0,1
+                // 2,3
+                // ...
+                // 4094,4095
                 this.opus_decode2(this.prev_opus[ssrc].data, data, ssrc);
                 this.prev_opus[ssrc].data = null;
               } else if(!(seq & 1)) {
+                // web joinnet doesn't support playing half packet
                 //this.opus_decode2(this.prev_opus[ssrc].data, null, ssrc);
                 this.prev_opus[ssrc].data = data;
                 this.prev_opus[ssrc].seq = seq;
