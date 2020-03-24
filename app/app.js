@@ -617,7 +617,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_auto_allow_question']);
     this.auto_allow_question = parsed === 'undefined' ? true : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_control_panel_textchat']);
-    this.show_control_panel_textchat = parsed === 'undefined' ? false : !!parsed;
+    this.show_control_panel_textchat = parsed === 'undefined' ? hmtg.customization.show_control_panel_textchat_by_default : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_restrict_audio_decoding']);
     this.restrict_audio_decoding = parsed === 'undefined' ? (hmtgHelper.isMobile ? true : false) : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_max_audio_decoding']);

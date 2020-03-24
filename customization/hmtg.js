@@ -49,6 +49,12 @@
     // whether to capture video by default
     customization.capture_video_by_default = true;
 
+    // whether the white board slide fit page by default
+    customization.white_board_fit_page_by_default = false;
+
+    // whether the control panel show text chat by default
+    customization.show_control_panel_textchat_by_default = false;
+
     // whether to stop receiving audio when mute
     customization.stop_audio_when_mute = false;
 

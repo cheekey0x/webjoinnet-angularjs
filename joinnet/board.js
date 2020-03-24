@@ -486,15 +486,24 @@ angular.module('joinnet')
       || this.container.mozRequestFullScreen
       || this.container.webkitRequestFullscreen
     ;
+    
+    var fit_mode = hmtg.util.getQuery('fit_mode');
+    if(fit_mode) fit_mode = fit_mode.toLowerCase();
+    if(fit_mode == 'page') {
+      hmtg.customization.white_board_fit_page_by_default = true;
+    } else if(fit_mode == 'width') {
+      hmtg.customization.white_board_fit_page_by_default = false;
+    }
+
     // fit page auto select variables
     // is_auto_fit is set by default and when the user click the "auto select"
     // is_auto_fit is reset when the user toggle fitting, change fitting, change ratio
     this.is_auto_fit = true;  // whether current slide is using auto fit
     this.auto_fit_page = true;  // whether auto select turns on fit page
-    this.auto_fit_mode = 0; // when fit page, what fit mode is used by auto select
+    this.auto_fit_mode = hmtg.customization.white_board_fit_page_by_default ? 1 : 0; // when fit page, what fit mode is used by auto select
     this.auto_ratio_pos = 100;  // when not fit page, what ratio pos is used by auto select
     this.is_fit_page = true;  // whether is fitting for current slide
-    this.fit_mode = 0;  // 0: fit width; 1: fit page, which fit mode for current slide
+    this.fit_mode = hmtg.customization.white_board_fit_page_by_default ? 1 : 0;  // 0: fit width; 1: fit page, which fit mode for current slide
     this.ratio_pos = 100; // current ratio pos for current slide
     this.ratio_percent = 100;
     this.min_ratio = 0.01;
