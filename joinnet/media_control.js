@@ -677,16 +677,8 @@ angular.module('joinnet')
       mediasoupWebRTC.use_screen_as_video = _joinnetVideo.use_screen_as_video = true;
       var elem_screen = this.elem_screen;
 
-      if(hmtgHelper.isChrome && hmtgHelper.isAndroid
-        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        // android chrome already support navigator.mediaDevices.getDisplayMedia
-        // however, calling navigator.mediaDevices.getDisplayMedia will crash the browser
-        // check android chrome first and use chromeMediaSource if matched
-        hmtg.util.log(2, '(androidChrome)try to capture screen via navigator.mediaDevices.getUserMedia');
-        navigator.mediaDevices.getUserMedia({
-          video: { 'mandatory': { 'chromeMediaSource': 'screen', maxHeight: 1280 } }
-        }).then(getUserMediaOK, videoStreamError);
-      } else if(navigator.getDisplayMedia) {
+      // https://caniuse.com/#search=getDisplayMedia
+      if(navigator.getDisplayMedia) {
         hmtg.util.log(2, 'try to capture screen via navigator.getDisplayMedia');
         navigator.getDisplayMedia({
           video: true
@@ -695,6 +687,12 @@ angular.module('joinnet')
         hmtg.util.log(2, 'try to capture screen via navigator.mediaDevices.getDisplayMedia');
         navigator.mediaDevices.getDisplayMedia({
           video: true
+        }).then(getUserMediaOK, videoStreamError);
+      } else if(hmtgHelper.isChrome && hmtgHelper.isAndroid
+        && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        hmtg.util.log(2, '(androidChrome)try to capture screen via navigator.mediaDevices.getUserMedia/chromeMediaSource');
+        navigator.mediaDevices.getUserMedia({
+          video: { 'mandatory': { 'chromeMediaSource': 'screen', maxHeight: 1280 } }
         }).then(getUserMediaOK, videoStreamError);
       } else if(hmtgHelper.isChrome) {
         hmtg.util.log(2, '(chrome)try to capture screen via Chrome extension');

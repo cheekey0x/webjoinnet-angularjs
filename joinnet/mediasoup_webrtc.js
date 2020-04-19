@@ -997,8 +997,8 @@ angular.module('joinnet')
               });
             }
             if(consumer.kind === 'video') {
-              var profile = appSetting.webrtc_bandwidth_profile;
-              consumer.setPreferredProfile(profile == 'high' ? 'high' : (profile == 'low'? 'low' : 'medium'));
+              // var profile = appSetting.webrtc_bandwidth_profile;
+              // consumer.setPreferredProfile(profile == 'high' ? 'high' : (profile == 'low'? 'low' : 'medium'));
               consumer_init_resume();
 
               var old = _mediasoupWebRTC.remoteVideoStream[peerId];
@@ -1265,7 +1265,8 @@ angular.module('joinnet')
         try {
           this._videoProducer = this._room.createProducer(
             track,
-            (appSetting.webrtc_bandwidth_profile == 'low' ? null : { simulcast: this._useSimulcast }),
+            // (appSetting.webrtc_bandwidth_profile == 'low' ? null : { simulcast: this._useSimulcast }),
+            null,
             // source is to be compatible with mediasoup-demo
             { source: 'webcam' }
           );

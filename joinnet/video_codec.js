@@ -61,6 +61,7 @@ angular.module('joinnet')
       // { name: '1.5%', value: -3 },
       // { name: '0.4%', value: -4 },
       // { name: '0.1%', value: -5 },
+      { name: 'Auto', value: 0 },
       { name: '1fps', value: 1 },
       { name: '2fps', value: 2 },
       { name: '5fps', value: 5 },
@@ -69,7 +70,17 @@ angular.module('joinnet')
       { name: '20fps', value: 20 },
       { name: '25fps', value: 25 }
     ];
-    this.fps = appSetting.video_fps;
+    this.fps = appSetting.video_fps ? appSetting.video_fps : 15;
+
+    this.calc_nearest_fps = function(f) {
+      if(f >= 25) return 25;
+      if(f >= 20) return 20;
+      if(f >= 15) return 15;
+      if(f >= 10) return 10;
+      if(f >= 5) return 5;
+      if(f >= 2) return 2;
+      return 1;
+    }
 
     this.launch_from_jnj = function () {
       this.video_codec = 0;

@@ -626,7 +626,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_video_fps']);
     var fps = parsed === 'undefined' ? -1 : parsed;
     // if(fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 25 && !(fps <= 0 && fps >= -5)) fps = -1;
-    if(fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 15 && fps != 20 && fps != 25) fps = 15;
+    if(fps != 0 && fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 15 && fps != 20 && fps != 25) fps = 0;
     this.video_fps = fps;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_private_note']);
     this.show_private_note = parsed === 'undefined' ? false : !!parsed;

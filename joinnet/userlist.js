@@ -2709,8 +2709,9 @@ angular.module('joinnet')
       */
     });
 
-    $scope.$watch('v.fps', function () {
-      hmtg.util.localStorage['hmtg_video_fps'] = JSON.stringify($scope.v.fps);
+    $scope.$watch('as.video_fps', function () {
+      hmtg.util.localStorage['hmtg_video_fps'] = JSON.stringify($scope.as.video_fps);
+      video_codec.fps = appSetting.video_fps ? appSetting.video_fps : 15;
     });
 
     $scope.$watch('vr.main_video_ssrc', function (newValue, oldValue) {

@@ -142,7 +142,7 @@ angular.module('joinnet')
 
             stat = video_capture.stat;
             if(stat && (now - stat.tick) < 5000) {
-              html += '<div><i>' + $translate.instant('ID_TARGET_VIDEO_CAPTURE') + '</i>: ' + video_codec.fps + 'fps</div>';
+              html += '<div><i>' + $translate.instant('ID_TARGET_VIDEO_CAPTURE') + '</i>: ' + (appSetting.video_fps ? '' : '(Auto)') + video_codec.fps + 'fps</div>';
               html += '<div><i>' + $translate.instant('ID_FEATURE_VIDEO_CAPTURE') + '</i>: ' + hmtgHelper.float2fmt(stat.rate) + 'fps</div>';
               html += '<div>' + $translate.instant('ID_VIDEO_CAPTURE_SIZE') + ': ' + stat.capture_width + ' x ' + stat.capture_height + '</div>';
               html += '<div>' + $translate.instant('ID_VIDEO_SENDING_SIZE') + ': ' + stat.sending_width + ' x ' + stat.sending_height + '</div>';

@@ -34,7 +34,7 @@
               <input type="checkbox" ng-model="w.auto_try_webrtc"> <span translate="ID_AUTO_TRY_WEBRTC"></span>
             </label>
           </div>
-          <div><span translate="ID_WEBRTC_BANDWIDTH_DESCR"></span>
+          <div ng-if="0"><span translate="ID_WEBRTC_BANDWIDTH_DESCR"></span>
           <select ng-model="w.webrtc_bandwidth_profile" ng-options="profile.value as profile.text for profile in profiles"></select>
           </div>
           <div class="checkbox">

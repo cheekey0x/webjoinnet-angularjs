@@ -92,14 +92,19 @@ angular.module('joinnet')
 
       var shift = 0;
       var target_fps = video_codec.fps;
-      if(target_fps > 0) {
+      var img_size_encode_factor = 4; // any requirement of the size dimension, whole number of 2, or 4, or 8, etc.
+      var w = elem_video.videoWidth >> img_size_encode_factor << img_size_encode_factor;
+      var h = elem_video.videoHeight >> img_size_encode_factor << img_size_encode_factor;
+      if(appSetting.video_fps == 0) {
+        shift = 0;
+        var rounded_targetrate = ((hmtg.jnkernel._jn_targetrate() >> 16) + 1) << 16;
+        var equivalent_fps = rounded_targetrate / 0.6 / 1 / (w * h);
+        video_codec.fps = video_codec.calc_nearest_fps(equivalent_fps);
+      } else if(target_fps > 0) {
         // var target_jpg_size = bitrate / 8 / target_fps;
         // shift = calc_shift(target_jpg_size, elem_video.videoWidth, elem_video.videoHeight);
         var rounded_targetrate = ((hmtg.jnkernel._jn_targetrate() >> 16) + 1) << 16;
         var supported_area = rounded_targetrate / 0.6 / 1 / video_codec.fps;
-        var img_size_encode_factor = 4; // any requirement of the size dimension, whole number of 2, or 4, or 8, etc.
-        var w = elem_video.videoWidth >> img_size_encode_factor << img_size_encode_factor;
-        var h = elem_video.videoHeight >> img_size_encode_factor << img_size_encode_factor;
         shift = shift = calc_supported_area_shift(supported_area, w, h);
       } else {
         // 0=>100%, 1=>25%, 2=>6%, 3=>1.5%, 4=>0.4%, 5=>0.1%
@@ -347,19 +352,24 @@ angular.module('joinnet')
       // the motion rank is an integer between 1 and 4, 
       // 1 being low motion, 2 being medium motion, and 4 being high motion
       var rounded_targetrate = ((hmtg.jnkernel._jn_targetrate() >> 16) + 1) << 16;
-      var supported_area = rounded_targetrate / 0.07 / 1 / video_codec.fps;
-      // need to be whole number of 16
-      // otherwise there will be black margin at right and bottom side
-      var img_size_encode_factor = 4; // multiple of 16
       var w = elem_video.videoWidth >> img_size_encode_factor << img_size_encode_factor;
       var h = elem_video.videoHeight >> img_size_encode_factor << img_size_encode_factor;
-      if(w * h > supported_area) {
-        var shift = calc_supported_area_shift(supported_area, w, h);
-        w = elem_video.videoWidth >> shift >> img_size_encode_factor << img_size_encode_factor;
-        h = elem_video.videoHeight >> shift >> img_size_encode_factor << img_size_encode_factor;
+      if(appSetting.video_fps == 0) {
+        var equivalent_fps = rounded_targetrate / 0.07 / 1 / (w * h);
+        video_codec.fps = video_codec.calc_nearest_fps(equivalent_fps);
+      } else {
+        var supported_area = rounded_targetrate / 0.07 / 1 / video_codec.fps;
+        // need to be whole number of 16
+        // otherwise there will be black margin at right and bottom side
+        var img_size_encode_factor = 4; // multiple of 16
+        if(w * h > supported_area) {
+          var shift = calc_supported_area_shift(supported_area, w, h);
+          w = elem_video.videoWidth >> shift >> img_size_encode_factor << img_size_encode_factor;
+          h = elem_video.videoHeight >> shift >> img_size_encode_factor << img_size_encode_factor;
+        }
+        w = Math.max(16, w);
+        h = Math.max(16, h);
       }
-      w = Math.max(16, w);
-      h = Math.max(16, h);
       canvas.width = w;
       canvas.height = h;
       try {

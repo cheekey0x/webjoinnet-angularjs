@@ -479,7 +479,7 @@
               <span ng-show="as.show_text">{{(v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate}}</span>
               </button></span>
           <span ng-show="v.video_codec && v2.is_send_video && !is_concise_mode()">
-            <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="v.fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
+            <select class="vertical-middle" tooltip-placement="bottom" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="as.video_fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
           </span>
           <span ng-show="!is_concise_mode()"><button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
             ng-click="toggle_video_recving()" 
