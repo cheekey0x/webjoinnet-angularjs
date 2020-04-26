@@ -715,11 +715,11 @@ angular.module('joinnet')
         } else {
           screen_capture();
         }
-      } else if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        hmtg.util.log(2, 'try to capture screen via navigator.mediaDevices.getUserMedia/mediaSource');
-        navigator.mediaDevices.getUserMedia({
-          video: { mediaSource: (window_mode ? 'window' : 'screen') }
-        }).then(getUserMediaOK, videoStreamError);
+      // } else if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && !hmtgHelper.isiOS) {
+      //   hmtg.util.log(2, 'try to capture screen via navigator.mediaDevices.getUserMedia/mediaSource');
+      //   navigator.mediaDevices.getUserMedia({
+      //     video: { mediaSource: (window_mode ? 'window' : 'screen') }
+      //   }).then(getUserMediaOK, videoStreamError);
       } else {
         hmtg.util.log(2, 'donot know how to capture screen');
         hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_CANNOT_CAPTURE_SCREEN') }, 20);

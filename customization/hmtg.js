@@ -29,7 +29,7 @@
     customization.signup_link = '';
 
     // whether to use concise layout for visiting guests
-    customization.use_concise_layout_for_guest = true;
+    customization.use_concise_layout_for_guest = false;
 
     // whether to use concise layout for mobile users
     customization.use_concise_layout_for_mobile = true;

@@ -1245,6 +1245,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.lo = layout;
     $scope.v2 = video_bitrate;
     $scope.vr = video_recving;
+    $scope.jv = joinnetVideo;
     $scope.hmtg = hmtg;
 
     $scope.can_show_badge = function() {
@@ -1524,6 +1525,14 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.$on(hmtgHelper.WM_CONCISE_TAB_CHANGED, function() {
       update_tab_mode(layout.visible_area);
     });
+
+    $scope.onToggleScreenCapture = function() {
+      if(!joinnetVideo.screen_recording) {
+        $scope.startScreenRecording();
+      } else {
+        $scope.stopScreenRecording();
+      }
+    }
 
     //hmtgSound.refresh_device_list();
 
@@ -2622,12 +2631,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
       hmtg.jnkernel.jn_command_UpdateVideoSendingStatus(video_bitrate.is_send_video);
     }
     $scope.toggle_screen_as_video = function() {
-      mediasoupWebRTC.use_screen_as_video = joinnetVideo.use_screen_as_video = !joinnetVideo.use_screen_as_video;
-      hmtg.util.log('stat, use screen as video status: ' + (joinnetVideo.use_screen_as_video ? 'Yes' : 'No'));
-      hmtgHelper.inside_angular++;
-      mediasoupWebRTC.updateVideoSource();
-      $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
-      hmtgHelper.inside_angular--;
+      // mediasoupWebRTC.use_screen_as_video = joinnetVideo.use_screen_as_video = !joinnetVideo.use_screen_as_video;
+      // hmtg.util.log('stat, use screen as video status: ' + (joinnetVideo.use_screen_as_video ? 'Yes' : 'No'));
+      // hmtgHelper.inside_angular++;
+      // mediasoupWebRTC.updateVideoSource();
+      // $rootScope.$broadcast(hmtgHelper.WM_CHANGE_CAP);
+      // hmtgHelper.inside_angular--;
     }
 
     $scope.lazyLoadTranscoding = function(_import) {

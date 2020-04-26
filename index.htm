@@ -246,6 +246,15 @@
       <span ng-show="can_show_playback_button()">
         <span ng-include="partialPlayback"></span>
       </span>
+      <span ng-if="jv.can_show_record_control()">
+        <button type="button" class="btn" 
+          ng-class="{true: 'btn-primary', false: 'btn-muted'}[jv.screen_recording]"
+          ng-click="onToggleScreenCapture()"
+          tooltip-placement="top" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_CAPTURED_SCREEN' | translate)}}">
+          <span><i class="material-icons">input</i></span>
+          <span ng-show="as.show_text" translate="ID_CAPTURED_SCREEN"></span>
+        </button>
+      </span>
       <span ng-controller="JoinNetVideoCtrl">
         <span ng-show="jv.can_show_record_control()">
           <div style="position: fixed; bottom: 5; left: 0; opacity: 0; z-index: -1;">
@@ -464,12 +473,6 @@
                 ng-model="vr.main_video_ssrc2" ng-options="user.ssrc as user.name for user in m.main_video_userlist2"></select>
             </span>
           </span>
-          <span ng-if="jv.screen_recording && !is_concise_mode()">
-            <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[jv.use_screen_as_video]" 
-              ng-click="toggle_screen_as_video()" 
-              tooltip-placement="right" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TOGGLE_SCREEN_AS_VIDEO' | translate)}}">
-              <span><i class="material-icons">input</i></span>
-              <span ng-show="as.show_text" translate="ID_TOGGLE_SCREEN_AS_VIDEO"></span></button></span>
           <span ng-show="ul.is_meeting_mode && !is_concise_mode()">
             <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[v2.is_send_video]" 
               ng-click="toggle_video_sending()" 
@@ -622,7 +625,7 @@
               <span><input type="range" class="vertical-middle" style="width: 100px;display: inline;" min="0" max="100" 
                 tooltip="{{as.no_tip ? '' : ('ID_SENDING_RATE' | translate)}}" ng-model="v2.bitrate_pos"></span>
             </span>{{v2.bitrate_str}}
-            <select class="vertical-middle" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="v.fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
+            <select class="vertical-middle" tooltip="{{as.no_tip ? '' : ('ID_FRAME_RATE' | translate)}}" ng-model="as.video_fps" ng-options="fps.value as fps.name for fps in v.afps"></select>
           </span>
           </h4>
         </div>

@@ -305,6 +305,10 @@ angular.module('joinnet')
     }
 
     // https://github.com/kazuki/video-codec.js
+    // kazuki video codec hack
+    // original TOTAL_MEMORY is 64MB
+    // see the worker file openh264_encoder.js
+    // we change it to 1GB to support larger screen/video size encoding
     var kazuki_busy = false;  // if true, waiting for encoder's result
     var kazuki_encoder = null;  // encoder worker
     var kazuki_encoder_initialized = false; // whether the encoder has been initialized
@@ -352,6 +356,9 @@ angular.module('joinnet')
       // the motion rank is an integer between 1 and 4, 
       // 1 being low motion, 2 being medium motion, and 4 being high motion
       var rounded_targetrate = ((hmtg.jnkernel._jn_targetrate() >> 16) + 1) << 16;
+      // need to be whole number of 16
+      // otherwise there will be black margin at right and bottom side
+      var img_size_encode_factor = 4; // multiple of 16
       var w = elem_video.videoWidth >> img_size_encode_factor << img_size_encode_factor;
       var h = elem_video.videoHeight >> img_size_encode_factor << img_size_encode_factor;
       if(appSetting.video_fps == 0) {
@@ -359,17 +366,14 @@ angular.module('joinnet')
         video_codec.fps = video_codec.calc_nearest_fps(equivalent_fps);
       } else {
         var supported_area = rounded_targetrate / 0.07 / 1 / video_codec.fps;
-        // need to be whole number of 16
-        // otherwise there will be black margin at right and bottom side
-        var img_size_encode_factor = 4; // multiple of 16
         if(w * h > supported_area) {
           var shift = calc_supported_area_shift(supported_area, w, h);
           w = elem_video.videoWidth >> shift >> img_size_encode_factor << img_size_encode_factor;
           h = elem_video.videoHeight >> shift >> img_size_encode_factor << img_size_encode_factor;
         }
-        w = Math.max(16, w);
-        h = Math.max(16, h);
       }
+      w = Math.max(16, w);
+      h = Math.max(16, h);
       canvas.width = w;
       canvas.height = h;
       try {
