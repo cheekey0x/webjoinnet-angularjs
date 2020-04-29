@@ -4,7 +4,7 @@
  * HomeMeeting Inc.
  */
 
-hmtg.config.APP_VERSION = '3.4.0';
+hmtg.config.APP_VERSION = '3.4.1';
 window.g_exempted_error = 0;
 var elem;
 

@@ -308,7 +308,8 @@ angular.module('joinnet')
     // kazuki video codec hack
     // original TOTAL_MEMORY is 64MB
     // see the worker file openh264_encoder.js
-    // we change it to 1GB to support larger screen/video size encoding
+    // we change it to 256MB to support larger screen/video size encoding
+    // 512MB doesn't work on mobile phones
     var kazuki_busy = false;  // if true, waiting for encoder's result
     var kazuki_encoder = null;  // encoder worker
     var kazuki_encoder_initialized = false; // whether the encoder has been initialized
