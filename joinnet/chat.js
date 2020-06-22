@@ -32,6 +32,7 @@ angular.module('joinnet')
           item['text'] = hmtg.util.decodeUtf8(text);
           item['type'] = 'info';
           item['click'] = function(index) {
+            hmtgAlert.close_notification(item);
             hmtgHelper.inside_angular++;
             $rootScope.$broadcast(hmtgHelper.WM_SHOW_CHAT_AREA);
             clearTimeout(hmtgAlert.chat_alert_array[index].timeout_id);
@@ -39,8 +40,22 @@ angular.module('joinnet')
             $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
             hmtgHelper.inside_angular--;
           };
+          item['item_click'] = function() {
+            hmtgAlert.close_notification(item);
+            $rootScope.$broadcast(hmtgHelper.WM_SHOW_CHAT_AREA);
+            clearTimeout(item.timeout_id);
+            var index = hmtgAlert.chat_alert_array.indexOf(item);
+            if(index != -1) {
+              hmtgAlert.chat_alert_array.splice(index, 1);
+              $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
+            }
+          };
+          item['cancel'] = function() {
+            hmtgAlert.close_notification(item);
+          }
 
           hmtgAlert.update_chat_alert_item(item);
+          item['notification'] = hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['text'], false, item['item_click']);
         }
       } else {
         hmtgAlert.clear_chat_alert_item();

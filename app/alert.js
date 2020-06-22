@@ -20,7 +20,7 @@ angular.module('hmtgs')
 
     this.reg = null;
     this.client_id = null;
-    this.notification = null;
+    // this.notification = null;
 
     if(window.Notification) {
       if(Notification.permission !== "granted") {
@@ -28,28 +28,27 @@ angular.module('hmtgs')
       }
     }
 
-    if(navigator['serviceWorker']) {
-      var sw = navigator.serviceWorker.register('sw.js').then(function(reg) {
-        hmtg.util.log('service worker registration complete.');
-        _hmtgAlert.reg = reg;
-        var c = navigator.serviceWorker.controller;
-        if(c) {
-          c.postMessage({ cmd: 'client_id' });
-        }
-      }, function() {
-        hmtg.util.log('service worker registration failed.');
-      });
+    // if(0 && navigator['serviceWorker']) {
+    //   var sw = navigator.serviceWorker.register('sw.js').then(function(reg) {
+    //     hmtg.util.log('service worker registration complete.');
+    //     _hmtgAlert.reg = reg;
+    //     var c = navigator.serviceWorker.controller;
+    //     if(c) {
+    //       c.postMessage({ cmd: 'client_id' });
+    //     }
+    //   }, function() {
+    //     hmtg.util.log('service worker registration failed.');
+    //   });
 
-      navigator.serviceWorker.addEventListener('message', function(e) {
-        if(e.data.cmd && e.data.cmd == 'client_id') {
-          _hmtgAlert.client_id = e.data.data;
-        }
-        //if(e.data.cmd && e.data.cmd == 'notificationclick') {
-        //window.focus();
-        //}
-      });
-
-    }
+    //   navigator.serviceWorker.addEventListener('message', function(e) {
+    //     if(e.data.cmd && e.data.cmd == 'client_id') {
+    //       _hmtgAlert.client_id = e.data.data;
+    //     }
+    //     // if(e.data.cmd && e.data.cmd == 'notificationclick') {
+    //     // window.focus();
+    //     // }
+    //   });
+    // }
 
     var hidden;
     if(typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
@@ -59,7 +58,7 @@ angular.module('hmtgs')
     } else if(typeof document.webkitHidden !== "undefined") {
       hidden = "webkitHidden";
     }
-    this.show_notification = function(title, text, forced) {
+    this.show_notification = function(title, text, forced, onclick_callback) {
       if(hmtg.noti) {
         if(hmtg.is_foreground) {
           if(!forced) return;
@@ -95,52 +94,62 @@ angular.module('hmtgs')
         } else {
           option.vibrate = [0];
         }
-        if(this.reg && this.reg.showNotification && this.client_id) {
-          try {
-            this.reg.showNotification(title, option);
-          } catch(e) {
-          }
-        } else {
-          if(this.notification) {
-            this.notification.close();
-            this.notification = null;
-          }
+        // if(0 && this.reg && this.reg.showNotification && this.client_id) {
+        //   try {
+        //     this.reg.showNotification(title, option);
+        //   } catch(e) {
+        //   }
+        // } else {
+          // if(this.notification) {
+          //   this.notification.close();
+          //   this.notification = null;
+          // }
           var n;
           try {
-            this.notification = n = new Notification(title, option);
+            // this.notification =
+            n = new Notification(title, option);
           } catch(e) {
             return;
           }
 
           n.onclick = function() {
             n.close();
-            window.focus();
+            if(onclick_callback) {
+              onclick_callback();
+            } else {
+              window.focus();
+            }
           };
-        }
+          return n;
+        // }
       }
     }
-    this.close_notification = function() {
-      if(this.reg && this.reg.getNotifications && this.client_id) {
-        try {
-          this.reg.getNotifications().then(function(list) {
-            var i;
-            for(i = 0; i < list.length; i++) {
-              if(list[i].data && list[i].data.client_id && list[i].data.client_id == _hmtgAlert.client_id) {
-                list[i].close();
-              }
-            }
-          });
-        } catch(e) {
-        }
+    this.close_notification = function(item) {
+      // if(this.reg && this.reg.getNotifications && this.client_id) {
+      //   try {
+      //     this.reg.getNotifications().then(function(list) {
+      //       var i;
+      //       for(i = 0; i < list.length; i++) {
+      //         if(list[i].data && list[i].data.client_id && list[i].data.client_id == _hmtgAlert.client_id) {
+      //           list[i].close();
+      //         }
+      //       }
+      //     });
+      //   } catch(e) {
+      //   }
+      // }
+      if(item && item['notification']) {
+        item['notification'].close();
+        item['notification'] = null;
       }
-      if(this.notification) {
-        this.notification.close();
-        this.notification = null;
-      }
-      if(hmtg.noti) {
-        hmtg.noti.clearAll();
-        hmtg.noti.cancelAll();
-      }
+      // if(this.notification) {
+      //   this.notification.close();
+      //   this.notification = null;
+      // }
+      // if(hmtg.noti) {
+      //   hmtg.noti.clearAll();
+      //   hmtg.noti.cancelAll();
+      // }
     }
 
     this.need_ring = function() {
@@ -211,6 +220,15 @@ angular.module('hmtgs')
       clearTimeout(_hmtgAlert.link_array[index].timeout_id);
       _hmtgAlert.link_array.splice(index, 1);
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
+    }
+
+    this.click_item_link = function(item) {
+      clearTimeout(item.timeout_id);
+      var index = _hmtgAlert.link_array.indexOf(item);
+      if(index != -1) {
+        _hmtgAlert.link_array.splice(index, 1);
+        $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
+      }
     }
 
     this.remove_im_alert = function(target) {
@@ -379,6 +397,9 @@ angular.module('hmtgs')
     }
 
     $scope.close_chat_alert = function(index) {
+      if(hmtgAlert.chat_alert_array[index].cancel) {
+        hmtgAlert.chat_alert_array[index].cancel();
+      }
       clearTimeout(hmtgAlert.chat_alert_array[index].timeout_id);
       hmtgAlert.chat_alert_array.splice(index, 1);
     }

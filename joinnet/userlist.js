@@ -2888,7 +2888,7 @@ angular.module('joinnet')
 
       board.upload_finished = false;
 
-      board.upload_slide(2, board.is_local_slide, '', name, $scope.upload_file);
+      board.upload_slide(2, board.is_local_slide, '', hmtg.util.encodeUtf8(name), $scope.upload_file);
       $modalInstance.dismiss('cancel');
     }
 

@@ -836,7 +836,7 @@ angular.module('msgr')
             item['type'] = 'info';
             item['need_ring'] = true;
             item['click'] = function(index) {
-              hmtgAlert.close_notification();
+              hmtgAlert.close_notification(item);
               hmtgHelper.inside_angular++;
               hmtgAlert.click_link(index);
               $rootScope.$broadcast(hmtgHelper.WM_SHOW_IM, _im, true);
@@ -845,15 +845,23 @@ angular.module('msgr')
               hmtg.util.log('the user accept the webrtc call. ' + _im.im_id_string());
               accept_webrtc(signal);
             };
+            item['item_click'] = function() {
+              hmtgAlert.close_notification(item);
+              hmtgAlert.click_item_link(item);
+              $rootScope.$broadcast(hmtgHelper.WM_SHOW_IM, _im, true);
+
+              hmtg.util.log('the user accept the webrtc call. ' + _im.im_id_string());
+              accept_webrtc(signal);
+            };
             item['cancel'] = function() {
-              hmtgAlert.close_notification();
+              hmtgAlert.close_notification(item);
             }
             item['timeout_action'] = function() {
               missedCall.update_missed_call((signal.with_video ? 'IDS_WEBRTC_VIDEO_CALL' : 'IDS_WEBRTC_AUDIO_CALL'), _im.calc_peer_name());
             }
 
             hmtgAlert.add_link_item(item);
-            hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['update']());
+            item['notification'] = hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['update'](), false, item['item_click']);
           } else {
             if(!this.webrtc_peer_id || signal.webrtc_id == this.webrtc_peer_id) {
               process_received_sdp(signal);
@@ -1992,14 +2000,14 @@ angular.module('msgr')
           item['text'] = item['update']();
           item['type'] = 'info';
           item['click'] = function(index) {
-            hmtgAlert.close_notification();
+            hmtgAlert.close_notification(item);
             hmtgHelper.inside_angular++;
             hmtgAlert.click_link(index);
             $rootScope.$broadcast(hmtgHelper.WM_SHOW_IM, item['im_alert_target'], true);
             hmtgHelper.inside_angular--;
           };
           item['cancel'] = function() {
-            hmtgAlert.close_notification();
+            hmtgAlert.close_notification(item);
           }
           hmtgAlert.add_link_item(item);
         } else {

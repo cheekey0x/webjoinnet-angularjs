@@ -224,7 +224,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
       item['type'] = 'info';
       item['need_ring'] = true;
       item['click'] = function(index) {
-        hmtgAlert.close_notification();
+        hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
         $rootScope.tabs[2].active = true;
 
@@ -234,15 +234,24 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
         hmtg.jmkernel.jm_callback_LaunchJoinNet(jnj);
         hmtgHelper.inside_angular--;
       };
+      item['item_click'] = function() {
+        hmtgAlert.close_notification(item);
+        $rootScope.nav_item = 'joinnet';
+        $rootScope.tabs[2].active = true;
+
+        hmtgAlert.click_item_link(item);
+
+        hmtg.jmkernel.jm_callback_LaunchJoinNet(jnj);
+      };
       item['cancel'] = function() {
-        hmtgAlert.close_notification();
+        hmtgAlert.close_notification(item);
       }
       item['timeout_action'] = function() {
         missedCall.update_missed_call('ID_INVITE', hmtg.util.decodeUtf8(info_owner_id) + ' @ ' + hmtg.util.decodeUtf8(info_owner_homepage));
       }
 
       hmtgAlert.add_link_item(item);
-      hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['update']());
+      item['notification'] = hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['update'](), false, item['item_click']);
     }
 
     jmkernel['jm_callback_JnjVisit'] = function(param, jnj, visitor_name) {
@@ -268,7 +277,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
       item['type'] = 'info';
       item['need_ring'] = true;
       item['click'] = function(index) {
-        hmtgAlert.close_notification();
+        hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
         $rootScope.tabs[2].active = true;
 
@@ -278,15 +287,24 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
         hmtg.jmkernel.jm_callback_LaunchJoinNet(jnj);
         hmtgHelper.inside_angular--;
       };
+      item['item_click'] = function() {
+        hmtgAlert.close_notification(item);
+        $rootScope.nav_item = 'joinnet';
+        $rootScope.tabs[2].active = true;
+
+        hmtgAlert.click_item_link(item);
+
+        hmtg.jmkernel.jm_callback_LaunchJoinNet(jnj);
+      };
       item['cancel'] = function() {
-        hmtgAlert.close_notification();
+        hmtgAlert.close_notification(item);
       }
       item['timeout_action'] = function() {
         missedCall.update_missed_call('ID_VISIT', hmtg.util.decodeUtf8(visitor_name));
       }
 
       hmtgAlert.add_link_item(item);
-      hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['update']());
+      item['notification'] = hmtgAlert.show_notification($translate.instant('IDS_APP_NAME'), item['update'](), false, item['item_click']);
     }
 
     jmkernel['jm_callback_JnjNewMessage'] = function(param, visitor_name) {

@@ -24,17 +24,17 @@ angular.module('joinnet')
     var WORKER_G711_ENCODE_PATH = 'worker/g711_encode.js' + hmtgHelper.cache_param;
     var WORKER_OPUS_ENCODE_PATH = 'worker/opus_encode.js' + hmtgHelper.cache_param;
 
-    if(hmtgSound.ac.audioWorklet) {
-      hmtgSound.ac.audioWorklet.addModule('worker/worklet-record.js?p=' + hmtgHelper.cache_param).then(function() { 
-        hmtg.util.log("Use AudioWorklet for recording");
-        hmtgSound.recordWorkletReady = true;
-        create_merge_node();
-      }).catch(function() { 
-        create_merge_node();
-      });
-    } else {
+    // if(0 && hmtgSound.ac.audioWorklet) {
+    //   hmtgSound.ac.audioWorklet.addModule('worker/worklet-record.js?p=' + hmtgHelper.cache_param).then(function() { 
+    //     hmtg.util.log("Use AudioWorklet for recording");
+    //     hmtgSound.recordWorkletReady = true;
+    //     create_merge_node();
+    //   }).catch(function() { 
+    //     create_merge_node();
+    //   });
+    // } else {
       create_merge_node();
-    }  
+    // }  
 
     function create_merge_node() {
       if(!hmtgSound.ac) return;
