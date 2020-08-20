@@ -11,6 +11,16 @@ angular.module('joinnet')
     var _audio_playback = this;
     var ac = hmtgSound.ac;
     var local_sample_rate = ac ? ac.sampleRate : 8000;
+    // soundtouch-js-master.zip
+    this.playspeed = 1.0;
+    var stretch_ms = 30;  // 30ms
+    var overlap_ms = 8; // 8ms
+    // 1.0, 1.25, 1.5, 1.75, 2.0
+    // var stretch_size = Math.floor(local_sample_rate * stretch_ms / 1000 / 4) * 4;  // time domain shift block size
+    // playback_buffer_size, defined in sound.js, should be divided by stretch_size
+    var stretch_size = 2048;
+    var overlap_size = Math.floor(local_sample_rate * overlap_ms / 1000);
+    var output_buffer = new Float32Array(hmtgSound.playback_buffer_size);
     var buffer_control_size = Math.max((hmtgSound.playback_buffer_size << 1), local_sample_rate);  // ~1s
     this.audio_playback_array = {};
     this.prev_opus = {};
@@ -60,15 +70,79 @@ angular.module('joinnet')
       this.prev_opus = {};
     }
 
+    this.update_playback_speed = function(speed) {
+      this.playspeed = speed;
+      if(hmtgSound.playbackWorkletReady) {
+        for(var ssrc in this.audio_playback_array) {
+          if(this.audio_playback_array[ssrc]) {
+            this.audio_playback_array[ssrc].playback_node.port.postMessage({ command: 'speed', playspeed: this.playspeed, stretch_size: stretch_size, overlap_size: overlap_size });
+          }
+        }
+      }  
+    }
+
     this.recv_audio = function (data, type, ssrc) {
       if(!ac) return;
 
+      function squeeze_audio_data(src, len, outData, playspeed) {
+        if(len == 0) {
+          return;
+        }
+        if(len <= outData.length) {
+          outData.set(src.subarray(0, len), 0);
+          return;
+        }
+
+        // pad src with zero
+        src.fill(0, len);
+
+        // process
+        var idx = 0;
+        var idx2 = 0;
+        while(1) {
+          // basic operation unit size: stretch_size or whatever is left in the target
+          var to_copy = outData.length - idx;
+          if(to_copy > stretch_size) {
+            to_copy = stretch_size;
+          }
+
+          // calculate the part need to be skipped in the src
+          var skip = Math.floor((idx + to_copy) * playspeed + 0.5) - idx2 - to_copy;
+
+          // copy the part
+          outData.set(src.subarray(idx2, idx2 + to_copy), idx);
+
+          // overlap and add the last part of the skip region and the last part of the copied region
+          // to avoid noise caused by the skipping
+          var to_overlap = overlap_size;
+          if(skip < overlap_size) {
+            to_overlap = skip;
+          }
+          if(to_overlap >= 1) {
+            var overlap_idx1 = idx + to_copy - to_overlap;
+            var overlap_idx2 = idx2 + to_copy + skip - to_overlap;
+            var i;
+            for(i = 0; i < to_overlap; i++) {
+              // weight1 + weight2 should equal 1
+              var weight1 = (to_overlap - i) / (to_overlap + 1);
+              var weight2 = (i + 1) / (to_overlap + 1);
+              outData[overlap_idx1 + i] = outData[overlap_idx1 + i] * weight1 + src[overlap_idx2 + i] * weight2;
+            }
+          }
+          idx += to_copy;
+          idx2 += to_copy + skip;
+          if(idx >= outData.length) {
+            break;
+          }
+        }
+      }
       function grab_decoded_audio(ssrc, outData) {
+        outData.fill(0, 0);
+
+        var playspeed = _audio_playback.playspeed;
+
         var idx = 0;
         if(!_audio_playback.audio_playback_array[ssrc]) {
-          for(; idx < outData.length; idx++) {
-            outData[idx] = 0;
-          }
           return;
         }
         var decoded_audio_data = _audio_playback.audio_playback_array[ssrc].decoded_audio_data;
@@ -90,36 +164,55 @@ angular.module('joinnet')
           }
           //if(old != total_size) { console.log('(drop ' + (old - total_size) + ' to ' + total_size + ')audio playback buffer size: ' + old); }
         }
+        // calculate the new target length considering the playback speed
+        var adjusted_length = Math.floor(outData.length * playspeed + 0.5);
+
+        // grow the output_buffer if the new target length is larger than the existing buffer
+        if(output_buffer.length < adjusted_length) {
+          output_buffer = new Float32Array(adjusted_length);
+        }
+
+        // for speed 1.0, operating on the outData directly
+        // otherwise, use the intermediate output_buffer
+        var mybuffer;
+        if(adjusted_length <= outData.length) {
+          mybuffer = outData;
+        } else {
+          mybuffer = output_buffer;
+        }
+
+        // fill mybuffer
         while(decoded_audio_data.length) {
-          var to_copy = outData.length - idx;
+          var to_copy = adjusted_length - idx;
           if((decoded_audio_data[0].length - played_size) > to_copy) {
-            outData.set(decoded_audio_data[0].subarray(played_size, played_size + to_copy), idx);
+            mybuffer.set(decoded_audio_data[0].subarray(played_size, played_size + to_copy), idx);
             idx += to_copy;
             total_size -= to_copy;
             played_size += to_copy;
             break;
           } if((decoded_audio_data[0].length - played_size) == to_copy) {
-            outData.set(decoded_audio_data[0].subarray(played_size), idx);
+            mybuffer.set(decoded_audio_data[0].subarray(played_size), idx);
             idx += to_copy;
             total_size -= to_copy;
             played_size = 0;
             decoded_audio_data.splice(0, 1);
             break;
           } else {
-            outData.set(decoded_audio_data[0].subarray(played_size), idx);
+            mybuffer.set(decoded_audio_data[0].subarray(played_size), idx);
             idx += decoded_audio_data[0].length - played_size;
             total_size -= decoded_audio_data[0].length - played_size;
             played_size = 0;
             decoded_audio_data.splice(0, 1);
           }
         }
-        var copied = idx;
-        for(; idx < outData.length; idx++) {
-          outData[idx] = 0;
+
+        // with playback speed, squeeze the audio data
+        if(adjusted_length > outData.length) {
+          squeeze_audio_data(output_buffer, idx, outData, playspeed);
         }
+
         _audio_playback.audio_playback_array[ssrc].played_size = played_size;
         _audio_playback.audio_playback_array[ssrc].total_size = total_size;
-        return copied;
       }
 
       var audio_playback = this.audio_playback_array[ssrc];
@@ -129,6 +222,7 @@ angular.module('joinnet')
         if(hmtgSound.playbackWorkletReady) {
           playback_node = new AudioWorkletNode(hmtgSound.ac, 'worklet-playback');
           playback_node.port.postMessage({ command: 'init', buffer_control_size: buffer_control_size, good_worker: hmtgHelper.good_worker, ssrc: ssrc });
+          playback_node.port.postMessage({ command: 'speed', playspeed: this.playspeed, stretch_size: stretch_size, overlap_size: overlap_size });
         } else if(!ac.createScriptProcessor) {
           playback_node = ac.createJavaScriptNode(bufferLen2, 0, 1);
         } else {
@@ -143,12 +237,12 @@ angular.module('joinnet')
         // stress test
         this.audio_playback_array[ssrc].opus_decoder_array = [];
 
-        var last_tick = hmtg.util.GetTickCount() - 60000;
+        // var last_tick = hmtg.util.GetTickCount() - 60000;
         if(!hmtgSound.playbackWorkletReady) {
           playback_node.onaudioprocess = function(e) {
             var outputBuffer = e.outputBuffer;
             var outData = outputBuffer.getChannelData(0);
-            var count = grab_decoded_audio(ssrc, outData)
+            grab_decoded_audio(ssrc, outData)
           }
         }  
 

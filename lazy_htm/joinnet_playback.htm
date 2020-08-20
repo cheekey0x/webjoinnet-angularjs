@@ -1,8 +1,14 @@
         <span ng-controller="PlaybackCtrl">
-          <span><button type="button" class="btn btn-default" ng-click="resume()" tooltip="{{as.no_tip ? '' : ('ID_PLAYBACK_RESUME' | translate)}}" 
-            ng-show="paused()"><span class="glyphicon glyphicon-play"></span></button></span>
-          <span><button type="button" class="btn btn-default" ng-click="pause()" tooltip="{{as.no_tip ? '' : ('ID_PLAYBACK_PAUSE' | translate)}}" 
-            ng-show="!paused()"><span class="glyphicon glyphicon-pause"></span></button></span>
+          <div class="inline-block">
+            <span ng-if="hmtg.jnkernel.jn_info_IsPlaybackSpeedSupportedByMCU()">
+              <select class="vertical-middle" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_SPEED' | translate)}}"
+                ng-model="w.speed_idx" ng-options="speed.value as speed.name for speed in w.speed_list"></select>
+            </span>
+            <span><button type="button" class="btn btn-default" ng-click="resume()" tooltip="{{as.no_tip ? '' : ('ID_PLAYBACK_RESUME' | translate)}}" 
+              ng-show="paused()"><span class="glyphicon glyphicon-play"></span></button></span>
+            <span><button type="button" class="btn btn-default" ng-click="pause()" tooltip="{{as.no_tip ? '' : ('ID_PLAYBACK_PAUSE' | translate)}}" 
+              ng-show="!paused()"><span class="glyphicon glyphicon-pause"></span></button></span>
+          </div>
           <span><button type="button" class="btn btn-default" ng-click="stop()" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_PLAYBACK_STOP' | translate)}}">
             <span class="glyphicon glyphicon-stop"></span>
             <span ng-show="as.show_text" translate="ID_PLAYBACK_STOP"></span></button></span>

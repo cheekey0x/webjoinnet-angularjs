@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "网页版JoinNet",
+"ID_PLAYBACK_SPEED": "播放速度",
 "ID_ROTATION": "旋转",
 "ID_SIGN_UP": "注册",
 "ID_TARGET_VIDEO_CAPTURE": "视频目标帧率（帧/秒）",

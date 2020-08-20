@@ -8,6 +8,7 @@ angular.module('hmtgs')
 .config(['$translateProvider', function ($translateProvider) {
   $translateProvider.translations('en', {
 "IDS_APP_NAME": "Web JoinNet",
+"ID_PLAYBACK_SPEED": "Playback Speed",
 "ID_ROTATION": "Rotation",
 "ID_SIGN_UP": "Sign Up",
 "ID_TARGET_VIDEO_CAPTURE": "Video Target Frame Rate",

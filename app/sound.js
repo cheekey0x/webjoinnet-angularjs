@@ -224,14 +224,14 @@ angular.module('hmtgs')
         this.merge_analyser.connect(this.mixer_node);
       }
 
-      if(this.ac.audioWorklet) {
-        hmtg.util.log("Support AudioWorklet: Yes");
-        this.ac.audioWorklet.addModule('worker/worklet-playback.js?p=' + hmtgHelper.cache_param).then(function() { 
-          _hmtgSound.playbackWorkletReady = true;
-          hmtg.util.log("Use AudioWorklet for playback");
-        });
-        // worklet recording is done in service audio_capture
-      }  
+      // if(this.ac.audioWorklet) {
+      //   hmtg.util.log("Support AudioWorklet: Yes");
+      //   this.ac.audioWorklet.addModule('worker/worklet-playback.js?p=' + hmtgHelper.cache_param).then(function() { 
+      //     _hmtgSound.playbackWorkletReady = true;
+      //     hmtg.util.log("Use AudioWorklet for playback");
+      //   });
+      //   // worklet recording is done in service audio_capture
+      // }  
     }
 
     //normalize window.URL

@@ -1,7 +1,10 @@
 angular.module('joinnet')
 .controller('PlaybackCtrl', ['$scope', 'playback', 'hmtgHelper', 'jnjContent', '$rootScope', '$modal', '$translate',
-  'hmtgAlert', 'hmtgSound', 'JoinNet', 'video_playback',
-  function ($scope, playback, hmtgHelper, jnjContent, $rootScope, $modal, $translate, hmtgAlert, hmtgSound, JoinNet, video_playback) {
+  'hmtgAlert', 'hmtgSound', 'JoinNet', 'video_playback', 'audio_playback',
+  function($scope, playback, hmtgHelper, jnjContent, $rootScope, $modal, $translate, hmtgAlert, hmtgSound,
+    JoinNet, video_playback, audio_playback) {
+    $scope.hmtg = hmtg;
+    $scope.w = {};
     $scope.pos_str = '0%';
     $scope.auto_disconnect_threshold = 270 * 1000; // 4.5 minute. cannot be longer, since the MCU will disconnect by 5 minute threshold.
     $scope.now = $scope.last_tick = hmtg.util.GetTickCount();
@@ -22,6 +25,14 @@ angular.module('joinnet')
     $scope.interval_list = [];
     $scope.interval_idx = 2;
     setIntervalList();
+    $scope.w.speed_list = [
+      { value: 0, speed: 100, name: '1x' },
+      { value: 1, speed: 125, name: '1.25x' },
+      { value: 2, speed: 150, name: '1.5x' },
+      { value: 3, speed: 175, name: '1.75x' },
+      { value: 4, speed: 200, name: '2x' },
+    ];
+    $scope.w.speed_idx = 0;
 
     $scope.intervalID = setInterval(checkActivity, 5000);
 
@@ -80,6 +91,13 @@ angular.module('joinnet')
       $scope.end_tick_str = playback.calc_tick_str(playback.end_tick);
 
       setIntervalList();
+      if(!hmtg.jnkernel.jn_info_IsPlaybackSpeedSupportedByMCU()) {
+        $scope.w.speed_idx = 0;
+        audio_playback.update_playback_speed(1.0);
+      } else if($scope.w.speed_idx != 0) {
+        hmtg.jnkernel.jn_command_PlaybackSetSpeed($scope.w.speed_list[$scope.w.speed_idx].speed);
+        audio_playback.update_playback_speed($scope.w.speed_list[$scope.w.speed_idx].speed / 100.0);
+      }
 
       $scope.now = $scope.last_tick = hmtg.util.GetTickCount();
       if(!$scope.intervalID) {
@@ -126,6 +144,13 @@ angular.module('joinnet')
       if(playback.random_access) {
         playback.random_access = false;
         playback.queue_catchup();
+      }
+    });
+
+    $scope.$watch('w.speed_idx', function(newValue, oldValue) {
+      if(hmtg.jnkernel.jn_info_IsPlaybackSpeedSupportedByMCU()) {
+        hmtg.jnkernel.jn_command_PlaybackSetSpeed($scope.w.speed_list[$scope.w.speed_idx].speed);
+        audio_playback.update_playback_speed($scope.w.speed_list[$scope.w.speed_idx].speed / 100.0);
       }
     });
 
