@@ -344,7 +344,7 @@
       <span class="text-warning" ng-show="gui_mode != 'concise' && jn.recording_status == 2" translate="ID_RECORDING_PAUSED"></span>
       <span class="text-warning" ng-show="gui_mode != 'concise' && jn.archive_status" translate="ID_RECORDING_ARCHIVED"></span>
       <span class="text-success" ng-show="gui_mode != 'concise' && jn.has_jnr_password" translate="ID_HAS_JNR_PASSWORD"></span>
-      <span ng-if="0 && ul.is_meeting_mode && gui_mode == 'concise'">
+      <span ng-if="ul.is_meeting_mode && gui_mode == 'concise'">
         <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[v2.is_send_video]" 
           ng-click="turn_on_auto_hide_navbar_timer();toggle_video_sending()" 
           tooltip-placement="top"
@@ -353,7 +353,7 @@
           <span ng-show="as.show_text">{{(v2.is_send_video ? 'ID_STOP_VIDEO_SENDING' : 'ID_START_VIDEO_SENDING') | translate}}</span>
         </button>
       </span>
-      <span ng-if="0 && gui_mode == 'concise'">
+      <span ng-if="gui_mode == 'concise'">
         <button type="button" class="btn" ng-class="{true: 'btn-primary', false: 'btn-muted'}[vr.is_recv_video]" 
           ng-click="turn_on_auto_hide_navbar_timer();toggle_video_recving()" 
           tooltip-placement="top" 
