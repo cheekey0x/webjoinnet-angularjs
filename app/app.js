@@ -565,7 +565,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_snapshot']);
     this.show_snapshot = parsed === 'undefined' ? true : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_text']);
-    this.show_text = parsed === 'undefined' ? false : !!parsed;
+    this.show_text = parsed === 'undefined' ? hmtg.customization.show_text_by_default : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_is_enter_for_newline']);
     this.is_enter_for_newline = parsed === 'undefined' ? false : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_no_tip']);
@@ -583,7 +583,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_advanced_function']);
     this.show_advanced_function = parsed === 'undefined' ? false : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_meeting_capture_video']);
-    this.meeting_capture_video = parsed === 'undefined' ? (hmtg.customization.capture_video_by_default || $rootScope.gui_mode == 'concise' ? true : false) : !!parsed;
+    this.meeting_capture_video = parsed === 'undefined' ? hmtg.customization.capture_video_by_default : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_meeting_capture_audio']);
     this.meeting_capture_audio = parsed === 'undefined' ? true : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_meetintg_idle_mode']);

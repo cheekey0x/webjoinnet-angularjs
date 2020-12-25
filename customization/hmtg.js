@@ -46,6 +46,9 @@
     // whether to support remote monitor mode
     customization.support_monitor_mode = false;
 
+    // whether to Show text description on buttons by default
+    customization.show_text_by_default = false;
+
     // whether to capture video by default
     customization.capture_video_by_default = true;
 
