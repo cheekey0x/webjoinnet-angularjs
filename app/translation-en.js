@@ -8,6 +8,7 @@ angular.module('hmtgs')
 .config(['$translateProvider', function ($translateProvider) {
   $translateProvider.translations('en', {
 "IDS_APP_NAME": "Web JoinNet",
+"ID_IGNORE_MESSAGE_DURING_FULL_SCREEN": "While at full screen mode, keep the full screen mode even when there is incoming message or other alert; the full screen will hide the popup alert and you will not be able to see the popup alert!",
 "ID_PLAYBACK_SPEED": "Playback Speed",
 "ID_ROTATION": "Rotation",
 "ID_SIGN_UP": "Sign Up",

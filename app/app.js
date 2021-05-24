@@ -658,7 +658,10 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     this.use_ideal_video_capture_dimension = parsed === 'undefined' ? false : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_ideal_video_capture_dimension']);
     this.ideal_video_capture_dimension = parsed === 'undefined' ? 1600 : parsed;
-    this.ideal_video_capture_dimension = 16 * Math.min(100, Math.max(10, (this.ideal_video_capture_dimension>>4)));
+    this.ideal_video_capture_dimension = 16 * Math.min(100, Math.max(10, (this.ideal_video_capture_dimension >> 4)));
+    
+    parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_ignore_message_during_full_screen']);
+    this.ignore_message_during_full_screen = parsed === 'undefined' ? false : !!parsed;
   }
 ])
 

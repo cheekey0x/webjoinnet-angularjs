@@ -187,7 +187,9 @@ angular.module('hmtgs')
     this.add_download_item = function(item) {
       this.download_array.push(item);
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
-      hmtgHelper.exitFullScreen();
+      if(!appSetting.ignore_message_during_full_screen) {
+        hmtgHelper.exitFullScreen();
+      }
     }
 
     this.add_link_item = function(item) {
@@ -195,7 +197,9 @@ angular.module('hmtgs')
       item.timeout_func = remove_item;
       this.link_array.push(item);
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
-      hmtgHelper.exitFullScreen();
+      if(!appSetting.ignore_message_during_full_screen) {
+        hmtgHelper.exitFullScreen();
+      }
       function remove_item() {
         if(item.timeout_action) {
           item.timeout_action();
@@ -253,7 +257,9 @@ angular.module('hmtgs')
       item.timeout_id = setTimeout(remove_item, item.timeout * 1000);
       this.text_array.push(item);
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
-      hmtgHelper.exitFullScreen();
+      if(!appSetting.ignore_message_during_full_screen) {
+        hmtgHelper.exitFullScreen();
+      }
       function remove_item() {
         if(item.timeout_action) {
           item.timeout_action();
@@ -314,7 +320,9 @@ angular.module('hmtgs')
       item.timeout_id = setTimeout(remove_item, item.timeout * 1000);
       this.chat_alert_array.push(item);
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
-      hmtgHelper.exitFullScreen();
+      if(!appSetting.ignore_message_during_full_screen) {
+        hmtgHelper.exitFullScreen();
+      }
       function remove_item() {
         var idx = _hmtgAlert.chat_alert_array.indexOf(item);
         if(idx != -1) {

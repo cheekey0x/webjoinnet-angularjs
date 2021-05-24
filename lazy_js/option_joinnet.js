@@ -37,6 +37,9 @@ angular.module('hmtgs')
     $scope.$watch('w.auto_follow_tab', function() {
       hmtg.util.localStorage['hmtg_auto_follow_tab'] = JSON.stringify($scope.w.auto_follow_tab);
     });
+    $scope.$watch('w.ignore_message_during_full_screen', function() {
+      hmtg.util.localStorage['hmtg_ignore_message_during_full_screen'] = JSON.stringify($scope.w.ignore_message_during_full_screen);
+    });
     $scope.$watch('w.auto_try_webrtc', function() {
       hmtg.util.localStorage['hmtg_auto_try_webrtc'] = JSON.stringify($scope.w.auto_try_webrtc);
     });
