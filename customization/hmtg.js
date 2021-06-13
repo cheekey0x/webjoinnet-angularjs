@@ -58,6 +58,11 @@
     // whether the control panel show text chat by default
     customization.show_control_panel_textchat_by_default = false;
 
+    // whether to ignore incoming message during full screen mode
+    // when setting to true, the web joinnet keep the full screen mode and cannot show the incoming message to the user
+    // when setting to false, the web joinnet will leave the full screen mode and show the incoming message to the user
+    customization.ignore_message_during_full_screen_by_default = false;
+
     // whether to stop receiving audio when mute
     customization.stop_audio_when_mute = false;
 

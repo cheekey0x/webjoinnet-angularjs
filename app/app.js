@@ -661,7 +661,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     this.ideal_video_capture_dimension = 16 * Math.min(100, Math.max(10, (this.ideal_video_capture_dimension >> 4)));
     
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_ignore_message_during_full_screen']);
-    this.ignore_message_during_full_screen = parsed === 'undefined' ? false : !!parsed;
+    this.ignore_message_during_full_screen = parsed === 'undefined' ? hmtg.customization.ignore_message_during_full_screen_by_default : !!parsed;
   }
 ])
 
