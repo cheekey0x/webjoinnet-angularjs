@@ -686,7 +686,8 @@ angular.module('joinnet')
       } else if(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
         hmtg.util.log(2, 'try to capture screen via navigator.mediaDevices.getDisplayMedia');
         navigator.mediaDevices.getDisplayMedia({
-          video: true
+          video: true,
+          // audio: true
         }).then(getUserMediaOK, videoStreamError);
       } else if(hmtgHelper.isChrome && hmtgHelper.isAndroid
         && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {

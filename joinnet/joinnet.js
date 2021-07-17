@@ -1262,6 +1262,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.vr = video_recving;
     $scope.jv = joinnetVideo;
     $scope.hmtg = hmtg;
+    $scope.default_panel = hmtg.customization.show_video_window_at_normal_layout_by_default ? 'video' : 'white_board';
 
     $scope.can_show_badge = function() {
       return hmtg.jnkernel._jn_bConnected() || (typeof hmtg.jnkernel._jn_iWorkMode() != 'undefined' && (hmtg.jnkernel._jn_bConnecting() || jnjContent.valid_jnj));
@@ -1455,7 +1456,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.onConciseBoard = function() {
       layout.visible_area = layout.visible_area == 'white_board' ? 'userlist' : 'white_board';
-      layout.is_gallery_visible = false;
+      layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
       update_tab_mode(layout.visible_area);
@@ -1464,7 +1465,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.onConciseSDT = function() {
       $scope.loadSDT();
       layout.visible_area = layout.visible_area == 'sdt' ? 'userlist' : 'sdt';
-      layout.is_gallery_visible = false;
+      layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
       update_tab_mode(layout.visible_area);
@@ -1473,7 +1474,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.onConciseRDC = function() {
       $scope.loadRDC();
       layout.visible_area = layout.visible_area == 'rdc' ? 'userlist' : 'rdc';
-      layout.is_gallery_visible = false;
+      layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
       update_tab_mode(layout.visible_area);
@@ -1482,7 +1483,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.onConciseBrowser = function() {
       $scope.loadBrowser();
       layout.visible_area = layout.visible_area == 'browser' ? 'userlist' : 'browser';
-      layout.is_gallery_visible = false;
+      layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
       update_tab_mode(layout.visible_area);
@@ -1494,6 +1495,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
         layout.visible_area = 'userlist';
         layout.is_gallery_visible = false;
         update_tab_mode(layout.visible_area);
+      } else {
+        layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       }
       layout.is_textchat_visible = false;
       // layout.is_video_visible = false;
@@ -1505,6 +1508,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
         layout.visible_area = 'userlist';
         layout.is_gallery_visible = false;
         update_tab_mode(layout.visible_area);
+      } else {
+        layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       }
       layout.is_userlist_visible = false;
       // layout.is_video_visible = false;
@@ -1686,7 +1691,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           $scope.w.area1 = 'userlist';
         }  
         if($scope.w.area1 == $scope.w.area2) {
-          $scope.w.area2 = 'white_board';
+          $scope.w.area2 = $scope.default_panel;
         }
         //console.log('******debug, area-tracking, watch,2, area1=' + $scope.w.area1 + '; area2=' + $scope.w.area2);
       }
@@ -1829,7 +1834,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
               $scope.w.area1 = 'userlist';
             }
             if($scope.w.area1 == $scope.w.area2) {
-              $scope.w.area2 = 'white_board';
+              $scope.w.area2 = $scope.default_panel;
             }
             //console.log('******debug, area-tracking, adjust_width,1, area1=' + $scope.w.area1 + '; area2=' + $scope.w.area2);
           }
@@ -1925,7 +1930,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
       layout.is_video_visible = false;
-      layout.is_gallery_visible = false;
+      layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
     $scope.$on(hmtgHelper.WM_TAB_MODE, function(event, mode) {
@@ -2012,7 +2017,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           $scope.area_idx = $scope.area_idx1;
         }
         $scope.w.area1 = 'userlist';
-        $scope.w.area2 = 'white_board';
+        $scope.w.area2 = $scope.default_panel;
         //console.log('******debug, area-tracking, update_components, area1=userlist, area2=white_board');
       }
     }
@@ -2027,7 +2032,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           ) {
           layout.visible_area = 'userlist';
           layout.is_textchat_visible = true;
-          layout.is_gallery_visible = false;
+          layout.is_gallery_visible = hmtg.customization.show_video_gallery_at_concise_layout_by_default ? false : true;
           layout.is_userlist_visible = false;
         } else if(target == 'userlist'
           || target == 'white_board'
@@ -2904,12 +2909,13 @@ angular.module('joinnet', ['pascalprecht.translate'])
 .service('layout', ['$rootScope', 'video_recving',
   function($rootScope, video_recving) {
     var _layout = this;
+    this.default_gallery = hmtg.customization.show_video_gallery_at_concise_layout_by_default;
     this.is_navbar_visible = true;
     this.visible_area = 'userlist';
     this.is_userlist_visible = false;
     this.is_textchat_visible = false;
     this.is_video_visible = false;
-    this.is_gallery_visible = false;
+    this.is_gallery_visible = this.default_gallery;
 
     this.set_fixed_video_display_size = function() {
       video_recving.display_size = 100 - 3;

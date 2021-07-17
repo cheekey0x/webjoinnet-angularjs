@@ -63,6 +63,16 @@
     // when setting to false, the web joinnet will leave the full screen mode and show the incoming message to the user
     customization.ignore_message_during_full_screen_by_default = false;
 
+    // whether to show video window at the normal layout by default
+    // when set to true, the normal layout shows the video window by default
+    // when set to false, the normal layout shows the white board by default
+    customization.show_video_window_at_normal_layout_by_default = false;
+
+    // whether to show video gallery at the concise layout by default
+    // when set to true, the concise layout shows the video gallery by default and upon entering a meeting
+    // when set to false, the concise layout shows the single video by default and upon entering a meeting
+    customization.show_video_gallery_at_concise_layout_by_default = true;
+
     // whether to stop receiving audio when mute
     customization.stop_audio_when_mute = false;
 
