@@ -378,8 +378,14 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       hmtg.util['debug_mark_delay'] = Math.max(0, (Math.min(20, debug_mark_delay)));
     }
 
-    if(hmtg.customization.use_concise_layout_for_mobile && hmtgHelper.isMobile) {
-      $rootScope.gui_mode = 'concise';
+    if(hmtgHelper.isMobile) {
+      if(hmtg.customization.use_concise_layout_for_mobile) {
+        $rootScope.gui_mode = 'concise';
+      }
+    } else {
+      if(hmtg.customization.use_concise_layout_for_normal) {
+        $rootScope.gui_mode = 'concise';
+      }
     }
     var jnj = hmtg.util.getQuery('jnj');
     var jlk;

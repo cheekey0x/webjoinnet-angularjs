@@ -34,6 +34,9 @@
     // whether to use concise layout for mobile users
     customization.use_concise_layout_for_mobile = true;
 
+    // whether to use concise layout for normal users
+    customization.use_concise_layout_for_normal = false;
+
     // whether to support joint browsing
     customization.support_joint_browsing = false;
 
