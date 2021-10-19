@@ -18,6 +18,7 @@ angular.module('joinnet')
     $scope.w.upload_type = $scope.upload_type;
     $scope.can_paste_mark = !!window.ClipboardEvent;
     $scope.rotate_degree = 0;
+    $scope.w.mirror = false;
     $scope.w.cropping = false;
     $scope.w.can_crop = false;
     $scope.w.left = $scope.w.right = $scope.w.top = $scope.w.bottom = 0;
@@ -107,6 +108,7 @@ angular.module('joinnet')
                 $scope.w.title = $translate.instant('ID_UPLOAD_SLIDE');
               }
               $scope.rotate_degree = 0;
+              $scope.w.mirror = false;
               $scope.w.cropping = false;
               $scope.w.can_crop = false;
               $scope.w.left = $scope.w.right = $scope.w.top = $scope.w.bottom = 0;
@@ -273,8 +275,15 @@ angular.module('joinnet')
     }
     $scope.w.type = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_conversion_type']);
     if($scope.w.type != 0 && $scope.w.type != 1) {
-      $scope.w.type = 1;
+      if(hmtg.customization.conversion_type_by_default == 'png') {
+        $scope.w.type = 0;
+      } else if(hmtg.customization.conversion_type_by_default == 'pdf') {
+        $scope.w.type = 1;
+      } else {
+        $scope.w.type = 1;
+      }
     }
+
     $scope.w.dpis = [50, 75, 100, 150, 300, 600];
     $scope.w.dpi = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_conversion_dpi']);
     if($scope.w.dpi === 'undefined') $scope.w.dpi = 150;
@@ -523,7 +532,7 @@ angular.module('joinnet')
       } else {  // file
         if(!$scope.upload_file.size) return;
         if($scope.upload_file.size > appSetting.max_blob * 1048576) return;
-        if($scope.rotate_degree || $scope.w.cropping) return;
+        if($scope.rotate_degree || $scope.w.mirror || $scope.w.cropping) return;
         title = $scope.w.slide_title;
         if(!title) return;
         var old_ext = hmtg.util.getExt($scope.upload_file.name);
@@ -660,15 +669,21 @@ angular.module('joinnet')
       canvas.height = height;
       $scope.w.img_descr = '' + rotated_width + ' x ' + rotated_height;
 
-      if($scope.rotate_degree != 0 || width_cropped != img.naturalWidth || height_cropped != img.naturalHeight) {
+      if($scope.rotate_degree != 0 || $scope.w.mirror || width_cropped != img.naturalWidth || height_cropped != img.naturalHeight) {
         ctx.save();
-        if($scope.rotate_degree == 90) {
+        var rotate_degree = $scope.rotate_degree;
+        if($scope.w.mirror) {
+          ctx.translate(width, 0);
+          ctx.scale(-1, 1);
+          rotate_degree = 360 - rotate_degree;
+        }
+        if(rotate_degree == 90) {
           ctx.translate(width, 0);
           ctx.rotate(Math.PI * 0.5);
-        } else if($scope.rotate_degree == 180) {
+        } else if(rotate_degree == 180) {
           ctx.translate(width, height);
           ctx.rotate(Math.PI);
-        } else if($scope.rotate_degree == 270) {
+        } else if(rotate_degree == 270) {
           ctx.translate(0, height);
           ctx.rotate(Math.PI * 1.5);
         }
@@ -715,13 +730,19 @@ angular.module('joinnet')
           }
 
           try {
-            if($scope.rotate_degree == 90) {
+            var rotate_degree = $scope.rotate_degree;
+            if($scope.w.mirror) {
+              ctx0.translate(width, 0);
+              ctx0.scale(-1, 1);
+              rotate_degree = 360 - rotate_degree;
+            }
+            if(rotate_degree == 90) {
               ctx0.translate(height_cropped, 0);
               ctx0.rotate(Math.PI * 0.5);
-            } else if($scope.rotate_degree == 180) {
+            } else if(rotate_degree == 180) {
               ctx0.translate(width_cropped, height_cropped);
               ctx0.rotate(Math.PI);
-            } else if($scope.rotate_degree == 270) {
+            } else if(rotate_degree == 270) {
               ctx0.translate(0, width_cropped);
               ctx0.rotate(Math.PI * 1.5);
             }
@@ -796,11 +817,17 @@ angular.module('joinnet')
     $scope.rotate270 = function() {
       $scope.rotate(270);
     }
-    $scope.$watch('w.left', draw);
-    $scope.$watch('w.right', draw);
-    $scope.$watch('w.top', draw);
-    $scope.$watch('w.bottom', draw);
-    $scope.$watch('w.cropping', draw);
+
+    function draw2() {
+      draw(true);
+    }
+    
+    $scope.$watch('w.left', draw2);
+    $scope.$watch('w.right', draw2);
+    $scope.$watch('w.top', draw2);
+    $scope.$watch('w.bottom', draw2);
+    $scope.$watch('w.cropping', draw2);
+    $scope.$watch('w.mirror', draw2);
 
     $scope.$on(hmtgHelper.WM_WIDTH_CHANGED, function() {
       var input = document.getElementById('file_name');

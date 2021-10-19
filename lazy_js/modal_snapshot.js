@@ -14,6 +14,7 @@ angular.module('hmtgs')
     $scope.w.descr = '' + canvas0.width + ' x ' + canvas0.height;
     $scope.w.can_save = true;
     $scope.w.filename = $translate.instant('ID_SNAPSHOT') + hmtgHelper.snapshot_count + '.png';
+    $scope.w.mirror = false;
     $scope.w.cropping = false;
     $scope.w.can_crop = false;
     $scope.w.left = $scope.w.right = $scope.w.top = $scope.w.bottom = 0;
@@ -128,7 +129,13 @@ angular.module('hmtgs')
           height = Math.max(2, height);
           canvas.width = width;
           canvas.height = height;
+          ctx.save();
+          if($scope.w.mirror) {
+            ctx.translate(width, 0);
+            ctx.scale(-1, 1);
+          }
           ctx.drawImage(canvas0, left, top, canvas0.width - left - right, canvas0.height - top - bottom, 0, 0, width, height);
+          ctx.restore();
           ctx.beginPath();
           ctx.globalAlpha = 0.5;
           ctx.moveTo(0, 0);
@@ -149,7 +156,13 @@ angular.module('hmtgs')
         height = Math.max(2, height);
         canvas.width = width;
         canvas.height = height;
+        ctx.save();
+        if($scope.w.mirror) {
+          ctx.translate(width, 0);
+          ctx.scale(-1, 1);
+        }
         ctx.drawImage(canvas0, 0, 0, canvas0.width, canvas0.height, 0, 0, width, height);
+        ctx.restore();
         $scope.w.descr = '' + canvas0.width + ' x ' + canvas0.height;
         $scope.w.can_save = true;
       }
@@ -160,6 +173,7 @@ angular.module('hmtgs')
     $scope.$watch('w.top', draw);
     $scope.$watch('w.bottom', draw);
     $scope.$watch('w.cropping', draw);
+    $scope.$watch('w.mirror', draw);
 
 
     $scope.save = function () {
@@ -168,20 +182,32 @@ angular.module('hmtgs')
         name += '.png';
       }
       var c = canvas0;
-      if($scope.w.cropping) {
+      if($scope.w.cropping || $scope.w.mirror) {
         var left = Math.max(0, $scope.w.left);
         var right = Math.max(0, $scope.w.right);
         var top = Math.max(0, $scope.w.top);
         var bottom = Math.max(0, $scope.w.bottom);
         var width_cropped = Math.max(0, canvas0.width - left - right);
         var height_cropped = Math.max(0, canvas0.height - top - bottom);
-        if(!width_cropped || !height_cropped) return;
+        if($scope.w.cropping) {
+          if(!width_cropped || !height_cropped) return;
+        } else {
+          left = right = top = bottom = 0;
+          width_cropped = canvas0.width;
+          height_cropped = canvas0.height;
+        }
 
         var mycanvas = document.createElement("canvas");
         myctx = mycanvas.getContext('2d');
         mycanvas.width = width_cropped;
         mycanvas.height = height_cropped;
+        myctx.save();
+        if($scope.w.mirror) {
+          myctx.translate(width_cropped, 0);
+          myctx.scale(-1, 1);
+        }
         myctx.drawImage(canvas0, left, top, canvas0.width - left - right, canvas0.height - top - bottom, 0, 0, width_cropped, height_cropped);
+        myctx.restore();
         c = mycanvas;
       }
       try {
@@ -207,20 +233,32 @@ angular.module('hmtgs')
     $scope.upload = function () {
       if(!board.can_upload()) return;
       var c = canvas0;
-      if($scope.w.cropping) {
+      if($scope.w.cropping || $scope.w.mirror) {
         var left = Math.max(0, $scope.w.left);
         var right = Math.max(0, $scope.w.right);
         var top = Math.max(0, $scope.w.top);
         var bottom = Math.max(0, $scope.w.bottom);
         var width_cropped = Math.max(0, canvas0.width - left - right);
         var height_cropped = Math.max(0, canvas0.height - top - bottom);
-        if(!width_cropped || !height_cropped) return;
+        if($scope.w.cropping) {
+          if(!width_cropped || !height_cropped) return;
+        } else {
+          left = right = top = bottom = 0;
+          width_cropped = canvas0.width;
+          height_cropped = canvas0.height;
+        }
 
         var mycanvas = document.createElement("canvas");
         myctx = mycanvas.getContext('2d');
         mycanvas.width = width_cropped;
         mycanvas.height = height_cropped;
+        myctx.save();
+        if($scope.w.mirror) {
+          myctx.translate(width_cropped, 0);
+          myctx.scale(-1, 1);
+        }
         myctx.drawImage(canvas0, left, top, canvas0.width - left - right, canvas0.height - top - bottom, 0, 0, width_cropped, height_cropped);
+        myctx.restore();
         c = mycanvas;
       }
       try {
@@ -298,7 +336,13 @@ angular.module('hmtgs')
         myctx = mycanvas.getContext('2d');
         mycanvas.width = width_cropped;
         mycanvas.height = height_cropped;
+        myctx.save();
+        if($scope.w.mirror) {
+          myctx.translate(width_cropped, 0);
+          myctx.scale(-1, 1);
+        }
         myctx.drawImage(canvas0, left, top, canvas0.width - left - right, canvas0.height - top - bottom, 0, 0, width_cropped, height_cropped);
+        myctx.restore();
         c = mycanvas;
       }
       try {

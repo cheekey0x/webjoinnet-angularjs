@@ -594,6 +594,25 @@ angular.module('hmtgs')
       }
       */
     }
+
+    this.tryAdjustVolume = function() {
+      var need_adjust_volume = false;
+      if(_hmtgSound.playback_muted) {
+        need_adjust_volume = true;
+      } else if(_hmtgSound.playback_gain < _hmtgSound.MIN_GAIN) {
+        need_adjust_volume = true;
+      }
+      if(need_adjust_volume) {
+        _hmtgSound.playback_muted = false;
+        _hmtgSound.playback_gain = _hmtgSound.MIN_GAIN;
+        hmtg.util.localStorage['hmtg_playback_muted'] = JSON.stringify(_hmtgSound.playback_muted);
+        hmtg.util.localStorage['hmtg_playback_gain'] = JSON.stringify(_hmtgSound.playback_gain);
+        _hmtgSound.playback_gain_node_gain_value = _hmtgSound.playback_gain / 100.0;
+        if(_hmtgSound.playback_gain_node) {
+          _hmtgSound.playback_gain_node.gain.value = _hmtgSound.playback_gain_node_gain_value;
+        }
+      }
+    }
     this.playAudio = function() {
       var ac = this.ac;
       if(ac) {
@@ -603,7 +622,10 @@ angular.module('hmtgs')
           src.stop = src.stop || src.noteOff;
         }
         src.buffer = myBuffer;
-        src.connect(ac.destination);
+        _hmtgSound.tryAdjustVolume();
+        var playback_gain_node = _hmtgSound.create_playback_gain_node();
+        src.connect(playback_gain_node);
+        //src.connect(ac.destination);
 
         src.start(0);
       }
@@ -618,7 +640,10 @@ angular.module('hmtgs')
       }
       if(this.buffer_list[file]) {
         src.buffer = this.buffer_list[file];
-        src.connect(ac.destination);
+        _hmtgSound.tryAdjustVolume();
+        var playback_gain_node = _hmtgSound.create_playback_gain_node();
+        src.connect(playback_gain_node);
+        //src.connect(ac.destination);
         src.start(0);
       } else {
         var request = new XMLHttpRequest();
@@ -629,7 +654,10 @@ angular.module('hmtgs')
           ac.decodeAudioData(request.response, function(buffer) {
             _hmtgSound.buffer_list[file] = buffer;
             src.buffer = buffer;
-            src.connect(ac.destination);
+            _hmtgSound.tryAdjustVolume();
+            var playback_gain_node = _hmtgSound.create_playback_gain_node();
+            src.connect(playback_gain_node);
+            //src.connect(ac.destination);
             src.start(0);
           }, function(e) {
           });

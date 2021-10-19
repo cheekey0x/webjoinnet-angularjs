@@ -1271,7 +1271,10 @@ angular.module('joinnet', ['pascalprecht.translate'])
     // concise layout related code
     $scope.show_concise_full_toolbar = true;
     $scope.toggle_concise_mode = function() {
+      // the active tab in concise mode and normal mode are independent for a tab controller
+      // for non-tab-controller, the active tab is always the same in both the concise mode and the normal mode
       $rootScope.gui_mode = $rootScope.gui_mode == 'concise' ? '' : 'concise';
+      hmtg.util.log(3, 'info, GUI switch to ' + ($rootScope.gui_mode == 'concise' ? 'concise' : 'normal') + ' mode');
       $rootScope.$broadcast(hmtgHelper.WM_UPDATE_LAYOUT_MODE);
       if($rootScope.gui_mode == 'concise') {
         $scope.loadVideoWindow();
@@ -1281,11 +1284,23 @@ angular.module('joinnet', ['pascalprecht.translate'])
         // if(layout.is_video_visible) {
         //   layout.set_fixed_video_display_size();
         // }
+        // if we are connected in a meeting, need to update the tab mode
+        if(hmtg.jnkernel._jn_bConnected() && hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
+          update_tab_mode(layout.visible_area);
+        }
       } else {
         // $scope.untrack_mouse_move();
         // when changing to non-concise mode, the video window display size may need
         // be adjusted from 100 to auto-calculated value
         video_recving.display_size = Math.min(640, hmtgHelper.calcGalleryDisplaySize(video_recving.ssrc_array.length));
+        // if we are connected in a meeting, need to update the tab mode
+        if(hmtg.jnkernel._jn_bConnected() && hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
+          if(!$scope.w.show_check_show_area2 || !$scope.w.show_area2) {
+            switch_area($scope.w.area1);
+          } else {
+            switch_area($scope.w.area2);
+          }
+        }
       }
     }
 
@@ -1542,6 +1557,27 @@ angular.module('joinnet', ['pascalprecht.translate'])
       update_tab_mode(layout.visible_area);
     }
 
+    $scope.$on(hmtgHelper.WM_NET_INIT_FINISH, function() {
+      if(hmtg.jnkernel._jn_iWorkMode() != hmtg.config.NORMAL) {
+        return;
+      }
+
+      // once fully join the meeting, try to issue sync tab
+      var sync_tab_controller = hmtg.jnkernel._tab_ssrc();
+      var my_ssrc = hmtg.jnkernel._jn_ssrc_index();
+      if(sync_tab_controller == my_ssrc) {
+        if($rootScope.gui_mode == 'concise') {
+          // when at concise mode
+          // try to broadcast the current visible area
+          update_tab_mode(layout.visible_area);
+        } else if(!$scope.w.show_check_show_area2 || !$scope.w.show_area2) {
+          switch_area($scope.w.area1);
+        } else {
+          switch_area($scope.w.area2);
+        }
+      }
+    });
+
     $scope.$on(hmtgHelper.WM_CONCISE_TAB_CHANGED, function() {
       update_tab_mode(layout.visible_area);
     });
@@ -1715,7 +1751,6 @@ angular.module('joinnet', ['pascalprecht.translate'])
       else if(newValue == 'rdc') mode = 3;
       else if(newValue == 'userlist') mode = 4;
       if(mode != -1 && mode != last_mode) {
-        last_mode = mode;
         if(update_tab_mode_timer) clearTimeout(update_tab_mode_timer);
         update_tab_mode_timer = setTimeout(function() {
           update_tab_mode_timer = null;
@@ -1726,7 +1761,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
               var my_ssrc = hmtg.jnkernel._jn_ssrc_index();
 
               if(sync_tab_controller == my_ssrc) {
+                hmtg.util.log(2, 'info, send GUI sync tab ' + newValue);
                 hmtg.jnkernel.jn_command_JointBrowsingMode(mode);
+                last_mode = mode;
               }
             }
           }
@@ -1956,9 +1993,17 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
       if(!JoinNet.net_init_finished
         && ($rootScope.gui_mode == 'concise' || !$scope.w.show_check_show_area2 || !$scope.w.show_area2)) {
-        // for concise mode or one area mode, ignore the first mode update, which is white board or joint browsing, which is configured in configm.ini
-        return;
+        if(userlist.user_list.length == 1) {
+          // for concise mode or one area mode, if and only if this is the first user joining the meeting,
+          // ignore the first mode update, which is white board or joint browsing, which is configured in configm.ini
+          // for the first joiner, keep initial userlist tab status
+          hmtg.util.log(2, 'info, ignore received GUI sync tab ' + target_area);
+          last_mode = -1;
+          return;
+        }
       }
+      last_mode = mode;
+      hmtg.util.log(2, 'info, receive GUI sync tab ' + target_area);
       if(!$scope.is_area_visible(target_area)) {
         if(!appSetting.auto_follow_tab) {
           // no follow tab prompt in concise layout
@@ -1987,6 +2032,54 @@ angular.module('joinnet', ['pascalprecht.translate'])
           return;
         }
         show_area(target_area);
+      } else {
+        var target = target_area;
+        // althought the target is visible at the current GUI mode
+        // still need to update the hidden GUI mode
+        if($rootScope.gui_mode == 'concise') {
+          // handle the normal interface
+          if($scope.w.show_check_show_area2 && $scope.w.show_area2) {
+            // for two area mode
+            if(target == $scope.w.area1 || target == $scope.w.area2) {
+              return;
+            } else if($scope.area_idx[target] < $scope.area_idx[$scope.w.area1]) {
+              $scope.w.area1 = target;
+              //console.log('******debug, area-tracking, show_area,1, area1=' + $scope.w.area1);
+            } else {
+              $scope.w.area2 = target;
+              //console.log('******debug, area-tracking, show_area,2, area2=' + $scope.w.area2);
+            }
+          } else {
+            // for one area mode
+            if($scope.w.area1 == target) return;
+            $scope.w.area1 = target;
+            //console.log('******debug, area-tracking, show_area,3, area1=' + $scope.w.area1);
+            if($scope.area_idx[$scope.w.area1] > $scope.area_idx[$scope.w.area2]) {
+              $scope.w.area2 = $scope.w.area1;
+              //console.log('******debug, area-tracking, show_area,4, area2=' + $scope.w.area2);
+            }
+          }
+        } else {
+          // handle the concise interface
+          if((target == 'browser' && !hmtg.customization.support_joint_browsing)
+            || target == 'chat'
+          ) {
+            layout.visible_area = 'userlist';
+            layout.is_textchat_visible = true;
+            layout.is_gallery_visible = false;
+            layout.is_userlist_visible = false;
+          } else if(target == 'userlist'
+            || target == 'white_board'
+            || target == 'sdt'
+            || target == 'rdc'
+            || target == 'browser'
+          ) {
+            layout.visible_area = target;
+            layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
+            layout.is_userlist_visible = false;
+            layout.is_textchat_visible = false;
+          }
+        }
       }
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
@@ -2026,29 +2119,30 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if($rootScope.nav_item == 'joinnet') {
         hmtgHelper.exitFullScreen();
       }
-      if($rootScope.gui_mode == 'concise') {
-        if((target == 'browser' && !hmtg.customization.support_joint_browsing)
-          || target == 'chat'
-          ) {
-          layout.visible_area = 'userlist';
-          layout.is_textchat_visible = true;
-          layout.is_gallery_visible = hmtg.customization.show_video_gallery_at_concise_layout_by_default ? false : true;
-          layout.is_userlist_visible = false;
-        } else if(target == 'userlist'
-          || target == 'white_board'
-          || target == 'sdt'
-          || target == 'rdc'
-          || target == 'browser'
-          ) {
-          layout.visible_area = target;
-          if(target != 'userlist') {
-            layout.is_gallery_visible = false;
-            layout.is_userlist_visible = false;
-            layout.is_textchat_visible = false;
-          }
-        }
+
+      // handle the concise interface
+      if((target == 'browser' && !hmtg.customization.support_joint_browsing)
+        || target == 'chat'
+        ) {
+        layout.visible_area = 'userlist';
+        layout.is_textchat_visible = true;
+        layout.is_gallery_visible = false;
+        layout.is_userlist_visible = false;
+      } else if(target == 'userlist'
+        || target == 'white_board'
+        || target == 'sdt'
+        || target == 'rdc'
+        || target == 'browser'
+        ) {
+        layout.visible_area = target;
+        layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
+        layout.is_userlist_visible = false;
+        layout.is_textchat_visible = false;
       }
+
+      // handle the normal interface
       if($scope.w.show_check_show_area2 && $scope.w.show_area2) {
+        // for two area mode
         if(target == $scope.w.area1 || target == $scope.w.area2) {
           return;
         } else if($scope.area_idx[target] < $scope.area_idx[$scope.w.area1]) {
@@ -2059,6 +2153,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
           //console.log('******debug, area-tracking, show_area,2, area2=' + $scope.w.area2);
         }
       } else {
+        // for one area mode
         if($scope.w.area1 == target) return;
         $scope.w.area1 = target;
         //console.log('******debug, area-tracking, show_area,3, area1=' + $scope.w.area1);
@@ -2110,6 +2205,20 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(hmtg.jnkernel._jn_iWorkMode() != hmtg.config.NORMAL) return;
       if(appSetting.remote_monitor_mode) {
         update_area_name();
+      }
+      // once tab ssrc changes, try to issue sync tab
+      var sync_tab_controller = hmtg.jnkernel._tab_ssrc();
+      var my_ssrc = hmtg.jnkernel._jn_ssrc_index();
+      if(sync_tab_controller == my_ssrc) {
+        if($rootScope.gui_mode == 'concise') {
+          // when at concise mode
+          // try to broadcast the current visible area
+          update_tab_mode(layout.visible_area);
+        } else if(!$scope.w.show_check_show_area2 || !$scope.w.show_area2) {
+          switch_area($scope.w.area1);
+        } else {
+          switch_area($scope.w.area2);
+        }
       }
     }
     $scope.$on(hmtgHelper.WM_TOKEN_STATUS_CHANGED, on_tab_ssrc_change);

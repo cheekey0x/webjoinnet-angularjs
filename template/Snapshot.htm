@@ -13,10 +13,17 @@
           <span ng-show="as.show_text" translate="ID_UPLOAD_WHITEBOARD"></span></button></span>
         <span><button type="button" class="btn btn-default" ng-click="set_mypicture()" 
           ng-show="w.can_save" translate="ID_SET_MYPICTURE"></span></button></span>
-        <div class="checkbox" ng-show="w.can_crop">
-          <label>
-            <input type="checkbox" ng-model="w.cropping"> {{'ID_CROPPING' | translate}}
-          </label>
+        <div ng-show="w.can_crop">
+          <span class="checkbox inline-block">
+            <label>
+              <input type="checkbox" ng-model="w.mirror"> {{'ID_MIRROR' | translate}}
+            </label>
+          </span>
+          <span class="checkbox inline-block">
+            <label>
+              <input type="checkbox" ng-model="w.cropping"> {{'ID_CROPPING' | translate}}
+            </label>
+          </span>
         </div>
         <div>
           <span ng-show="w.cropping">

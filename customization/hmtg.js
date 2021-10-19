@@ -82,6 +82,9 @@
     // whether to prefer controller over user's action when choosing whose audio to decode
     customization.restricted_audio_decoding_prefer_controller = false;
 
+    // the default slide conversion type, valid types are 'png' and 'pdf'
+    customization.conversion_type_by_default = 'png';
+
     // default html5 media links
     customization.media_links = [
       { name: 'The Tree of Life Trailer(cross origin, CORS)', src: 'http://www.homemeeting.com/html5/tree.mp4' },

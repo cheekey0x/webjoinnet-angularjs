@@ -1,5 +1,6 @@
 ﻿{
 "IDS_APP_NAME": "网页版JoinNet",
+"ID_MIRROR": "镜像",
 "ID_IGNORE_MESSAGE_DURING_FULL_SCREEN": "处于全屏模式时，强制保持全屏，不显示收到的信息或警告！",
 "ID_PLAYBACK_SPEED": "播放速度",
 "ID_ROTATION": "旋转",

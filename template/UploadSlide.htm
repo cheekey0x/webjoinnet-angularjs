@@ -41,6 +41,11 @@
           </button>
           <span class="checkbox inline-block" ng-show="w.can_crop && (w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion">
             <label>
+              <input type="checkbox" ng-model="w.mirror"> {{'ID_MIRROR' | translate}}
+            </label>
+          </span>
+          <span class="checkbox inline-block" ng-show="w.can_crop && (w.upload_type == 2 || w.upload_type == 4 || w.upload_type == 5) && !w.need_conversion && !w.no_conversion">
+            <label>
               <input type="checkbox" ng-model="w.cropping"> {{'ID_CROPPING' | translate}}
             </label>
           </span>
