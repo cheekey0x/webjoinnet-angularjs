@@ -1286,7 +1286,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
         // }
         // if we are connected in a meeting, need to update the tab mode
         if(hmtg.jnkernel._jn_bConnected() && hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
-          update_tab_mode(layout.visible_area);
+          update_tab_mode((layout.is_userlist_visible || layout.is_textchat_visible) ? layout.cached_visible_area : layout.visible_area);
         }
       } else {
         // $scope.untrack_mouse_move();
@@ -1507,10 +1507,13 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.onConciseUserList = function() {
       layout.is_userlist_visible = !layout.is_userlist_visible;
       if(layout.is_userlist_visible) {
+        if(!layout.is_textchat_visible) {
+          layout.cached_visible_area = layout.visible_area;
+        }
         layout.visible_area = 'userlist';
         layout.is_gallery_visible = false;
-        update_tab_mode(layout.visible_area);
       } else {
+        layout.visible_area = layout.cached_visible_area;
         layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       }
       layout.is_textchat_visible = false;
@@ -1520,10 +1523,13 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.onConciseTextChat = function() {
       layout.is_textchat_visible = !layout.is_textchat_visible;
       if(layout.is_textchat_visible) {
+        if(!layout.is_userlist_visible) {
+          layout.cached_visible_area = layout.visible_area;
+        }
         layout.visible_area = 'userlist';
         layout.is_gallery_visible = false;
-        update_tab_mode(layout.visible_area);
       } else {
+        layout.visible_area = layout.cached_visible_area;
         layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       }
       layout.is_userlist_visible = false;
@@ -1569,7 +1575,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
         if($rootScope.gui_mode == 'concise') {
           // when at concise mode
           // try to broadcast the current visible area
-          update_tab_mode(layout.visible_area);
+          update_tab_mode((layout.is_userlist_visible || layout.is_textchat_visible) ? layout.cached_visible_area : layout.visible_area);
         } else if(!$scope.w.show_check_show_area2 || !$scope.w.show_area2) {
           switch_area($scope.w.area1);
         } else {
@@ -1579,7 +1585,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     });
 
     $scope.$on(hmtgHelper.WM_CONCISE_TAB_CHANGED, function() {
-      update_tab_mode(layout.visible_area);
+      update_tab_mode((layout.is_userlist_visible || layout.is_textchat_visible) ? layout.cached_visible_area : layout.visible_area);
     });
 
     $scope.onToggleScreenCapture = function() {
@@ -1928,11 +1934,13 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if($rootScope.gui_mode == 'concise') {
         if(!layout.is_textchat_visible) {
           layout.is_textchat_visible = true;
+          if(!layout.is_userlist_visible) {
+            layout.cached_visible_area = layout.visible_area;
+          }
           layout.visible_area = 'userlist';
           layout.is_gallery_visible = false;
           layout.is_userlist_visible = false;
           // layout.is_video_visible = false;
-          update_tab_mode(layout.visible_area);
         }
       }
       if(!hmtgHelper.inside_angular) $scope.$digest();
@@ -2064,6 +2072,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
           if((target == 'browser' && !hmtg.customization.support_joint_browsing)
             || target == 'chat'
           ) {
+            if(!layout.is_userlist_visible) {
+              layout.cached_visible_area = layout.visible_area;
+            }
             layout.visible_area = 'userlist';
             layout.is_textchat_visible = true;
             layout.is_gallery_visible = false;
@@ -2124,6 +2135,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if((target == 'browser' && !hmtg.customization.support_joint_browsing)
         || target == 'chat'
         ) {
+        if(!layout.is_userlist_visible) {
+          layout.cached_visible_area = layout.visible_area;
+        }
         layout.visible_area = 'userlist';
         layout.is_textchat_visible = true;
         layout.is_gallery_visible = false;
@@ -2213,7 +2227,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
         if($rootScope.gui_mode == 'concise') {
           // when at concise mode
           // try to broadcast the current visible area
-          update_tab_mode(layout.visible_area);
+          update_tab_mode((layout.is_userlist_visible || layout.is_textchat_visible) ? layout.cached_visible_area : layout.visible_area);
         } else if(!$scope.w.show_check_show_area2 || !$scope.w.show_area2) {
           switch_area($scope.w.area1);
         } else {
@@ -3021,6 +3035,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
     this.default_gallery = hmtg.customization.show_video_gallery_at_concise_layout_by_default;
     this.is_navbar_visible = true;
     this.visible_area = 'userlist';
+    // when the text chat or userlist is on
+    // the cached visible area remember the actual visible area
+    this.cached_visible_area = 'userlist';
     this.is_userlist_visible = false;
     this.is_textchat_visible = false;
     this.is_video_visible = false;

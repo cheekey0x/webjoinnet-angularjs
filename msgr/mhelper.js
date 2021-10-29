@@ -171,7 +171,7 @@ angular.module('msgr')
     }
 
     this.translate_mmc_error = function(t, mmc_error, error_text) {
-      if(error_text) return error_text;
+      if(error_text) return hmtg.util.decodeUtf8(error_text);
       var str;
       switch(mmc_error) {
         case hmtg.config.US_ERROR_MMC_GENERAL:
