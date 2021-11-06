@@ -1368,22 +1368,13 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
 
     $scope.fullscreen1 = function() {
       if($scope.request_fullscreen) {
-        hmtgHelper.inside_angular++;
         $scope.request_fullscreen.call(msgr_root);
-        hmtgHelper.inside_angular--;
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-        ;
-
-        $scope.is_fullscreen = fullscreenElement == msgr_root;
       }
     }
 
     $scope.fullscreen0 = function() {
       hmtgHelper.inside_angular++;
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
       hmtgHelper.inside_angular--;
       $scope.is_fullscreen = false;
     }

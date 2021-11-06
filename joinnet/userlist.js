@@ -1957,23 +1957,13 @@ angular.module('joinnet')
     this.fullscreen1 = function() {
       this.fullscreen_element = document.getElementById(mediasoupWebRTC.is_main_video_webrtc ? 'webrtc_main_video' : 'main_video');
       if(this.request_fullscreen) {
-        hmtgHelper.inside_angular++;
         this.request_fullscreen.call(this.fullscreen_element);
-        hmtgHelper.inside_angular--;
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-        ;
-
-        main_video_canvas.is_fullscreen = fullscreenElement == this.fullscreen_element;
-        main_video_canvas.change_display_size();
       }
     }
 
     this.fullscreen0 = function () {
       hmtgHelper.inside_angular++;
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
       hmtgHelper.inside_angular--;
       main_video_canvas.is_fullscreen = false;
       main_video_canvas.change_display_size();

@@ -1203,13 +1203,6 @@ angular.module('joinnet')
     dt.turnon_fullscreen = function() {
       if(dt.request_fullscreen) {
         dt.request_fullscreen.call(dt.container);
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-        ;
-
-        dt.is_fullscreen = fullscreenElement == dt.container;
       }
     }
 
@@ -1221,7 +1214,7 @@ angular.module('joinnet')
       hmtgHelper.inside_angular--;
     }
     dt.turnoff_fullscreen = function() {
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
       dt.is_fullscreen = false;
       dt.is_passive_fullscreen = false;
     }

@@ -110,6 +110,9 @@
           <li ng-show="hmtg_show_user_guide"><a target="user_guide"
             ng-href="{{'IDS_USER_GUIDE_URL' | translate}}" 
             translate="ID_USER_GUIDE"></a></li>
+          <li ng-show="root_request_fullscreen"
+            ng-click="root_fullscreen()">
+            <a translate="ID_FULLSCREEN1"></a></li>
           <li ng-controller="LangCtrl">
             <a>
               <select ng-model="lang">
@@ -407,6 +410,13 @@
           <span ng-show="as.show_text" translate="ID_VIDEO_WINDOW"></span>
         </button>
       </span>
+      <span ng-if="gui_mode == 'concise' && root_request_fullscreen">
+        <button type="button" class="btn btn-default"
+          tooltip="{{as.no_tip || as.show_text ? '' : ('ID_FULLSCREEN1' | translate)}}"
+          ng-click="root_fullscreen()"><span class="glyphicon glyphicon-resize-full"></span>
+          <span ng-show="as.show_text" translate="ID_FULLSCREEN1"></span>
+        </button>
+      </span>
       <span ng-if="0 && gui_mode == 'concise'" ng-controller="LangCtrl">
         <a>
           <select ng-model="lang">
@@ -430,7 +440,7 @@
             ng-click="snapshot()"> <span class="glyphicon glyphicon-picture"></span>
             <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span>{{snapshot_tail}} </button>
         </div>
-        <div ng-show="!is_concise_mode()"><ng-include src="partialTranscoding" onload="jt.transcoding_loaded()"></ng-include></div>
+        <div ng-show="1 || !is_concise_mode()"><ng-include src="partialTranscoding" onload="jt.transcoding_loaded()"></ng-include></div>
         <div ng-if="jn.bookmark.length && !is_concise_mode()">
           <span class="user-pointer btn-link" ng-show="hide_bm" ng-click="toggle_bookmark()" translate="ID_BOOKMARK"></span>
           <div class="table-responsive border-autoscroll" ng-if="!hide_bm" ng-style="style_half_height">

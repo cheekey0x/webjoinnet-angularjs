@@ -449,13 +449,13 @@ angular.module('hmtgs')
     }
     */
 
-    this.exitFullScreen = function() {
+    this.exitFullScreen = function(keepRootFullScreen) {
       var fullscreenElement = document.fullscreenElement
         || document.mozFullScreenElement
         || document.webkitFullscreenElement
         || document.msFullscreenElement
         ;
-      if(fullscreenElement) {
+      if(fullscreenElement && (!keepRootFullScreen || fullscreenElement != document.documentElement)) {
         if(document.exitFullscreen) {
           document.exitFullscreen();
         } else if(document.msExitFullscreen) {

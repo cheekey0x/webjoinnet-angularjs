@@ -175,7 +175,7 @@ angular.module('joinnet')
     }
 
     $scope.turnoff_fullscreen = function () {
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
     }
 
     $scope.w.is_fullscreen = false;
@@ -187,22 +187,13 @@ angular.module('joinnet')
 
     $scope.w.fullscreen1 = function () {
       if($scope.w.request_fullscreen) {
-        hmtgHelper.inside_angular++;
         $scope.w.request_fullscreen.call($scope.container);
-        hmtgHelper.inside_angular--;
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-        ;
-
-        $scope.w.is_fullscreen = fullscreenElement == $scope.container;
       }
     }
 
     $scope.w.fullscreen0 = function () {
       hmtgHelper.inside_angular++;
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
       hmtgHelper.inside_angular--;
       $scope.w.is_fullscreen = false;
     }
@@ -220,24 +211,12 @@ angular.module('joinnet')
         || elem.webkitRequestFullscreen
       ;
       if(request_fullscreen) {
-        hmtgHelper.inside_angular++;
         request_fullscreen.call(elem);
-        hmtgHelper.inside_angular--;
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-        ;
-
-        if(video_recving.ssrc_hash[ssrc]) video_recving.ssrc_hash[ssrc].is_fullscreen = fullscreenElement == elem;
-        hmtgHelper.inside_angular++;
-        video_recving.draw_video(video_playback, ssrc);
-        hmtgHelper.inside_angular--;
       }
     }
     $scope.fullscreen0 = function (ssrc) {
       hmtgHelper.inside_angular++;
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
       hmtgHelper.inside_angular--;
       if(video_recving.ssrc_hash[ssrc]) video_recving.ssrc_hash[ssrc].is_fullscreen = false;
       hmtgHelper.inside_angular++;

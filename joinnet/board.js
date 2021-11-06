@@ -5763,13 +5763,6 @@ angular.module('joinnet')
     this.turnon_fullscreen = function() {
       if(this.request_fullscreen) {
         this.request_fullscreen.call(this.container);
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-        ;
-
-        this.is_fullscreen = fullscreenElement == this.container;
       }
     }
 
@@ -5780,7 +5773,7 @@ angular.module('joinnet')
       hmtgHelper.inside_angular--;
     }
     this.turnoff_fullscreen = function() {
-      hmtgHelper.exitFullScreen();
+      hmtgHelper.exitFullScreen(true);
       this.is_fullscreen = false;
       this.is_passive_fullscreen = false;
     }

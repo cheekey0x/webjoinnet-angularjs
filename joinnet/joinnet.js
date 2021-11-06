@@ -2128,7 +2128,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     function show_area(target) {
       if($rootScope.nav_item == 'joinnet') {
-        hmtgHelper.exitFullScreen();
+        hmtgHelper.exitFullScreen(true);
       }
 
       // handle the concise interface
@@ -2667,6 +2667,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
         }
 
         menu.push({ "text": $translate.instant('ID_TOGGLE_CONCISE_LAYOUT'), "onclick": $scope.toggle_concise_mode });
+        if($rootScope.root_request_fullscreen) {
+          menu.push({ "text": $translate.instant('ID_FULLSCREEN1'), "onclick": $rootScope.root_fullscreen });
+        }
 
         if(!menu.length) {
           $scope.w.is_menu_open = 0;

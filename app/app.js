@@ -82,6 +82,13 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
 
     document.title = $translate.instant('IDS_APP_NAME');
 
+    // root level full screen
+    $rootScope.root_request_fullscreen = document.documentElement.requestFullscreen
+      || document.documentElement.msRequestFullscreen
+      || document.documentElement.mozRequestFullScreen
+      || document.documentElement.webkitRequestFullscreen
+      ;
+
     // customization
     $rootScope.hmtg_show_msgr = !!hmtg.customization.show_msgr;
     $rootScope.hmtg_show_open_jnj = !!hmtg.customization.show_open_jnj && appSetting.show_advanced_function;
@@ -120,6 +127,23 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       else if(param == 'lazy_htm/navitem_jnj.htm' + hmtgHelper.cache_param) $rootScope.partialJnj = '';
       else if(param == 'lazy_htm/navitem_prompt.htm' + hmtgHelper.cache_param) $rootScope.partialPrompt = '';
     });
+
+    $rootScope.root_fullscreen = function() {
+      if($rootScope.root_request_fullscreen) {
+        var fullscreenElement = document.fullscreenElement
+          || document.mozFullScreenElement
+          || document.webkitFullscreenElement
+          || document.msFullscreenElement
+          ;
+        hmtgHelper.inside_angular++;
+        if(fullscreenElement != document.documentElement) {
+          $rootScope.root_request_fullscreen.call(document.documentElement);
+        } else {
+          hmtgHelper.exitFullScreen(false);
+        }
+        hmtgHelper.inside_angular--;
+      }
+    }
 
     $rootScope.selectTabReconnectName = function() {
       $rootScope.selectTabJnj();  // reconnect name require jnj tab, for the "open jnj" button

@@ -1178,18 +1178,8 @@ angular.module('msgr')
           if(!fullscreen_element) return;
         }
         
-        hmtgHelper.inside_angular++;
-        this.request_fullscreen.call(fullscreen_element);
-        hmtgHelper.inside_angular--;
-
         this.webrtc_fullscreen_element = fullscreen_element;
-
-        var fullscreenElement = document.fullscreenElement
-          || document.mozFullScreenElement
-          || document.webkitFullscreenElement
-          || document.msFullscreenElement
-          ;
-        this.is_webrtc_fullscreen = fullscreenElement == this.webrtc_fullscreen_element;
+        this.request_fullscreen.call(fullscreen_element);
       }
 
       im.prototype.import_html5 = function($scope) {
