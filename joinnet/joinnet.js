@@ -36,6 +36,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
     this.is_presenter = false;
     this.is_holder = false;
     this.is_questioner = false;
+    this.support_desktop_sharing = hmtg.customization.support_desktop_sharing;
+    this.support_remote_control = hmtg.customization.support_remote_control;
 
     var jnkernel = hmtg.jnkernel;
     jnkernel['jn_callback_ErrorReport'] = function() {
@@ -278,6 +280,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
       _JoinNet.init_browsing_url_update_func = null;
       _JoinNet.is_appdata_ready = [];
       _JoinNet.jnr_prop = {};
+      _JoinNet.support_desktop_sharing = hmtg.customization.support_desktop_sharing;
+      _JoinNet.support_remote_control = hmtg.customization.support_remote_control;
       audio_capture.last_codec = 0;
       video_capture.last_codec = 0;
       board.reset();
@@ -827,7 +831,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       item['update'] = function() { return $translate.instant('IDS_SHADOW_REQUEST_FORMAT').replace('%1$s', hmtg.util.decodeUtf8(name)) };
       item['text'] = item['update']();
       item['type'] = 'info';
-      item['need_ring'] = true;
+      item['need_ring'] = false;
       item['click'] = function(index) {
         hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
@@ -874,7 +878,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
       item['update'] = function() { return $translate.instant('IDS_SIP_JOIN_REQUEST_FORMAT').replace('%1$s', hmtg.util.decodeUtf8(uri)).replace('%2$s', hmtg.util.decodeUtf8(name)) };
       item['text'] = item['update']();
       item['type'] = 'info';
-      item['need_ring'] = true;
+      item['need_ring'] = false;
       item['click'] = function(index) {
         hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
@@ -1479,7 +1483,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.onConciseSDT = function() {
       $scope.loadSDT();
-      layout.visible_area = layout.visible_area == 'sdt' ? 'userlist' : 'sdt';
+      layout.visible_area = layout.visible_area == 'sdt' ? layout.default_visible_area : 'sdt';
       layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
@@ -1488,7 +1492,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.onConciseRDC = function() {
       $scope.loadRDC();
-      layout.visible_area = layout.visible_area == 'rdc' ? 'userlist' : 'rdc';
+      layout.visible_area = layout.visible_area == 'rdc' ? layout.default_visible_area : 'rdc';
       layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
@@ -1497,7 +1501,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
 
     $scope.onConciseBrowser = function() {
       $scope.loadBrowser();
-      layout.visible_area = layout.visible_area == 'browser' ? 'userlist' : 'browser';
+      layout.visible_area = layout.visible_area == 'browser' ? layout.default_visible_area : 'browser';
       layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
@@ -1629,59 +1633,8 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.w.show_check_show_area2 = true;  
     JoinNet.is_chat_area_visible = false;
     $scope.w.ratio = '1.1';
-    // meeting
-    $scope.areas0 = [
-      { id: 'userlist', name: 'userlist' },
-      { id: 'statistics', name: 'statistics' },
-      { id: 'chat', name: 'chat' },
-      { id: 'video', name: 'video' },
-      { id: 'white_board', name: 'white board' },
-      { id: 'sdt', name: 'desktop sharing' },
-      { id: 'rdc', name: 'remote control' }
-    ];
-    if(hmtg.customization.support_joint_browsing) {
-      $scope.areas0.push({ id: 'browser', name: 'browser' });
-    }
-    $scope.area_idx0 = {
-      'userlist': 0,
-      'statistics': 1,
-      'chat': 2,
-      'video': 3,
-      'white_board': 4,
-      'sdt': 5,
-      'rdc': 6
-    };
-    if(hmtg.customization.support_joint_browsing) {
-      $scope.area_idx0['browser'] = 7;
-    }
-
-    // playback
-    $scope.areas1 = [
-      { id: 'userlist', name: 'userlist' },
-      { id: 'statistics', name: 'statistics' },
-      { id: 'jnr', name: 'jnr' },
-      { id: 'chat', name: 'chat' },
-      { id: 'video', name: 'video' },
-      { id: 'white_board', name: 'white board' },
-      { id: 'sdt', name: 'desktop sharing' },
-      { id: 'rdc', name: 'remote control' }
-    ];
-    if(hmtg.customization.support_joint_browsing) {
-      $scope.areas1.push({ id: 'browser', name: 'browser' });
-    }
-    $scope.area_idx1 = {
-      'userlist': 0,
-      'statistics': 1,
-      'jnr': 2,
-      'chat': 3,
-      'video': 4,
-      'white_board': 5,
-      'sdt': 6,
-      'rdc': 7
-    };
-    if(hmtg.customization.support_joint_browsing) {
-      $scope.area_idx1['browser'] = 8;
-    }
+    
+    update_area_items();
     update_components();
     update_area_name();
     $scope.$watch('w.area1', switch_area);
@@ -1971,11 +1924,20 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
     $scope.$on(hmtgHelper.WM_START_SESSION, function() {
+      update_area_items();
+      update_area_name();
       show_area('userlist');
       layout.is_userlist_visible = false;
       layout.is_textchat_visible = false;
       layout.is_video_visible = false;
-      layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
+
+      if(layout.default_board) {
+        layout.visible_area = 'white_board';
+        layout.is_gallery_visible = false;
+      } else {
+        layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
+      }
+
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
     $scope.$on(hmtgHelper.WM_TAB_MODE, function(event, mode) {
@@ -1988,9 +1950,19 @@ angular.module('joinnet', ['pascalprecht.translate'])
           target_area = hmtg.customization.support_joint_browsing ? 'browser' : 'chat';
           break;
         case 2:
+          if(!JoinNet.support_desktop_sharing) {
+            JoinNet.support_desktop_sharing = true;
+            update_area_items();
+            update_area_name();
+          }
           target_area = 'sdt';
           break;
         case 3:
+          if(!JoinNet.support_remote_control) {
+            JoinNet.support_remote_control = true;
+            update_area_items();
+            update_area_name();
+          }
           target_area = 'rdc';
           break;
         case 4:
@@ -2109,6 +2081,26 @@ angular.module('joinnet', ['pascalprecht.translate'])
       }
     }
 
+    $scope.testing_only = function() {
+      // if(!JoinNet.support_desktop_sharing) {
+      //   JoinNet.support_desktop_sharing = true;
+      //   update_area_items();
+      //   update_area_name();
+      // } else {
+      //   JoinNet.support_desktop_sharing = false;
+      //   update_area_items();
+      //   update_area_name();
+
+      // }
+    }
+
+    $scope.gotoMsgr = function() {
+      if($rootScope.hmtg_show_msgr) {
+        $rootScope.nav_item = 'msgr';
+        $rootScope.tabs[0].active = true;
+      }
+    }
+
     function update_components() {
       var workmode = hmtg.jnkernel._jn_iWorkMode();
       if(workmode != $scope.last_work_mode) {
@@ -2183,6 +2175,141 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(!hmtgHelper.inside_angular) $scope.$digest();
     });
 
+    function update_area_items() {
+      // meeting
+      if(typeof $scope.areas0 === 'undefined') {
+        $scope.areas0 = [
+          { id: 'userlist', name: 'userlist' },
+          { id: 'statistics', name: 'statistics' },
+          { id: 'chat', name: 'chat' },
+          { id: 'video', name: 'video' },
+          { id: 'white_board', name: 'white board' },
+        ];
+        $scope.area_idx0 = {
+          'userlist': 0,
+          'statistics': 1,
+          'chat': 2,
+          'video': 3,
+          'white_board': 4,
+        };
+      } else {
+        $scope.areas0.length = 5
+      }
+      if(JoinNet.support_desktop_sharing) {
+        $scope.areas0.push({ id: 'sdt', name: 'desktop sharing' });
+      }
+      if(JoinNet.support_remote_control) {
+        $scope.areas0.push({ id: 'rdc', name: 'remote control' });
+      }
+      if(hmtg.customization.support_joint_browsing) {
+        $scope.areas0.push({ id: 'browser', name: 'browser' });
+      }
+      var idx = 5;
+      if(JoinNet.support_desktop_sharing) {
+        $scope.area_idx0['sdt'] = idx;
+        idx++;
+      } else {
+        if($scope.w.area1 == 'sdt') {
+          $scope.w.area1 = 'userlist';
+        }
+        if($scope.w.area2 == 'sdt') {
+          $scope.w.area2 = 'userlist';
+        }
+        delete $scope.area_idx0['sdt'];
+      }
+      if(JoinNet.support_remote_control) {
+        $scope.area_idx0['rdc'] = idx;
+        idx++;
+      } else {
+        if($scope.w.area1 == 'rdc') {
+          $scope.w.area1 = 'userlist';
+        }
+        if($scope.w.area2 == 'rdc') {
+          $scope.w.area2 = 'userlist';
+        }
+        delete $scope.area_idx0['rdc'];
+      }
+      if(hmtg.customization.support_joint_browsing) {
+        $scope.area_idx0['browser'] = idx;
+      } else {
+        if($scope.w.area1 == 'browser') {
+          $scope.w.area1 = 'userlist';
+        }
+        if($scope.w.area2 == 'browser') {
+          $scope.w.area2 = 'userlist';
+        }
+        delete $scope.area_idx0['browser'];
+      }
+      
+
+      // playback
+      if(typeof $scope.areas1 === 'undefined') {
+        $scope.areas1 = [
+          { id: 'userlist', name: 'userlist' },
+          { id: 'statistics', name: 'statistics' },
+          { id: 'jnr', name: 'jnr' },
+          { id: 'chat', name: 'chat' },
+          { id: 'video', name: 'video' },
+          { id: 'white_board', name: 'white board' },
+        ];
+        $scope.area_idx1 = {
+          'userlist': 0,
+          'statistics': 1,
+          'jnr': 2,
+          'chat': 3,
+          'video': 4,
+          'white_board': 5,
+        };
+      } else {
+        $scope.areas1.length = 6
+      }
+      if(JoinNet.support_desktop_sharing) {
+        $scope.areas1.push({ id: 'sdt', name: 'desktop sharing' });
+      }
+      if(JoinNet.support_remote_control) {
+        $scope.areas1.push({ id: 'rdc', name: 'remote control' });
+      }
+      if(hmtg.customization.support_joint_browsing) {
+        $scope.areas1.push({ id: 'browser', name: 'browser' });
+      }
+      idx = 6;
+      if(JoinNet.support_desktop_sharing) {
+        $scope.area_idx1['sdt'] = idx;
+        idx++;
+      } else {
+        if($scope.w.area1 == 'sdt') {
+          $scope.w.area1 = 'userlist';
+        }
+        if($scope.w.area2 == 'sdt') {
+          $scope.w.area2 = 'userlist';
+        }
+        delete $scope.area_idx1['sdt'];
+      }
+      if(JoinNet.support_remote_control) {
+        $scope.area_idx1['rdc'] = idx;
+        idx++;
+      } else {
+        if($scope.w.area1 == 'rdc') {
+          $scope.w.area1 = 'userlist';
+        }
+        if($scope.w.area2 == 'rdc') {
+          $scope.w.area2 = 'userlist';
+        }
+        delete $scope.area_idx1['rdc'];
+      }
+      if(hmtg.customization.support_joint_browsing) {
+        $scope.area_idx1['browser'] = idx;
+      } else {
+        if($scope.w.area1 == 'browser') {
+          $scope.w.area1 = 'userlist';
+        }
+        if($scope.w.area2 == 'browser') {
+          $scope.w.area2 = 'userlist';
+        }
+        delete $scope.area_idx1['browser'];
+      }
+    }
+
     function update_area_name() {
       // meeting
       $scope.areas0[$scope.area_idx0['statistics']].name = $translate.instant('ID_STATISTICS');
@@ -2193,14 +2320,18 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(hmtg.customization.support_joint_browsing) {
         $scope.areas0[$scope.area_idx0['browser']].name = $translate.instant('IDS_JOINT_WEB_BROWSING');
       }
-      $scope.areas0[$scope.area_idx0['sdt']].name = $translate.instant('ID_DESKTOP_SHARING');
+      if(JoinNet.support_desktop_sharing) {
+        $scope.areas0[$scope.area_idx0['sdt']].name = $translate.instant('ID_DESKTOP_SHARING');
+      }
       var to_show_monitor = false;
       if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL && appSetting.remote_monitor_mode) {
         var sync_tab_controller = hmtg.jnkernel._tab_ssrc();
         var is_sync_tab_controller = sync_tab_controller != -1 && sync_tab_controller == hmtg.jnkernel._jn_ssrc_index();
         if(is_sync_tab_controller) to_show_monitor = true;
       }
-      $scope.areas0[$scope.area_idx0['rdc']].name = $translate.instant(to_show_monitor ? 'ID_REMOTE_MONITOR' : 'ID_REMOTE_CONTROL');
+      if(JoinNet.support_remote_control) {
+        $scope.areas0[$scope.area_idx0['rdc']].name = $translate.instant(to_show_monitor ? 'ID_REMOTE_MONITOR' : 'ID_REMOTE_CONTROL');
+      }
 
       // playback
       $scope.areas1[$scope.area_idx1['statistics']].name = $translate.instant('ID_STATISTICS');
@@ -2211,8 +2342,12 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(hmtg.customization.support_joint_browsing) {
         $scope.areas1[$scope.area_idx1['browser']].name = $translate.instant('IDS_JOINT_WEB_BROWSING');
       }
-      $scope.areas1[$scope.area_idx1['sdt']].name = $translate.instant('ID_DESKTOP_SHARING');
-      $scope.areas1[$scope.area_idx1['rdc']].name = $translate.instant('ID_REMOTE_CONTROL');
+      if(JoinNet.support_desktop_sharing) {
+        $scope.areas1[$scope.area_idx1['sdt']].name = $translate.instant('ID_DESKTOP_SHARING');
+      }
+      if(JoinNet.support_remote_control) {
+        $scope.areas1[$scope.area_idx1['rdc']].name = $translate.instant('ID_REMOTE_CONTROL');
+      }
     }
 
     function on_tab_ssrc_change() {
@@ -2646,30 +2781,39 @@ angular.module('joinnet', ['pascalprecht.translate'])
             }
           }
           if(!$scope.playing) {
-            if($rootScope.gui_mode != 'concise') {
-              menu.push({ "text": $translate.instant('ID_PLAY_SOUND_FILE'), "onclick": $scope.play_sound_file });
-            }
+            menu.push({ "text": $translate.instant('ID_PLAY_SOUND_FILE'), "onclick": $scope.play_sound_file });
           } else if($scope.src) {
             menu.push({ "text": $translate.instant('ID_STOP_SOUND_FILE'), "onclick": $scope.stop_sound_file });
           }
 
-          if($rootScope.gui_mode != 'concise' && hmtg.jnkernel._jn_bConnected()) {
+          if(hmtg.jnkernel._jn_bConnected()) {
             menu.push({ "text": $translate.instant('ID_RESET_AUDIO_PLAYBACK'), "onclick": $scope.reset_audio_playback });
           }
         }
 
         if($rootScope.gui_mode == 'concise') {
-          menu.push({ "text": (layout.visible_area == 'sdt' ? '* ' : '') + $translate.instant('ID_DESKTOP_SHARING'), "onclick": $scope.onConciseSDT });
-          menu.push({ "text": (layout.visible_area == 'rdc' ? '* ' : '') + $translate.instant('ID_REMOTE_CONTROL'), "onclick": $scope.onConciseRDC });
+          if(JoinNet.support_desktop_sharing) {
+            menu.push({ "text": (layout.visible_area == 'sdt' ? '* ' : '') + $translate.instant('ID_DESKTOP_SHARING'), "onclick": $scope.onConciseSDT });
+          }
+          if(JoinNet.support_remote_control) {
+            menu.push({ "text": (layout.visible_area == 'rdc' ? '* ' : '') + $translate.instant('ID_REMOTE_CONTROL'), "onclick": $scope.onConciseRDC });
+          }
           if(hmtg.customization.support_joint_browsing) {
             menu.push({ "text": (layout.visible_area == 'browser' ? '* ' : '') + $translate.instant('IDS_JOINT_WEB_BROWSING'), "onclick": $scope.onConciseBrowser });
           }
+          if($rootScope.hmtg_show_msgr) {
+            menu.push({ "text": "Messenger", "onclick": $scope.gotoMsgr });
+          }
+          
         }
 
         menu.push({ "text": $translate.instant('ID_TOGGLE_CONCISE_LAYOUT'), "onclick": $scope.toggle_concise_mode });
         if($rootScope.root_request_fullscreen) {
           menu.push({ "text": $translate.instant('ID_FULLSCREEN1'), "onclick": $rootScope.root_fullscreen });
         }
+
+        // for testing only
+        // menu.push({ "text": "Testing only", "onclick": $scope.testing_only });
 
         if(!menu.length) {
           $scope.w.is_menu_open = 0;
@@ -3035,16 +3179,18 @@ angular.module('joinnet', ['pascalprecht.translate'])
 .service('layout', ['$rootScope', 'video_recving',
   function($rootScope, video_recving) {
     var _layout = this;
+    this.default_board = !hmtg.customization.show_video_window_at_concise_layout_by_default;
     this.default_gallery = hmtg.customization.show_video_gallery_at_concise_layout_by_default;
     this.is_navbar_visible = true;
-    this.visible_area = 'userlist';
+    this.default_visible_area = this.default_board ? 'white_board' : 'userlist';
+    this.visible_area = this.default_visible_area;
     // when the text chat or userlist is on
-    // the cached visible area remember the actual visible area
-    this.cached_visible_area = 'userlist';
+    // the cached visible area remember the actual visible area before turning on textchat/userlist
+    this.cached_visible_area = this.visible_area;
     this.is_userlist_visible = false;
     this.is_textchat_visible = false;
     this.is_video_visible = false;
-    this.is_gallery_visible = this.default_gallery;
+    this.is_gallery_visible = this.visible_area == 'userlist' ? this.default_gallery : false;
 
     this.set_fixed_video_display_size = function() {
       video_recving.display_size = 100 - 3;

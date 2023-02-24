@@ -8784,12 +8784,12 @@ angular.module('joinnet')
       if(!board.is_private || board.is_local_slide) {
         menu.push({ "text": $translate.instant('ID_TOGGLE_PRIVATE_NOTE'), "onclick": board.switchPrivate });
       }
-      if(!board.is_local_slide) {
+      if(!board.is_local_slide && appSetting.show_advanced_function) {
         menu.push({ "text": $translate.instant('ID_TOGGLE_LOCAL_SLIDE'), "onclick": board.switchLocal });
       }
 
       // white board case
-      if(!board.is_private && (board.slide_index >> 0) >= 0) {
+      if(!board.is_private && appSetting.show_advanced_function && (board.slide_index >> 0) >= 0) {
         var slide = hmtg.jnkernel._jn_SlideArray()[board.slide_index >> 0];
         if(!slide._m_bDeleted()) {
           if(slide._is_blank_page() || slide._downloaded() == 1) {
@@ -8805,7 +8805,9 @@ angular.module('joinnet')
             if(board.can_upload(true)) {
               menu.push({ "text": $translate.instant('ID_COPY_SLIDE_TO_BOARD'), "onclick": board.copyToBoard });
             }
-            menu.push({ "text": $translate.instant('ID_COPY_SLIDE_TO_LOCAL'), "onclick": board.copyToLocal });
+            if(appSetting.show_advanced_function) {
+              menu.push({ "text": $translate.instant('ID_COPY_SLIDE_TO_LOCAL'), "onclick": board.copyToLocal });
+            }
           }
         }
       }

@@ -309,7 +309,7 @@ angular.module('joinnet')
       item['update'] = function () { return $translate.instant('ID_REQUEST_TALK').replace('#name#', name) };
       item['text'] = item['update']();
       item['type'] = 'info';
-      item['need_ring'] = true;
+      item['need_ring'] = false;
       item['click'] = function (index) {
         var my_ssrc = hmtg.jnkernel._jn_ssrc_index();
         var questioner_controller = hmtg.jnkernel._q_ssrc();

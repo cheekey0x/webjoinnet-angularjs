@@ -37,6 +37,12 @@
     // whether to use concise layout for normal users
     customization.use_concise_layout_for_normal = false;
 
+    // whether to support desktop sharing
+    customization.support_desktop_sharing = false;
+
+    // whether to support remote control
+    customization.support_remote_control = false;
+
     // whether to support joint browsing
     customization.support_joint_browsing = false;
 
@@ -53,7 +59,10 @@
     customization.show_text_by_default = false;
 
     // whether to capture video by default
-    customization.capture_video_by_default = true;
+    customization.capture_video_by_default = false;
+
+    // whether to skip video capture prompt when customization.capture_video_by_default is false
+    customization.skip_video_capture_prompt = true;
 
     // whether the white board slide fit page by default
     customization.white_board_fit_page_by_default = false;
@@ -67,9 +76,14 @@
     customization.ignore_message_during_full_screen_by_default = false;
 
     // whether to show video window at the normal layout by default
-    // when set to true, the normal layout shows the video window by default
     // when set to false, the normal layout shows the white board by default
+    // when set to true, the normal layout shows the video window by default
     customization.show_video_window_at_normal_layout_by_default = false;
+
+    // whether to show white board at the concise layout by default
+    // when set to false, the concise layout shows the white board by default and upon entering a meeting
+    // when set to true, the concise layout will follow customization.show_video_gallery_at_concise_layout_by_default
+    customization.show_video_window_at_concise_layout_by_default = false;
 
     // whether to show video gallery at the concise layout by default
     // when set to true, the concise layout shows the video gallery by default and upon entering a meeting

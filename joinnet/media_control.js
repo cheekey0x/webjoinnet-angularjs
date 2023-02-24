@@ -928,7 +928,7 @@ angular.module('joinnet')
           } else {
             joinnetVideo.start();
           }
-        } else if(!joinnetVideo.error_occurred && joinnetVideo.can_show_record_control() && video_codec.video_codec) {
+        } else if(!hmtg.customization.skip_video_capture_prompt && !joinnetVideo.error_occurred && joinnetVideo.can_show_record_control() && video_codec.video_codec) {
           joinnetVideo.remove_alert_item();
 
           var item = {};

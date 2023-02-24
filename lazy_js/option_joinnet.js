@@ -24,6 +24,9 @@ angular.module('hmtgs')
       hmtg.util.localStorage['hmtg_show_advanced_function'] = JSON.stringify($scope.w.show_advanced_function);
       // need to update this once show_advanced_function is toggled
       $rootScope.hmtg_show_open_jnj = !!hmtg.customization.show_open_jnj && appSetting.show_advanced_function;
+      if(!$scope.w.show_advanced_function && board.is_local_slide) {
+        board.switchWhiteBoard();
+      }
     });
     $scope.$watch('w.meeting_capture_video', function() {
       hmtg.util.localStorage['hmtg_meeting_capture_video'] = JSON.stringify($scope.w.meeting_capture_video);

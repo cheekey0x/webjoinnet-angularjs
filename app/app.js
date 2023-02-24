@@ -659,7 +659,7 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     if(fps != 0 && fps != 1 && fps != 2 && fps != 5 && fps != 10 && fps != 15 && fps != 20 && fps != 25) fps = 0;
     this.video_fps = fps;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_show_private_note']);
-    this.show_private_note = parsed === 'undefined' ? false : !!parsed;
+    this.show_private_note = parsed === 'undefined' ? true : !!parsed;
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_remote_monitor_mode']);
     this.remote_monitor_mode = parsed === 'undefined' ? false : !!parsed;
     if(!hmtg.customization.support_monitor_mode) this.remote_monitor_mode = false;

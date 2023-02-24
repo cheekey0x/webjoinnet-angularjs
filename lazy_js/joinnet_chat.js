@@ -87,9 +87,9 @@ angular.module('joinnet')
       for(i = $scope.display_count; i < chat.data.length; i++, $scope.display_count++) {
         $scope.appendText(chat.data[i]);
       }
-      if(to_scroll) {
-        $scope.CHAT[0].scrollTop = $scope.CHAT[0].scrollHeight;
-      }
+      // if(to_scroll) {
+      //   $scope.CHAT[0].scrollTop = $scope.CHAT[0].scrollHeight;
+      // }
     });
     $scope.appendText = function(item) {
       var node = angular.element('<div></div>');
