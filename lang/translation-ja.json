@@ -542,7 +542,7 @@
 "IDC_CHECK_SHOW_TOOLTIP": "ツールチップを表示",
 "ID_RECORDING_TIME": "記録時間",
 "ID_BANDWIDTH": "帯域幅",
-"ID_TURN_ON_IOS_AUDIO_PROMPT": "クリックして音声をオンにします。 ナビゲーション項目をクリックして音声をオンにすることもできます。",
+"ID_TURN_ON_IOS_AUDIO_PROMPT": "クリックして音声をオンにします。",
 "ID_APP_URL": "JoinNet WebアプリケーションのURL",
 "ID_CANNOT_CAPTURE_AUDIO": "音声をキャプチャすることはできません: ",
 "ID_BROWSER_NOT_SUPPORT": "このブラウザは、#feature#をサポートしていません。",

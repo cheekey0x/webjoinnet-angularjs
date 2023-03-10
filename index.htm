@@ -312,8 +312,11 @@
           </div>
         </span>
       </span>
+      <button type="button" class="btn btn-danger" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_TERMINATE_MEETING' | translate)}}" ng-click="terminate_meeting()" 
+        ng-show="to_show_terminate_meeting()"><span class="glyphicon glyphicon-stop"></span>
+        <span ng-show="as.show_text" translate="ID_TERMINATE_MEETING"></span></button>
       <button type="button" class="btn btn-warning" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SIGNOUT' | translate)}}" ng-click="disconnect()" 
-        ng-show="can_disconnect()"><span class="glyphicon glyphicon-log-out"></span>
+        ng-show="can_disconnect() && !to_hide_logout()"><span class="glyphicon glyphicon-log-out"></span>
         <span ng-show="as.show_text" translate="ID_SIGNOUT"></span></button>
       <button type="button" class="btn btn-success" tooltip="{{as.no_tip || as.show_text ? '' : ('ID_RECONNECT' | translate)}}" ng-click="reconnect()" 
         ng-show="can_reconnect()"><span class="glyphicon glyphicon-log-in"></span>
@@ -1573,7 +1576,7 @@
         <div class="col-md-4"><span translate="IDS_APP_NAME"></span> 
           <span translate="ID_VERSION"></span> <span ng-bind="::app_version"></span></div>
         <div class="col-md-4"></div>
-        <div class="col-md-4">&copy; HomeMeeting Inc. 2022</div>
+        <div class="col-md-4">&copy; HomeMeeting Inc. 2023</div>
       </div>
       <br />
     </div>

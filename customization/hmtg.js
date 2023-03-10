@@ -99,6 +99,16 @@
     // the default slide conversion type, valid types are 'png' and 'pdf'
     customization.conversion_type_by_default = 'png';
 
+    // whether to skip the terminate meeting warning prompt
+    // when set to true, the owner will not be prompted for confirmation 
+    customization.skip_terminate_meeting_prompt = false;
+
+    // whether to show the terminate meeting button
+    // when set to true, the logout button is not shown while the terminate meeting button is shown instead
+    // the guest use this terminate meeting button to log out
+    // the owner and assistant can use this terminate meeting button to terminate the meeting
+    customization.show_terminate_meeting_button = false;
+
     // default html5 media links
     customization.media_links = [
       { name: 'The Tree of Life Trailer(cross origin, CORS)', src: 'http://www.homemeeting.com/html5/tree.mp4' },

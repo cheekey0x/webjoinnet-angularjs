@@ -786,7 +786,11 @@ angular.module('joinnet')
     }
 
     this.terminateMeeting = function () {
-      hmtgHelper.OKCancelMessageBox($translate.instant('ID_TERMINATE_MEETING_PROMPT'), 0, ok);
+      if(hmtg.customization.skip_terminate_meeting_prompt) {
+        ok();
+      } else {
+        hmtgHelper.OKCancelMessageBox($translate.instant('ID_TERMINATE_MEETING_PROMPT'), 0, ok);
+      }
       function ok() {
         hmtg.jnkernel.jn_command_TerminateSession();
       }

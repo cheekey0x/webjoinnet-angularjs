@@ -543,7 +543,7 @@
 "IDC_CHECK_SHOW_TOOLTIP": "Show tooltip",
 "ID_RECORDING_TIME": "Recording Time",
 "ID_BANDWIDTH": "Bandwidth",
-"ID_TURN_ON_IOS_AUDIO_PROMPT": "Click to turn on Audio. You can also click any navigation item to turn on Audio.",
+"ID_TURN_ON_IOS_AUDIO_PROMPT": "Click to turn on Audio.",
 "ID_APP_URL": "Corresponding Web JoinNet URL",
 "ID_CANNOT_CAPTURE_AUDIO": "Cannot capture audio: ",
 "ID_BROWSER_NOT_SUPPORT": "This browser doesn't support #feature#",

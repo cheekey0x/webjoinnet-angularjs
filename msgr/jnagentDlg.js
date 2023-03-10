@@ -349,6 +349,7 @@ angular.module('msgr')
       }
     }
     this.OnLaunch = function($scope, $modal, server) {
+      hmtgSound.turnOnAudio();
       var param = server.pointer;
       hmtgHelper.inside_angular++;
       hmtg.jmkernel.jm_command_LaunchOffice(param);
@@ -974,6 +975,7 @@ angular.module('msgr')
     }
 
     this.OnInviteGroup = function($scope, $modal, server, folder, menu) {
+      hmtgSound.turnOnAudio();
       var invitee_param = server.pointer;
       var inviter_param = menu.param;
       if(inviter_param._quit() || invitee_param._quit()) return;
@@ -1204,6 +1206,7 @@ angular.module('msgr')
     }
 
     this.OnVisit = function($scope, $modal, server, folder, item) {
+      hmtgSound.turnOnAudio();
       var param = server.pointer;
       var userid = pointer2id(item.pointer);
       var username = pointer2name(item.pointer);
@@ -1211,6 +1214,7 @@ angular.module('msgr')
     }
 
     this.OnInvite = function($scope, $modal, server, folder, item, menu) {
+      hmtgSound.turnOnAudio();
       var invitee_param = server.pointer;
       var inviter_param = menu.param;
       if(inviter_param._quit() || invitee_param._quit()) return;
@@ -1381,6 +1385,8 @@ angular.module('msgr')
     }
 
     this.OnPlaybackShare = function($scope, $modal, server, folder, item, menu) {
+      hmtgSound.turnOnAudio();
+
       var param = server.pointer;
       var psf = item.pointer;
       hmtgHelper.inside_angular++;

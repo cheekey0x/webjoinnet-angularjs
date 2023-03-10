@@ -76,15 +76,16 @@ angular.module('joinnet', ['pascalprecht.translate'])
     jnkernel['jn_callback_UpdateStatus'] = function(error_code) {
       if(error_code == hmtg.config.JN_CONNECTION_ESTABLISHED) {
         _JoinNet.resetAutoReconnect();
+        hmtgAlert.clear_status_item();
       }
 
-      var item = {};
-      item['timeout'] = 20;
-      item['update'] = function() { return $translate.instant(joinnetHelper.errorcode2id(error_code)) };
-      item['text'] = item['update']();
-      item['type'] = 'success';
+      // var item = {};
+      // item['timeout'] = 20;
+      // item['update'] = function() { return $translate.instant(joinnetHelper.errorcode2id(error_code)) };
+      // item['text'] = item['update']();
+      // item['type'] = 'success';
 
-      hmtgAlert.update_status_item(item);
+      // hmtgAlert.update_status_item(item);
     }
 
     jnkernel['jn_callback_UpdateStatus_MessageBox'] = function(error_code) {
@@ -947,6 +948,15 @@ angular.module('joinnet', ['pascalprecht.translate'])
       hmtgAlert.update_status_item({});
 
       var text;
+
+      if(hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_skip_message'])) {
+        hmtg.jnkernel.jn_command_UserCancel();
+        hmtg.util.localStorage['hmtg_skip_message'] = JSON.stringify(false);
+        text = $translate.instant('IDS_ERROR_REQUEST_REJECTED');
+        hmtgHelper.MessageBox(text, 0);
+        return;
+      }
+
       if(type == 1)
         text = $translate.instant('IDS_LEAVE_MESSAGE').replace('%1$s', (ownername ? ownername2 : $translate.instant('ID_OWNER')));
       else
@@ -1447,6 +1457,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.onConciseShow = function() {
+      hmtgSound.turnOnAudio();
       if(!layout.is_navbar_visible) {
         $scope.show_concise_full_toolbar = true;
         setTimeout(function() { 
@@ -1458,6 +1469,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.onConciseHide = function() {
+      hmtgSound.turnOnAudio();
       layout.is_navbar_visible = false;
       // if(delayedShowupTimerID) {
       //   clearTimeout(delayedShowupTimerID);
@@ -1474,6 +1486,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.onConciseBoard = function() {
+      hmtgSound.turnOnAudio();
       layout.visible_area = layout.visible_area == 'white_board' ? 'userlist' : 'white_board';
       layout.is_gallery_visible = layout.visible_area == 'userlist' ? layout.default_gallery : false;
       layout.is_userlist_visible = false;
@@ -1554,6 +1567,7 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.onConciseGallery = function() {
+      hmtgSound.turnOnAudio();
       layout.is_gallery_visible = !layout.is_gallery_visible;
       layout.visible_area = 'userlist';
       // layout.is_video_visible = false;
@@ -1571,6 +1585,9 @@ angular.module('joinnet', ['pascalprecht.translate'])
       if(hmtg.jnkernel._jn_iWorkMode() != hmtg.config.NORMAL) {
         return;
       }
+
+      // upon enter a meeting, stop record loop
+      $scope.stop_record_loop();
 
       // once fully join the meeting, try to issue sync tab
       var sync_tab_controller = hmtg.jnkernel._tab_ssrc();
@@ -2373,6 +2390,27 @@ angular.module('joinnet', ['pascalprecht.translate'])
     $scope.$on(hmtgHelper.WM_TOKEN_STATUS_CHANGED, on_tab_ssrc_change);
     $scope.$on(hmtgHelper.WM_CONTROLLER_STATUS_CHANGED, on_tab_ssrc_change);
 
+    $scope.to_show_terminate_meeting = function() {
+      if(!hmtg.customization.show_terminate_meeting_button) {
+        return false;
+      }
+      if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL
+        && hmtg.jnkernel._jn_bConnected()
+        // && (hmtg.jnkernel._jn_bTokenOwner() || JoinNet.is_assistant)
+      ) {
+        return true;
+      }
+      return false;
+    }
+    $scope.to_hide_logout = function() {
+      if(!hmtg.customization.show_terminate_meeting_button) {
+        return false;
+      }
+      if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
+        return true;
+      }
+      return false;
+    }
     $scope.can_disconnect = function() {
       return hmtg.jnkernel._jn_bConnected() || hmtg.jnkernel._jn_bConnecting();
     }
@@ -2826,7 +2864,23 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.terminate_meeting = function() {
-      hmtgHelper.OKCancelMessageBox($translate.instant('ID_TERMINATE_MEETING_PROMPT'), 0, ok);
+      // handle the special case
+      // meeting mode, non-owner/non-assistant, show_terminate_meeting_button=True
+      if(hmtg.customization.show_terminate_meeting_button) {
+        if(hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL
+          && hmtg.jnkernel._jn_bConnected()
+          && (!hmtg.jnkernel._jn_bTokenOwner() && !JoinNet.is_assistant)
+        ) {
+          $scope.disconnect();
+          return;
+        }
+      }
+
+      if(hmtg.customization.skip_terminate_meeting_prompt) {
+        ok();
+      } else {
+        hmtgHelper.OKCancelMessageBox($translate.instant('ID_TERMINATE_MEETING_PROMPT'), 0, ok);
+      }
       function ok() {
         hmtg.jnkernel.jn_command_TerminateSession();
       }
@@ -3021,13 +3075,17 @@ angular.module('joinnet', ['pascalprecht.translate'])
     }
 
     $scope.start_record_loop = function() {
-      joinnetAudio.is_record_loop = true;
-      joinnetAudio.tmp_gain_node.gain.value = joinnetAudio.is_record_loop ? 1.0 : 0.0;
+      if(joinnetAudio.tmp_gain_node) {
+        joinnetAudio.is_record_loop = true;
+        joinnetAudio.tmp_gain_node.gain.value = joinnetAudio.is_record_loop ? 1.0 : 0.0;
+      }
     }
 
     $scope.stop_record_loop = function() {
-      joinnetAudio.is_record_loop = false;
-      joinnetAudio.tmp_gain_node.gain.value = joinnetAudio.is_record_loop ? 1.0 : 0.0;
+      if(joinnetAudio.tmp_gain_node) {
+        joinnetAudio.is_record_loop = false;
+        joinnetAudio.tmp_gain_node.gain.value = joinnetAudio.is_record_loop ? 1.0 : 0.0;
+      }
     }
 
     $scope.play_sound_file = function() {

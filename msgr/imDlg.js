@@ -581,6 +581,7 @@ angular.module('msgr')
             item['text'] = item['update']();
             item['type'] = 'info';
             item['click'] = function(index) {
+              hmtgSound.turnOnAudio();
               playAudioStream();
 
               hmtgHelper.inside_angular++;
@@ -3189,6 +3190,7 @@ angular.module('msgr')
       }
 
       im.prototype.launch_office = function() {
+        hmtgSound.turnOnAudio();
         var param = this.m_param;
         hmtgHelper.inside_angular++;
         hmtg.jmkernel.jm_command_LaunchOffice(param);
@@ -5356,10 +5358,12 @@ angular.module('msgr')
       }
 
       $scope.visit = function(im) {
+        hmtgSound.turnOnAudio();
         im.onVisit($scope, jnagentDlg);
       }
 
       $scope.invite = function(im) {
+        hmtgSound.turnOnAudio();
         im.onInvite(jnagentDlg);
       }
 

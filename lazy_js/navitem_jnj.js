@@ -26,6 +26,8 @@ angular.module('hmtgs')
     var using_last_jnj = false;
     $scope.connect = function() {
       if(!$scope.jnj_can_connect) return;
+      
+      hmtgSound.turnOnAudio();
 
       hmtgHelper.inside_angular++;
       if($scope.is_valid_jnj) {

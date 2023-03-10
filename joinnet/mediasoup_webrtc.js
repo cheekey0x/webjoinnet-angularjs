@@ -420,6 +420,13 @@ angular.module('joinnet')
         return;
       }
 
+      // iOS Safari webrtc video issue:
+      // even the phone is at portrait mode, the webrtc video will fix to landscape mode
+      // this trick may not be necessary anyway.
+      // without this trick, at the worst case, the newly joined receiver fails to receive a key frame and will fall back to javascript video 
+      // until a keyframe is received.
+      return;
+
       // first check whether there is an ongoing keyframe operation
       if(this.keyFrameNewConstraintsTimerID || this.keyFrameOldConstraintsTimerID) {
         // if there is an ongoing keyframe operation
@@ -433,9 +440,13 @@ angular.module('joinnet')
         _mediasoupWebRTC.keyFrameNewConstraintsTimerID = null;
 
         // check whether the video capture size is ready
-        var w1 = 352;
+        var w1 = 360;
         var h1 = 240;
+        var w0 = w1;
+        var h0 = h1;
         if(video_capture.stat && video_capture.stat.capture_width && video_capture.stat.capture_height) {
+          w0 = video_capture.stat.capture_width;
+          h0 = video_capture.stat.capture_height;
           w1 = video_capture.stat.capture_width - 1;
           h1 = video_capture.stat.capture_height - 1;
         } else {
@@ -444,16 +455,10 @@ angular.module('joinnet')
           return;
         }
 
-        var w0 = 2000;
-        var h0 = 2000;
-        try {
-          w0 = _mediasoupWebRTC._videoProducer.track.getConstraints().width.max;
-          h0 = _mediasoupWebRTC._videoProducer.track.getConstraints().height.max;
-        } catch(e) { }
         try {
           var oldConstraints = {
-            width: { max: w0 },
-            height: { max: h0 }
+            width: { ideal: w0, max: w0 },
+            height: { ideal: h0, max: h0 }
           }
           var newConstraints = {
             width: { exact: w1 },
@@ -462,11 +467,19 @@ angular.module('joinnet')
 
           _mediasoupWebRTC._videoProducer.track.applyConstraints(newConstraints)
             .then(function() {
+              // hmtg.util.log('******debug, applied new constraints=' + JSON.stringify(newConstraints));
               _mediasoupWebRTC.keyFrameOldConstraintsTimerID = setTimeout(function() {
                 _mediasoupWebRTC.keyFrameOldConstraintsTimerID = null;
                 try {
-                  _mediasoupWebRTC._videoProducer.track.applyConstraints(oldConstraints);
-                } catch(e) { }
+                  _mediasoupWebRTC._videoProducer.track.applyConstraints(oldConstraints).then(
+                    function() {
+                      // hmtg.util.log('******debug, applied old constraints=' + JSON.stringify(oldConstraints));
+                    },
+                    function(e) {
+                    }
+                  )
+                } catch(e) {
+                }
 
                 // at the end of existing key frame operation
                 // if the flag is on
@@ -475,8 +488,11 @@ angular.module('joinnet')
                   _mediasoupWebRTC.forceKeyFrame();
                 }
               }, 1500);
+            }, function(e) {
+              // hmtg.util.log('******debug, failed to apply new constraints, e=' + JSON.stringify(e));
             });
-        } catch(e) { }
+        } catch(e) {
+        }
       }, 1500);
     }
 
@@ -949,6 +965,7 @@ angular.module('joinnet')
                 item['text'] = item['update']();
                 item['type'] = 'info';
                 item['click'] = function(index) {
+                  hmtgSound.turnOnAudio();
                   playAudioStream();
 
                   hmtgHelper.inside_angular++;

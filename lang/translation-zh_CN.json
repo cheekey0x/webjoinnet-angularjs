@@ -543,7 +543,7 @@
 "IDC_CHECK_SHOW_TOOLTIP": "显示提示",
 "ID_RECORDING_TIME": "录影时间",
 "ID_BANDWIDTH": "带宽",
-"ID_TURN_ON_IOS_AUDIO_PROMPT": "请点击这里以打开声音功能。您也可以点击导读栏内任意按钮来打开声音功能。",
+"ID_TURN_ON_IOS_AUDIO_PROMPT": "请点击这里以打开声音功能。",
 "ID_APP_URL": "对应的网页版JoinNet网址",
 "ID_CANNOT_CAPTURE_AUDIO": "不能抓取声音: ",
 "ID_BROWSER_NOT_SUPPORT": "您的浏览器不支持 #feature#",

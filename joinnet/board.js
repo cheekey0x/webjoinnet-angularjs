@@ -31,7 +31,7 @@ angular.module('joinnet')
     this.has_canvas_stream = !!this.canvas.captureStream;
     //this.has_action_menu = ''; // whether there is any context menu
     this.MIN_SIZE = 160;
-    this.DEFAULT_SIZE = 1024;
+    this.DEFAULT_SIZE = 2048;
     this.MAX_SIZE = hmtgHelper.isiOS ? 2048 : 4096;
     this.board_width = 1; // the board width on screen
     this.board_height = 1; // the board height on screen
@@ -2967,7 +2967,7 @@ angular.module('joinnet')
             }
           }
 
-          // at most grow to 1024x1024
+          // at most grow to default_size x default_size
           _board.mywidth = Math.max(_board.img_width, Math.min(_board.mywidth, _board.DEFAULT_SIZE));
           _board.myheight = Math.max(_board.img_height, Math.min(_board.myheight, _board.DEFAULT_SIZE));
 
@@ -5834,10 +5834,14 @@ angular.module('joinnet')
         return _board.upload_finished;
       }
 
+      var my_ssrc = hmtg.jnkernel._jn_ssrc_index();
+      var is_assistant = my_ssrc >= 0 && my_ssrc == hmtg.jnkernel._jn_iAssistant();
+      var is_presenter = my_ssrc >= 0 && my_ssrc == hmtg.jnkernel._jn_iController();
+
       return hmtg.jnkernel._jn_bConnected()
       && hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL
       && !hmtg.jnkernel._jn_disable_upload_file()
-      && (hmtg.jnkernel.jn_info_IsTalker() || hmtg.jnkernel._jn_bTokenOwner())
+      && (hmtg.jnkernel.jn_info_IsTalker() || hmtg.jnkernel._jn_bTokenOwner() || is_assistant || is_presenter)
       && _board.upload_finished
       && !this.dummy_conversion
       && !hmtg.jnkernel._jn_conversion_count();

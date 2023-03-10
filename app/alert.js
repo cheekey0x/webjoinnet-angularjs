@@ -312,6 +312,14 @@ angular.module('hmtgs')
       }
     }
 
+    this.clear_status_item = function() {
+      for(var i = 0; i < this.status_array.length; i++) {
+        clearTimeout(this.status_array[i].timeout_id);
+      }
+      this.status_array = [];
+      $rootScope.$broadcast(hmtgHelper.WM_UPDATE_ALERT);
+    }
+
     this.update_chat_alert_item = function(item) {
       for(var i = 0; i < this.chat_alert_array.length; i++) {
         clearTimeout(this.chat_alert_array[i].timeout_id);

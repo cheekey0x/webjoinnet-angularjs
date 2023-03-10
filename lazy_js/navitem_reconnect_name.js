@@ -1,8 +1,8 @@
 angular.module('joinnet')
 .controller('ReconnectNameCtrl', ['$scope', 'hmtgHelper', '$rootScope', 'jnjContent', 'audio_codec', 'video_codec',
-'video_playback', '$translate', '$modal', 'reconnectName', 'browser', 'JoinNet', 'hmtgAlert', 'appSetting',
+'video_playback', '$translate', '$modal', 'reconnectName', 'browser', 'JoinNet', 'hmtgAlert', 'appSetting', 'hmtgSound',
   function ($scope, hmtgHelper, $rootScope, jnjContent, audio_codec, video_codec, video_playback, $translate, $modal,
-  reconnectName, browser, JoinNet, hmtgAlert, appSetting) {
+  reconnectName, browser, JoinNet, hmtgAlert, appSetting, hmtgSound) {
     $scope.w = reconnectName;
     $scope.as = appSetting;
 
@@ -10,7 +10,8 @@ angular.module('joinnet')
       return hmtg.util.decodeUtf8(item.real_name);
     }
 
-    $scope.connect = function (item) {
+    $scope.connect = function(item) {
+      hmtgSound.turnOnAudio();
       // var jnj = item.jnj;
 
       if(
@@ -32,7 +33,8 @@ angular.module('joinnet')
       }
     }
 
-    $scope.open_jnj = function (item) {
+    $scope.open_jnj = function(item) {
+      hmtgSound.turnOnAudio();
       $rootScope.nav_item = 'jnj';
       $rootScope.$broadcast(hmtgHelper.WM_OPEN_JNJ, item.jnj);
     }
@@ -106,7 +108,8 @@ angular.module('joinnet')
         item['update'] = function () { return $translate.instant('ID_MULTI_PERMIT_PROMPT') };
         item['text'] = item['update']();
         item['type'] = 'info';
-        item['click'] = function (index) {
+        item['click'] = function(index) {
+          hmtgSound.turnOnAudio();
           hmtgHelper.inside_angular++;
           hmtgAlert.click_link(index);
           $rootScope.nav_item = 'reconnect_name';
@@ -126,7 +129,8 @@ angular.module('joinnet')
         };
         item['text'] = item['update']();
         item['type'] = 'info';
-        item['click'] = function (index) {
+        item['click'] = function(index) {
+          hmtgSound.turnOnAudio();
           hmtgHelper.inside_angular++;
           hmtgAlert.click_link(index);
           $scope.usePermit(array[idx]);

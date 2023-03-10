@@ -360,6 +360,12 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       $rootScope.$broadcast(hmtgHelper.WM_FULLSCREEN_CHANGED);
     }
 
+    // localStorage is always saved in string format
+    // boolean, integer, and structure need to be stringfied when saving to localStorage
+    // and need to be parsed when reading back to javascript
+    // string is optional. but need to be matched: 
+    // if a string item is stringied when saving, it must be parsed when reading back
+    // if a string item is not stringied when saving, it must be not parsed when reading back
     var log_level = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_log_level']);
     if(log_level === 'undefined') log_level = hmtg.config.DEFAULT_LOG_LEVEL;
     if(log_level < 0) log_level = 0;
@@ -419,6 +425,13 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
         jlk = decodeURIComponent(jlk0);
       } catch(e) {
       }
+
+    hmtg.util.localStorage['hmtg_skip_message'] = JSON.stringify(false);
+    var skip_message = hmtg.util.getQuery('skip_message');
+    if(typeof skip_message !== 'undefined' && skip_message) {
+      hmtg.util.localStorage['hmtg_skip_message'] = JSON.stringify(true);
+    }
+
     $rootScope.has_jnj = true;
     if(typeof jnj === 'undefined' && typeof jlk === 'undefined') {
       $rootScope.has_jnj = false;
@@ -494,7 +507,17 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
         //hmtg.util.log("jnj from the url: " + jnj);
         var value = hmtg.util.decode64_url(jnj);
         if(test_playback(value)) return;
-        if(!JoinNet.connect(value)) {
+
+        hmtg.util.localStorage['hmtg_saved_visitor_name'] = '';
+        var visitor = hmtg.util.getQuery('visitor');
+        if(typeof visitor !== 'undefined') {
+          try {
+            hmtg.util.localStorage['hmtg_saved_visitor_name'] = decodeURIComponent(visitor);
+          } catch(e) {
+          }
+        }
+
+        if(!JoinNet.connect(value, true)) {
           hmtgSound.ShowErrorPrompt(function () { return $translate.instant('ID_INVALID_JNJ') }, 20);
         }
       }
@@ -567,6 +590,11 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
       JSON.parse('undefined');  // trigger an error at logo
     }
 
+    // boolean, integer, and structure need to be stringfied when saving to localStorage
+    // and need to be parsed when reading back to javascript
+    // string is optional. but need to be matched: 
+    // if a string item is stringied when saving, it must be parsed when reading back
+    // if a string item is not stringied when saving, it must be not parsed when reading back
     var parsed;
     // msgr
     parsed = hmtg.util.parseJSON(hmtg.util.localStorage['hmtg_max_win']);

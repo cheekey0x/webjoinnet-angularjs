@@ -543,7 +543,7 @@
 "IDC_CHECK_SHOW_TOOLTIP": "도움말 팁 보기",
 "ID_RECORDING_TIME": "녹화 시간",
 "ID_BANDWIDTH": "대역폭",
-"ID_TURN_ON_IOS_AUDIO_PROMPT": "오디오 작동을 위해 클릭하세요. 오디오 작동을 위해 볼륨조절 장치를 이용할 수도 있습니다.",
+"ID_TURN_ON_IOS_AUDIO_PROMPT": "오디오 작동을 위해 클릭하세요.",
 "ID_APP_URL": "조인넷 웹앱 URL이 응답 중입니다",
 "ID_CANNOT_CAPTURE_AUDIO": "오디오 송신을 할 수 없습니다: ",
 "ID_BROWSER_NOT_SUPPORT": "현재 사용하는 브라우저는 #feature# 지원 않함",

@@ -559,6 +559,8 @@ angular.module('hmtgs')
     }
 
     this.turnOnAudio = function() {
+      // iOS
+      // should call ac.resume() BY THE USER before requesting any audio device access
       if(this.ac) {
         if(this.ac.state == 'suspended') {
           this.ac.resume();
@@ -763,19 +765,19 @@ angular.module('hmtgs')
       _hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_BAD_BROWSER').replace('#feature#', m) }, 30);
     }
     if(/*!_hmtgSound.audio_turned_on && */hmtgHelper.isiOS && this.ac && this.ac.state == 'suspended') {
-      var item = {};
-      item['timeout'] = 20;
-      item['update'] = function() { return $translate.instant('ID_TURN_ON_IOS_AUDIO_PROMPT') };
-      item['text'] = item['update']();
-      item['type'] = 'info';
-      item['click'] = function(index) {
-        _hmtgSound.turnOnAudio();
-        hmtgHelper.inside_angular++;
-        hmtgAlert.click_link(index);
-        hmtgHelper.inside_angular--;
-      };
+      // var item = {};
+      // item['timeout'] = 20;
+      // item['update'] = function() { return $translate.instant('ID_TURN_ON_IOS_AUDIO_PROMPT') };
+      // item['text'] = item['update']();
+      // item['type'] = 'info';
+      // item['click'] = function(index) {
+      //   _hmtgSound.turnOnAudio();
+      //   hmtgHelper.inside_angular++;
+      //   hmtgAlert.click_link(index);
+      //   hmtgHelper.inside_angular--;
+      // };
 
-      hmtgAlert.add_link_item(item);
+      // hmtgAlert.add_link_item(item);
     }
 
   }

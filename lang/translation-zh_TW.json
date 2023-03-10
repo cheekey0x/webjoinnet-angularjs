@@ -543,7 +543,7 @@
 "IDC_CHECK_SHOW_TOOLTIP": "顯示工具提示",
 "ID_RECORDING_TIME": "錄影檔時間",
 "ID_BANDWIDTH": "頻寬",
-"ID_TURN_ON_IOS_AUDIO_PROMPT": "點選來啟用語音。您也可以點選任何導覽項目來啟用語音",
+"ID_TURN_ON_IOS_AUDIO_PROMPT": "點選來啟用語音。",
 "ID_APP_URL": "對應的 JoinNet 網頁版網址",
 "ID_CANNOT_CAPTURE_AUDIO": "無法擷取語音: ",
 "ID_BROWSER_NOT_SUPPORT": "瀏覽器不支援 #feature#",

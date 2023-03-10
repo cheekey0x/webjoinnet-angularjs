@@ -224,6 +224,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
       item['type'] = 'info';
       item['need_ring'] = true;
       item['click'] = function(index) {
+        hmtgSound.turnOnAudio();
         hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
         $rootScope.tabs[2].active = true;
@@ -235,6 +236,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
         hmtgHelper.inside_angular--;
       };
       item['item_click'] = function() {
+        hmtgSound.turnOnAudio();
         hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
         $rootScope.tabs[2].active = true;
@@ -277,6 +279,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
       item['type'] = 'info';
       item['need_ring'] = true;
       item['click'] = function(index) {
+        hmtgSound.turnOnAudio();
         hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
         $rootScope.tabs[2].active = true;
@@ -288,6 +291,7 @@ angular.module('msgr', ['pascalprecht.translate', 'ui.bootstrap'])
         hmtgHelper.inside_angular--;
       };
       item['item_click'] = function() {
+        hmtgSound.turnOnAudio();
         hmtgAlert.close_notification(item);
         $rootScope.nav_item = 'joinnet';
         $rootScope.tabs[2].active = true;
