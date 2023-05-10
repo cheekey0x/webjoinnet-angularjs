@@ -427,73 +427,73 @@ angular.module('joinnet')
       // until a keyframe is received.
       return;
 
-      // first check whether there is an ongoing keyframe operation
-      if(this.keyFrameNewConstraintsTimerID || this.keyFrameOldConstraintsTimerID) {
-        // if there is an ongoing keyframe operation
-        // set the flag
-        // a new operation will start once the existing operation finish
-        this.keyFrameFlag = true;
-        return;
-      }
+      // // first check whether there is an ongoing keyframe operation
+      // if(this.keyFrameNewConstraintsTimerID || this.keyFrameOldConstraintsTimerID) {
+      //   // if there is an ongoing keyframe operation
+      //   // set the flag
+      //   // a new operation will start once the existing operation finish
+      //   this.keyFrameFlag = true;
+      //   return;
+      // }
 
-      this.keyFrameNewConstraintsTimerID = setTimeout(function() {
-        _mediasoupWebRTC.keyFrameNewConstraintsTimerID = null;
+      // this.keyFrameNewConstraintsTimerID = setTimeout(function() {
+      //   _mediasoupWebRTC.keyFrameNewConstraintsTimerID = null;
 
-        // check whether the video capture size is ready
-        var w1 = 360;
-        var h1 = 240;
-        var w0 = w1;
-        var h0 = h1;
-        if(video_capture.stat && video_capture.stat.capture_width && video_capture.stat.capture_height) {
-          w0 = video_capture.stat.capture_width;
-          h0 = video_capture.stat.capture_height;
-          w1 = video_capture.stat.capture_width - 1;
-          h1 = video_capture.stat.capture_height - 1;
-        } else {
-          // wait capture size and insert a new request
-          _mediasoupWebRTC.forceKeyFrame();
-          return;
-        }
+      //   // check whether the video capture size is ready
+      //   var w1 = 360;
+      //   var h1 = 240;
+      //   var w0 = w1;
+      //   var h0 = h1;
+      //   if(video_capture.stat && video_capture.stat.capture_width && video_capture.stat.capture_height) {
+      //     w0 = video_capture.stat.capture_width;
+      //     h0 = video_capture.stat.capture_height;
+      //     w1 = video_capture.stat.capture_width - 1;
+      //     h1 = video_capture.stat.capture_height - 1;
+      //   } else {
+      //     // wait capture size and insert a new request
+      //     _mediasoupWebRTC.forceKeyFrame();
+      //     return;
+      //   }
 
-        try {
-          var oldConstraints = {
-            width: { ideal: w0, max: w0 },
-            height: { ideal: h0, max: h0 }
-          }
-          var newConstraints = {
-            width: { exact: w1 },
-            height: { exact: h1 }
-          }
+      //   try {
+      //     var oldConstraints = {
+      //       width: { ideal: w0, max: w0 },
+      //       height: { ideal: h0, max: h0 }
+      //     }
+      //     var newConstraints = {
+      //       width: { exact: w1 },
+      //       height: { exact: h1 }
+      //     }
 
-          _mediasoupWebRTC._videoProducer.track.applyConstraints(newConstraints)
-            .then(function() {
-              // hmtg.util.log('******debug, applied new constraints=' + JSON.stringify(newConstraints));
-              _mediasoupWebRTC.keyFrameOldConstraintsTimerID = setTimeout(function() {
-                _mediasoupWebRTC.keyFrameOldConstraintsTimerID = null;
-                try {
-                  _mediasoupWebRTC._videoProducer.track.applyConstraints(oldConstraints).then(
-                    function() {
-                      // hmtg.util.log('******debug, applied old constraints=' + JSON.stringify(oldConstraints));
-                    },
-                    function(e) {
-                    }
-                  )
-                } catch(e) {
-                }
+      //     _mediasoupWebRTC._videoProducer.track.applyConstraints(newConstraints)
+      //       .then(function() {
+      //         // hmtg.util.log('******debug, applied new constraints=' + JSON.stringify(newConstraints));
+      //         _mediasoupWebRTC.keyFrameOldConstraintsTimerID = setTimeout(function() {
+      //           _mediasoupWebRTC.keyFrameOldConstraintsTimerID = null;
+      //           try {
+      //             _mediasoupWebRTC._videoProducer.track.applyConstraints(oldConstraints).then(
+      //               function() {
+      //                 // hmtg.util.log('******debug, applied old constraints=' + JSON.stringify(oldConstraints));
+      //               },
+      //               function(e) {
+      //               }
+      //             )
+      //           } catch(e) {
+      //           }
 
-                // at the end of existing key frame operation
-                // if the flag is on
-                // start a new key frame request
-                if(_mediasoupWebRTC.keyFrameFlag) {
-                  _mediasoupWebRTC.forceKeyFrame();
-                }
-              }, 1500);
-            }, function(e) {
-              // hmtg.util.log('******debug, failed to apply new constraints, e=' + JSON.stringify(e));
-            });
-        } catch(e) {
-        }
-      }, 1500);
+      //           // at the end of existing key frame operation
+      //           // if the flag is on
+      //           // start a new key frame request
+      //           if(_mediasoupWebRTC.keyFrameFlag) {
+      //             _mediasoupWebRTC.forceKeyFrame();
+      //           }
+      //         }, 1500);
+      //       }, function(e) {
+      //         // hmtg.util.log('******debug, failed to apply new constraints, e=' + JSON.stringify(e));
+      //       });
+      //   } catch(e) {
+      //   }
+      // }, 1500);
     }
 
     this.add_user = function(ssrc) {
@@ -943,7 +943,6 @@ angular.module('joinnet')
                 } catch(e) { }
               }
 
-              var ios_unmute_alert_item;
               if(!hmtgHelper.isiOS) {
                 playAudioStream();
               } else {
@@ -951,30 +950,43 @@ angular.module('joinnet')
                   // for iOS device, turn off webrtc audio until the user unmute the audio stream
                   hmtg.jnkernel.jn_command_WebRTCMediaStatusNotification(0, peerId, 0); // (type_audio, source_ssrc, status)
                 }
-                var item = {};
-                item['timeout'] = 3600 * 24 * 10;
-                item['update'] = function() {
-                  var a = hmtg.jnkernel._jn_UserArray();  // _jn_UserArray return a hash, not array
-                  var username = 'User';
-                  if(a && a[peerId] && a[peerId]._szRealName()) {
-                    username = a[peerId]._szRealName();
+
+                // add the pending audio stream to pending array
+                hmtgAlert.webrtc_pending_audio_array.push(playAudioStream);
+
+                // delayed alert
+                if(!hmtgAlert.ios_unmute_alert_timeout_id) {
+                  hmtgAlert.ios_unmute_alert_timeout_id = setTimeout(show_delayed_alert, 10 * 1000);
+                }
+
+                function show_delayed_alert() {
+                  hmtgAlert.ios_unmute_alert_timeout_id = null;
+                  // show alert if not yet
+                  if(!hmtgAlert.ios_unmute_alert_item && hmtgAlert.webrtc_pending_audio_array.length) {
+                    var item = {};
+                    item['timeout'] = 3600 * 24 * 10;
+                    item['update'] = function() {
+                      return $translate.instant('ID_UNMUTE_WEBRTC_AUDIO');
+                    };
+                    item['text'] = item['update']();
+                    item['type'] = 'info';
+                    item['click'] = function(index) {
+                      // activate all the pending audio stream
+                      var i;
+                      for(i = 0; i < hmtgAlert.webrtc_pending_audio_array.length; i++) {
+                        hmtgAlert.webrtc_pending_audio_array[i]();
+                      }
+                      hmtgAlert.webrtc_pending_audio_array.length = 0;
+
+                      hmtgHelper.inside_angular++;
+                      hmtgAlert.click_link(index);
+                      hmtgHelper.inside_angular--;
+                    };
+
+                    hmtgAlert.add_link_item(item);
+                    hmtgAlert.ios_unmute_alert_item = item;
                   }
-
-                  return $translate.instant('ID_UNMUTE_WEBRTC_AUDIO').replace('#username#', hmtg.util.decodeUtf8(username))
-                };
-                item['text'] = item['update']();
-                item['type'] = 'info';
-                item['click'] = function(index) {
-                  hmtgSound.turnOnAudio();
-                  playAudioStream();
-
-                  hmtgHelper.inside_angular++;
-                  hmtgAlert.click_link(index);
-                  hmtgHelper.inside_angular--;
-                };
-
-                hmtgAlert.add_link_item(item);
-                ios_unmute_alert_item = item;
+                }
               }
 
               var stat_logged = false;
@@ -996,8 +1008,14 @@ angular.module('joinnet')
                 }
               });
               consumer.on('close', function() {
-                if(ios_unmute_alert_item) {
-                  hmtgAlert.remove_link_item(ios_unmute_alert_item);
+                // remove the pending audio stream from the array
+                var idx = hmtgAlert.webrtc_pending_audio_array.indexOf(playAudioStream);
+                if(idx != -1) {
+                  hmtgAlert.webrtc_pending_audio_array.splice(idx, 1);
+                  if(hmtgAlert.ios_unmute_alert_item && hmtgAlert.webrtc_pending_audio_array.length == 0) {
+                    hmtgAlert.remove_link_item(hmtgAlert.ios_unmute_alert_item);
+                    hmtgAlert.ios_unmute_alert_item = null;
+                  }
                 }
 
                 try {

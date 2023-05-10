@@ -900,6 +900,7 @@ angular.module('joinnet')
     $scope.$on(hmtgHelper.WM_NET_INIT_FINISH, function() {
       idle_mode = false;
 
+      hmtg.util.localStorage['hmtg_capture_video_decided'] = true;
       if(!joinnetVideo.recording && hmtg.jnkernel._jn_iWorkMode() == hmtg.config.NORMAL) {
         if(appSetting.meeting_capture_video) {
           if(!hmtg.util.localStorage['hmtg_capture_video_decided']) {

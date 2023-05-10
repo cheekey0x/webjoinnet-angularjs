@@ -12,7 +12,7 @@
 "ID_TOGGLE_CONCISE_LAYOUT": "Toggle Concise Layout",
 "ID_HIDE_BAR": "Hide",
 "ID_VIDEO_GALLERY": "Video Gallery",
-"ID_UNMUTE_WEBRTC_AUDIO": "#username#のWebRTC音声がミュートされています。ミュートを解除するにはここをクリックしてください。",
+"ID_UNMUTE_WEBRTC_AUDIO": "Click to activate WebRTC audio",
 "ID_CANNOT_START_WEBRTC_SESSION": "Cannot start a WebRTC session.",
 "ID_NO_OFFICE_PROMPT": "Click here to add office",
 "ID_SHOW_CONTROL_PANEL_TEXTCHAT": "コントロールパネルでテキストチャットを表示する",

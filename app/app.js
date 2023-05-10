@@ -290,10 +290,26 @@ angular.module('hmtgs', ['pascalprecht.translate', 'ui.bootstrap', 'oc.lazyLoad'
     document.addEventListener('keydown', keydown_listener, false);
     */
     
-    document.addEventListener('mousedown', function() { 
+    document.addEventListener('mousemove', function() { 
       hmtgSound.turnOnAudio();
     }, false);
     
+    document.addEventListener('mousedown', function() {
+      hmtgSound.turnOnAudio();
+    }, false);
+
+    document.addEventListener('pointerdown', function() {
+      hmtgSound.turnOnAudio();
+    }, false);
+
+    document.addEventListener('touchstart', function() {
+      hmtgSound.turnOnAudio();
+    }, false);
+
+    document.addEventListener('keydown', function() {
+      hmtgSound.turnOnAudio();
+    }, false);
+
     window.onbeforeunload = function(e) {
       // this trick can stop the noise when the user try to close the tab
       // the javascript is effectively stopped during the prompt

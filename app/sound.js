@@ -560,6 +560,18 @@ angular.module('hmtgs')
 
     this.turnOnAudio = function() {
       // iOS
+      // activate all the webrtc pending audio stream if there are any
+      var i;
+      for(i = 0; i < hmtgAlert.webrtc_pending_audio_array.length; i++) {
+        hmtgAlert.webrtc_pending_audio_array[i]();
+      }
+      hmtgAlert.webrtc_pending_audio_array.length = 0;
+      if(hmtgAlert.ios_unmute_alert_item) {
+        hmtgAlert.remove_link_item(hmtgAlert.ios_unmute_alert_item);
+        hmtgAlert.ios_unmute_alert_item = null;
+      }
+
+      // iOS
       // should call ac.resume() BY THE USER before requesting any audio device access
       if(this.ac) {
         if(this.ac.state == 'suspended') {
@@ -764,7 +776,7 @@ angular.module('hmtgs')
     if(m != '') {
       _hmtgSound.ShowErrorPrompt(function() { return $translate.instant('ID_BAD_BROWSER').replace('#feature#', m) }, 30);
     }
-    if(/*!_hmtgSound.audio_turned_on && */hmtgHelper.isiOS && this.ac && this.ac.state == 'suspended') {
+    // if(hmtgHelper.isiOS && this.ac && this.ac.state == 'suspended') {
       // var item = {};
       // item['timeout'] = 20;
       // item['update'] = function() { return $translate.instant('ID_TURN_ON_IOS_AUDIO_PROMPT') };
@@ -778,7 +790,7 @@ angular.module('hmtgs')
       // };
 
       // hmtgAlert.add_link_item(item);
-    }
+    // }
 
   }
 ])

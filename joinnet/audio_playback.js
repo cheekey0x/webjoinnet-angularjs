@@ -21,7 +21,7 @@ angular.module('joinnet')
     var stretch_size = 2048;
     var overlap_size = Math.floor(local_sample_rate * overlap_ms / 1000);
     var output_buffer = new Float32Array(hmtgSound.playback_buffer_size);
-    var buffer_control_size = Math.max((hmtgSound.playback_buffer_size << 1), local_sample_rate);  // ~1s
+    var buffer_control_size = 1 * Math.max((hmtgSound.playback_buffer_size << 1), local_sample_rate);  // ~1s
     this.audio_playback_array = {};
     this.prev_opus = {};
     // stress test
@@ -148,7 +148,13 @@ angular.module('joinnet')
         var decoded_audio_data = _audio_playback.audio_playback_array[ssrc].decoded_audio_data;
         var played_size = _audio_playback.audio_playback_array[ssrc].played_size;
         var total_size = _audio_playback.audio_playback_array[ssrc].total_size;
-        var low_threshold = buffer_control_size;
+        // if there is too much audio data build up, speed up the playback
+        if(total_size > buffer_control_size) {
+          var playspeed_speedup_factor = Math.min(1.5, total_size / buffer_control_size);
+          playspeed_speedup_factor = ((playspeed_speedup_factor * 10) >>> 0) / 10;
+          playspeed = Math.min(2.5, playspeed * playspeed_speedup_factor);
+        }
+        var low_threshold = buffer_control_size * 10;
         if(total_size > low_threshold) {
           //var old = total_size;
           while(total_size > low_threshold * 2) {
@@ -333,7 +339,7 @@ angular.module('joinnet')
                   _audio_playback.audio_playback_array[ssrc].playback_node.port.postMessage({ command: 'data', data: e.data.data });
                 }
               } else {
-                if(_audio_playback.audio_playback_array[ssrc].total_size < (buffer_control_size << 2)) {
+                if(_audio_playback.audio_playback_array[ssrc].total_size < (buffer_control_size << 4)) {
                   _audio_playback.audio_playback_array[ssrc].decoded_audio_data.push(e.data.data);
                   _audio_playback.audio_playback_array[ssrc].total_size += e.data.data.length;
                 }
@@ -384,7 +390,7 @@ angular.module('joinnet')
                   _audio_playback.audio_playback_array[ssrc].playback_node.port.postMessage({ command: 'data', data: e.data.data });
                 }
               } else {
-                if(_audio_playback.audio_playback_array[ssrc].total_size < (buffer_control_size << 2)) {
+                if(_audio_playback.audio_playback_array[ssrc].total_size < (buffer_control_size << 4)) {
                   _audio_playback.audio_playback_array[ssrc].decoded_audio_data.push(e.data.data);
                   _audio_playback.audio_playback_array[ssrc].total_size += e.data.data.length;
                 }

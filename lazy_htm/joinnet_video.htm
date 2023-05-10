@@ -68,7 +68,7 @@
             <span>
               <span class="vertical-middle">{{username_trimmed(name_hash[ssrc])}}</span>
               <span ng-show="show_snapshot(ssrc)">
-                <span><button type="button" class="btn btn-default"
+                <span><button type="button" class="btn btn-default" tooltip-placement="left"
                 tooltip="{{as.no_tip || as.show_text ? '' : ('ID_SNAPSHOT' | translate)}}" 
                   ng-click="snapshot(ssrc)"> <span class="glyphicon glyphicon-picture"></span>
                   <span ng-show="as.show_text" translate="ID_SNAPSHOT"></span></button></span>

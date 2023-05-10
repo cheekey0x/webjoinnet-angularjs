@@ -12,7 +12,7 @@
 "ID_TOGGLE_CONCISE_LAYOUT": "切换极简界面",
 "ID_HIDE_BAR": "隐藏",
 "ID_VIDEO_GALLERY": "视频排列组合",
-"ID_UNMUTE_WEBRTC_AUDIO": "#username#处于WebRTC静音状态，单击这里取消静音。",
+"ID_UNMUTE_WEBRTC_AUDIO": "单击这里激活WebRTC音频。",
 "ID_CANNOT_START_WEBRTC_SESSION": "无法发起WebRTC对话。",
 "ID_NO_OFFICE_PROMPT": "点击这里新增办公室",
 "ID_SHOW_CONTROL_PANEL_TEXTCHAT": "在控制面板显示对话框",

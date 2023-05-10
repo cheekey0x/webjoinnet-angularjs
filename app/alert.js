@@ -17,6 +17,9 @@ angular.module('hmtgs')
     this.chat_alert_array = [];
     //this.link_array = [{ 'text': 'test link', 'type': 'info', 'click': function () { alert('this is a test') } }];
     //this.text_array = [{ 'text': '<a>awerawe</a>', 'type': 'danger' }];
+    this.webrtc_pending_audio_array = [];
+    this.ios_unmute_alert_item = null;
+    this.ios_unmute_alert_timeout_id = null;
 
     this.reg = null;
     this.client_id = null;
